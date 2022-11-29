@@ -1,1 +1,5 @@
-build-SnakeClient-Desktop_Qt_6_3_1_MinGW_64_bit-Debug
+build-SnakeClient-Desktop_Qt_6_3_1_MinGW_64_bit-Debug/
+build-SnakeClient-Custom_kit-Debug/
+.DS_Store
+SnakeClient/CMakeLists.txt.user
+SnakeClient/CMakeLists.txt.user.ccaf7cf
