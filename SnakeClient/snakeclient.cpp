@@ -3,6 +3,9 @@
 
 #include <QDebug>
 #include <QMessageBox>
+#include <QInputDialog>
+#include <QDir>
+#include <QSize>
 
 SnakeClient::SnakeClient(QWidget *parent)
     : QMainWindow(parent)
@@ -10,12 +13,21 @@ SnakeClient::SnakeClient(QWidget *parent)
 {
     ui->setupUi(this);
     this->resize(_width * field_width, _height * field_height);
+    bool ok;
+    //QInputDialog d;
+    //d.setPos;
+    QString text = QInputDialog::getText(this, tr("QInputDialog::getText()"),
+                                         tr("User name:"), QLineEdit::Normal,
+                                         QDir::home().dirName(), &ok);
+    if (ok && !text.isEmpty())
+        ui->textLabel->setText(text);
 }
 
 SnakeClient::~SnakeClient()
 {
     delete ui;
 }
+
 
 
 //doesn't work(((((((((
