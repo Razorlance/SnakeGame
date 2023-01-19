@@ -44,7 +44,13 @@ else()
     endif()
 endif()
 
-target_link_libraries(SnakeClient PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+
+set(SFML_DIR "../SFML/build/lib")
+
+target_link_libraries(SnakeClient PRIVATE Qt${QT_VERSION_MAJOR}::Widgets sfml-graphics)
+
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_modules")
+find_package(SFML 2.5 REQUIRED graphics network audio window system)
 
 set_target_properties(SnakeClient PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
