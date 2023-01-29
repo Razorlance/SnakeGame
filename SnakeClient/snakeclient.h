@@ -3,12 +3,19 @@
 
 #include <QDesktopWidget>
 #include <QApplication>
+#include <QInputDialog>
+#include <QMessageBox>
 #include <QMainWindow>
 #include <QKeyEvent>
+#include <QPainter>
 #include <QWidget>
 #include <QScreen>
 #include <QVector>
 #include <QPoint>
+#include <QDebug>
+#include <QSize>
+#include <QTime>
+#include <QDir>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class SnakeClient; }
@@ -24,7 +31,9 @@ public:
     ~SnakeClient();
 
 protected:
-    void keyPressEvent(QKeyEvent *event) override;
+    void keyPressEvent(QKeyEvent* event) override;
+    void timerEvent(QTimerEvent* event) override;
+    void paintEvent(QPaintEvent* event) override;
 
 private:
     Ui::SnakeClient *ui;
@@ -41,7 +50,21 @@ private:
     bool _stillGame;
 
     QVector<QPoint> _dots;
+    QPoint _fruitPos;
 
     void initiateGame();
+    void drawSnake();
+    void locateFruit();
+    void move();
+    void checkBoundary();
+    void gameOver();
+    void eatFruit();
+
+    enum Directions
+    {
+        left, right, up, down
+    };
+
+    Directions _direction;
 };
 #endif // SNAKECLIENT_H
