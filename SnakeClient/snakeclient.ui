@@ -2,12 +2,15 @@
 <ui version="4.0">
  <class>SnakeClient</class>
  <widget class="QMainWindow" name="SnakeClient">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>625</width>
-    <height>625</height>
+    <width>630</width>
+    <height>630</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -61,7 +64,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>625</width>
+     <width>630</width>
      <height>21</height>
     </rect>
    </property>
