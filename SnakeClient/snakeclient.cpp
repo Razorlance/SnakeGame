@@ -6,6 +6,9 @@
  * 1. Think about the boundaries of the window. Disallow the change of size of the window maybe?
  * 2. Read about endPaint().
  * 3. Close endOfGame with MainWindow.
+ * 4. Make so that fruits do not spawn under the snake.
+ * 5. Make the win situation.
+ * 6. Improve label position.
 */
 SnakeClient::SnakeClient(QWidget *parent)
     : QMainWindow(parent)
@@ -25,9 +28,8 @@ SnakeClient::SnakeClient(QWidget *parent)
     if(startWindow->exec() == QDialog::Accepted)
         text = startWindow->textValue();
 
-    // For now it is empty. It is done in order to place label afterwards on the snake.
     if (text.isEmpty())
-        text = "";
+        text = "Player 1";
     ui->userName->setText(text);
 
     initiateGame();
@@ -118,15 +120,23 @@ void SnakeClient::move()
     {
     case left:
         _dots[0].rx()--;
+        ui->userName->setGeometry(_dots[0].x() * _width - 5, _dots[0].y() * _height - 15,
+                ui->userName->geometry().width(), ui->userName->geometry().height());
         break;
     case right:
         _dots[0].rx()++;
+        ui->userName->setGeometry(_dots[0].x() * _width - 5, _dots[0].y() * _height - 15,
+                ui->userName->geometry().width(), ui->userName->geometry().height());
         break;
     case up:
         _dots[0].ry()--;
+        ui->userName->setGeometry(_dots[0].x() * _width - 5, _dots[0].y() * _height - 15,
+                ui->userName->geometry().width(), ui->userName->geometry().height());
         break;
     case down:
         _dots[0].ry()++;
+        ui->userName->setGeometry(_dots[0].x() * _width - 5, _dots[0].y() * _height + 25,
+                ui->userName->geometry().width(), ui->userName->geometry().height());
         break;
     }
 }

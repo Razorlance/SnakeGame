@@ -21,9 +21,15 @@
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="QLabel" name="userName">
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>150</height>
+           </size>
+          </property>
           <property name="font">
            <font>
-            <pointsize>20</pointsize>
+            <pointsize>10</pointsize>
            </font>
           </property>
           <property name="text">
