@@ -12,7 +12,7 @@ SnakeClient::SnakeClient(QWidget *parent)
     , ui(new Ui::SnakeClient)
 {   
     ui->setupUi(this);
-    this->resize(_width * field_width, _height * field_height);
+    this->resize(_width * _field_width, _height * _field_height);
     this->setWindowTitle("Snake Game");
     bool ok;
     //QInputDialog d;
@@ -22,7 +22,7 @@ SnakeClient::SnakeClient(QWidget *parent)
     startWindow->setWindowTitle(tr("Start"));
     startWindow->setTextEchoMode(QLineEdit::Normal);
     startWindow->adjustSize();
-    startWindow->move(QApplication::desktop()->screen()->rect().center() - startWindow->rect().center());
+    startWindow->move(QGuiApplication::primaryScreen()->geometry().center() - startWindow->rect().center());
     QString text = "";
     if(startWindow->exec() == QDialog::Accepted)
         text = startWindow->textValue();
@@ -77,13 +77,14 @@ void SnakeClient::keyPressEvent(QKeyEvent *event)
 
 void SnakeClient::initiateGame()
 {
-    stillGame = true;
-    dots.resize(3);
+    _stillGame = true;
+    _dots.resize(3);
 
-    for (size_t i = 0; i < dots.size(); i++)
+    for (size_t i = 0; i < _dots.size(); i++)
     {
-        dots[i].rx() = dots.size() - i;
-        dots[i].ry() = 0;
+        _dots[i].rx() = _dots.size() - i;
+        _dots[i].ry() = 0;
     }
 
+    _timer = startTimer(_delay);
 }
