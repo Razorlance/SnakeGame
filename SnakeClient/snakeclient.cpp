@@ -9,7 +9,10 @@
  * 4. Make so that fruits do not spawn under the snake.
  * 5. Make the win situation.
  * 6. Improve label position.
+ * 7. Update score on the label.
+ * 8. Improve move. Do not allow it to go up-down or left-right when it's going down-up or right-left.
 */
+
 SnakeClient::SnakeClient(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::SnakeClient)
@@ -29,7 +32,7 @@ SnakeClient::SnakeClient(QWidget *parent)
         text = startWindow->textValue();
 
     if (text.isEmpty())
-        text = "Player 1";
+        text = "Score: " + QString::number(_score);
     ui->userName->setText(text);
 
     initiateGame();
@@ -178,6 +181,7 @@ void SnakeClient::eatFruit()
     if (_fruitPos == _dots[0])
     {
         _dots.push_back(_fruitPos);
+        _score++;
         locateFruit();
     }
 }
@@ -193,7 +197,7 @@ void SnakeClient::initiateGame()
 {
     _direction = right;
     _stillGame = true;
-    _dots.resize(1);
+    _dots.resize(2);
 
     for (size_t i = 0; i < _dots.size(); i++)
     {

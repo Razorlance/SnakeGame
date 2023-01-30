@@ -46,6 +46,7 @@ private:
     static const int _delay = 150;
 
     int _timer;
+    int _score = 0;
 
     bool _stillGame;
 
