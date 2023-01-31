@@ -1,47 +1,59 @@
 #ifndef SNAKECLIENT_H
 #define SNAKECLIENT_H
 
-#include <QDesktopWidget>
 #include <QApplication>
-#include <QInputDialog>
-#include <QMessageBox>
-#include <QMainWindow>
-#include <QKeyEvent>
-#include <QPainter>
-#include <QWidget>
-#include <QScreen>
-#include <QVector>
-#include <QPoint>
 #include <QDebug>
-#include <QSize>
-#include <QTime>
 #include <QDir>
+#include <QInputDialog>
+#include <QKeyEvent>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QPainter>
+#include <QPoint>
+#include <QScreen>
+#include <QSize>
+#include <QTcpSocket>
+#include <QTime>
+#include <QVector>
+#include <QWidget>
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class SnakeClient; }
+#include "ui_snakeclient.h"
+
+// QT_BEGIN_NAMESPACE
+// namespace Ui
+//{
+// class SnakeClient;
+//}
 using namespace std;
-QT_END_NAMESPACE
+// QT_END_NAMESPACE
 
 class SnakeClient : public QMainWindow
 {
     Q_OBJECT
 
-public:
-    SnakeClient(QWidget *parent = nullptr);
+   public:
+    SnakeClient(QWidget* parent = nullptr);
     ~SnakeClient();
 
-protected:
+   public slots:
+    void slotReadyRead();
+    QVector<QPoint> getMap();
+
+   protected:
     void keyPressEvent(QKeyEvent* event) override;
     void timerEvent(QTimerEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 
-private:
-    Ui::SnakeClient *ui;
+   private:
+    Ui::SnakeClient* ui;
+
+    QTcpSocket* socket;
+    QByteArray Data;
 
     // The size of a field
-    static const int _width = 25; // The size of points
+    static const int _width = 25;  // The size of points
     static const int _height = 24;
-    static const int _field_width = 25; // The number of points
+    static const int _field_width = 25;  // The number of points
     static const int _field_height = 25;
     static const int _delay = 150;
 
@@ -61,11 +73,16 @@ private:
     void gameOver();
     void eatFruit();
 
+    void SendToServer(QVector<QPoint> _dots);
+
     enum Directions
     {
-        left, right, up, down
+        left,
+        right,
+        up,
+        down
     };
 
     Directions _direction;
 };
-#endif // SNAKECLIENT_H
+#endif  // SNAKECLIENT_H
