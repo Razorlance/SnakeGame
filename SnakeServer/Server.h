@@ -5,8 +5,11 @@
 #include <QTcpSocket>
 #include <QVector>
 
+#include "snake.h"
+
 class Server : public QTcpServer
 {
+    Q_OBJECT
    public:
     Server();
     QTcpSocket *socket;
@@ -17,7 +20,7 @@ class Server : public QTcpServer
     void SendToClient(QString str);
 
    public slots:
-    void incomConnection(qintptr SocketDescriptor);
+    void incomingConnection(qintptr SocketDescriptor);
     void slotReadyRead();
 };
 
