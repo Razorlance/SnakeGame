@@ -15,9 +15,15 @@ class Server : public QTcpServer
     QTcpSocket *socket;
 
    private:
-    QVector<QTcpSocket *> Sockets;
+    QMap<qintptr, QTcpSocket *> Sockets;
+    QMap<qintptr, QVector<QPoint>> _Dots;
+    QSet<qintptr> _count;
+
+    QVector<QPoint> convertToDots(QStringList &str);
+    QString convertToString(QVector<QPoint> &dots);
     QByteArray Data;
     void SendToClient(QString str);
+    void SendEnemyCoordinates();
 
    public slots:
     void incomingConnection(qintptr SocketDescriptor);
