@@ -55,16 +55,20 @@ class SnakeClient : public QMainWindow
     static const int _height = 24;
     static const int _field_width = 25;  // The number of points
     static const int _field_height = 25;
-    static const int _delay = 150;
+    static const int _delay = 1500;
 
     int _timer;
     int _score = 0;
 
+    QString _input;
     bool _stillGame;
-
-    QVector<QPoint> _dots;
+    bool _await = false;
+    QVector<QPoint> _homeDots;
+    QVector<QPoint> _enemyDots;
     QPoint _fruitPos;
 
+    QString convertToString(QVector<QPoint>&);
+    QVector<QPoint> convertToDots(QStringList&);
     void initiateGame();
     void drawSnake();
     void locateFruit();
