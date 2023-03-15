@@ -76,7 +76,7 @@ void SnakeClient::slotReadyRead()
     //    in.setVersion(QDataStream::Qt_6_3);
     if (in.status() == QDataStream::Ok)
     {
-        qDebug() << "Reading1...";
+        qDebug() << "Reading...";
         //        QVector<QPoint> _homeDots;
         in >> _input;
 
@@ -87,6 +87,15 @@ void SnakeClient::slotReadyRead()
         qDebug() << "Error";
     qDebug() << _input;
     QStringList L = _input.split(' ');
+    if (L[0] == 'e')
+    {
+        gameOver();
+    }
+    if (L[0] == 'f')
+    {
+        _fruitPos.rx() = L[1].toInt();
+        _fruitPos.ry() = L[2].toInt();
+    }
     if (L[0] == 'g')
     {
         _enemyDots = convertToDots(L);
@@ -100,6 +109,7 @@ void SnakeClient::slotReadyRead()
         qDebug() << "Await is true";
         _await = L[1].toInt();
     }
+    step();
 }
 
 QVector<QPoint> SnakeClient::getMap() { return _homeDots; }
@@ -121,20 +131,20 @@ void SnakeClient::keyPressEvent(QKeyEvent *event)
         _direction = down;
 }
 
-void SnakeClient::timerEvent(QTimerEvent *event)
-{
-    //    Q_UNUSED(event);
-    qDebug() << "Tick" << _stillGame << _await;
-    if (_stillGame & _await)
-    {
-        eatFruit();
-        move();
-        checkBoundary();
-        _await = false;
-        this->repaint();
-    }
-    SendToServer(_homeDots);
-}
+// void SnakeClient::timerEvent(QTimerEvent *event)
+//{
+//    //    Q_UNUSED(event);
+//    qDebug() << "Tick" << _stillGame << _await;
+//    if (_stillGame & _await)
+//    {
+//        //        eatFruit();
+//        move();
+//        //        checkBoundary();
+//        _await = false;
+//        this->repaint();
+//    }
+//    SendToServer(_homeDots);
+//}
 
 void SnakeClient::drawSnake()
 {
@@ -204,11 +214,21 @@ void SnakeClient::move()
                                       ui->userName->geometry().width(),
                                       ui->userName->geometry().height());
 
+            _enemyDots[0].rx()--;
+            ui->userName->setGeometry(_enemyDots[0].x() * _width - 5,
+                                      _enemyDots[0].y() * _height - 15,
+                                      ui->userName->geometry().width(),
+                                      ui->userName->geometry().height());
             break;
         case right:
             _homeDots[0].rx()++;
             ui->userName->setGeometry(_homeDots[0].x() * _width - 5,
                                       _homeDots[0].y() * _height - 15,
+                                      ui->userName->geometry().width(),
+                                      ui->userName->geometry().height());
+            _enemyDots[0].rx()++;
+            ui->userName->setGeometry(_enemyDots[0].x() * _width - 5,
+                                      _enemyDots[0].y() * _height - 15,
                                       ui->userName->geometry().width(),
                                       ui->userName->geometry().height());
             break;
@@ -218,6 +238,11 @@ void SnakeClient::move()
                                       _homeDots[0].y() * _height - 15,
                                       ui->userName->geometry().width(),
                                       ui->userName->geometry().height());
+            _enemyDots[0].ry()--;
+            ui->userName->setGeometry(_enemyDots[0].x() * _width - 5,
+                                      _enemyDots[0].y() * _height - 15,
+                                      ui->userName->geometry().width(),
+                                      ui->userName->geometry().height());
             break;
         case down:
             _homeDots[0].ry()++;
@@ -225,40 +250,65 @@ void SnakeClient::move()
                                       _homeDots[0].y() * _height + 25,
                                       ui->userName->geometry().width(),
                                       ui->userName->geometry().height());
+            _enemyDots[0].ry()++;
+            ui->userName->setGeometry(_enemyDots[0].x() * _width - 5,
+                                      _enemyDots[0].y() * _height + 25,
+                                      ui->userName->geometry().width(),
+                                      ui->userName->geometry().height());
+
             break;
     }
 }
 
-void SnakeClient::checkBoundary()
+void SnakeClient::step()
 {
-    // We can run into ourself only if there are more then 3 dots
-    if (_homeDots.size() > 4)
+    //    Q_UNUSED(event);
+    SendToServer(_homeDots);
+    qDebug() << "Tick" << convertToString(_enemyDots);
+    if (_stillGame & _await)
     {
-        for (size_t i = 1; i < _homeDots.size(); i++)
-        {
-            if (_homeDots[0] == _homeDots[i])
-                _stillGame = false;
-        }
+        //        eatFruit();
+        move();
+        //        checkBoundary();
+        _await = false;
+        this->repaint();
     }
 
-    if (_homeDots[0].x() < 0)
-        _stillGame = false;
-    if (_homeDots[0].x() == _field_width)
-        _stillGame = false;
-    if (_homeDots[0].y() < 0)
-        _stillGame = false;
-    if (_homeDots[0].y() == _field_height)
-        _stillGame = false;
-
-    if (!_stillGame)
-        killTimer(_timer);
+    //    drawSnake();
 }
+
+// void SnakeClient::checkBoundary()
+//{
+//    // We can run into ourself only if there are more then 3 dots
+//    if (_homeDots.size() > 4)
+//    {
+//        for (size_t i = 1; i < _homeDots.size(); i++)
+//        {
+//            if (_homeDots[0] == _homeDots[i])
+//                _stillGame = false;
+//        }
+//    }
+
+//    if (_homeDots[0].x() < 0)
+//        _stillGame = false;
+//    if (_homeDots[0].x() == _field_width)
+//        _stillGame = false;
+//    if (_homeDots[0].y() < 0)
+//        _stillGame = false;
+//    if (_homeDots[0].y() == _field_height)
+//        _stillGame = false;
+
+//    if (!_stillGame)
+//        killTimer(_timer);
+//}
 
 void SnakeClient::gameOver()
 {
     QMessageBox endOfGame;
     endOfGame.setText("Game Over");
+
     endOfGame.exec();
+
     this->close();
 }
 
@@ -276,7 +326,7 @@ void SnakeClient::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     //    _await = false;
-    SendToServer(_homeDots);
+    //    SendToServer(_homeDots);
     drawSnake();
 }
 
@@ -309,8 +359,4 @@ void SnakeClient::initiateGame()
         _homeDots[i].ry() = 0;
     }
     SendToServer(_homeDots);
-
-    locateFruit();
-
-    _timer = startTimer(_delay);
 }

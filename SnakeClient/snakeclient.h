@@ -41,7 +41,7 @@ class SnakeClient : public QMainWindow
 
    protected:
     void keyPressEvent(QKeyEvent* event) override;
-    void timerEvent(QTimerEvent* event) override;
+    //    void timerEvent(QTimerEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 
    private:
@@ -55,7 +55,7 @@ class SnakeClient : public QMainWindow
     static const int _height = 24;
     static const int _field_width = 25;  // The number of points
     static const int _field_height = 25;
-    static const int _delay = 1500;
+    static const int _delay = 500;
 
     int _timer;
     int _score = 0;
@@ -65,7 +65,7 @@ class SnakeClient : public QMainWindow
     bool _await = false;
     QVector<QPoint> _homeDots;
     QVector<QPoint> _enemyDots;
-    QPoint _fruitPos;
+    QPoint _fruitPos = QPoint(0, 0);
 
     QString convertToString(QVector<QPoint>&);
     QVector<QPoint> convertToDots(QStringList&);
@@ -73,7 +73,8 @@ class SnakeClient : public QMainWindow
     void drawSnake();
     void locateFruit();
     void move();
-    void checkBoundary();
+    void step();
+    //    void checkBoundary();
     void gameOver();
     void eatFruit();
 
