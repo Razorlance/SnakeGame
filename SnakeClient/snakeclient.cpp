@@ -4,22 +4,19 @@
 /*
  * TODO:
  * 1. Think about the boundaries of the window. Disallow the change of size of the window maybe?
- * 2. Read about endPaint().
- * 3. Close endOfGame with MainWindow.
- * 4. Make so that fruits do not spawn under the snake.
  * 5. Make the win situation.
  * 6. Improve label position.
- * 7. Update score on the label.
- * 8. Improve move. Do not allow it to go up-down or left-right when it's going down-up or right-left.
 */
 
 SnakeClient::SnakeClient(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::SnakeClient)
-{   
+{
     ui->setupUi(this);
     this->resize(_width * _field_width, _height * _field_height);
     this->setWindowTitle("Snake Game");
+
+    _moveBlock = false;
 
     QInputDialog* startWindow = new QInputDialog();
     startWindow->setLabelText(tr("Enter your name:"));
@@ -32,7 +29,7 @@ SnakeClient::SnakeClient(QWidget *parent)
         text = startWindow->textValue();
 
     if (text.isEmpty())
-        text = "Score: " + QString::number(_score);
+        text = "Player";
     ui->userName->setText(text);
 
     initiateGame();
@@ -47,6 +44,9 @@ void SnakeClient::keyPressEvent(QKeyEvent *event)
 {
     int key = event->key();
 
+    if (_moveBlock)
+        return;
+
     if ((key == Qt::Key_Left || key == Qt::Key_A) && _direction != right)
         _direction = left;
 
@@ -58,6 +58,8 @@ void SnakeClient::keyPressEvent(QKeyEvent *event)
 
     if ((key == Qt::Key_Down || key == Qt::Key_S) && _direction != up)
         _direction = down;
+
+    _moveBlock = true;
 }
 
 void SnakeClient::timerEvent(QTimerEvent *event)
@@ -99,8 +101,11 @@ void SnakeClient::drawSnake()
     }
     else
     {
+        this->close();
         gameOver();
     }
+
+    _moveBlock = false;
 }
 
 void SnakeClient::locateFruit()
@@ -110,6 +115,12 @@ void SnakeClient::locateFruit()
 
     _fruitPos.rx() = qrand() % _width;
     _fruitPos.ry() = qrand() % _height;
+
+    for (size_t i = 0; i < _dots.size(); i++)
+    {
+        if (_dots[i].x() == _fruitPos.x() && _dots[i].y() == _fruitPos.y())
+            locateFruit();
+    }
 }
 
 void SnakeClient::move()
@@ -173,7 +184,6 @@ void SnakeClient::gameOver()
     QMessageBox endOfGame;
     endOfGame.setText("Game Over");
     endOfGame.exec();
-    this->close();
 }
 
 void SnakeClient::eatFruit()

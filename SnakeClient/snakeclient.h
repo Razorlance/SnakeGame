@@ -43,12 +43,13 @@ private:
     static const int _height = 24;
     static const int _field_width = 25; // The number of points
     static const int _field_height = 25;
-    static const int _delay = 150;
+    static const int _delay = 100;
 
     int _timer;
     int _score = 0;
 
     bool _stillGame;
+    bool _moveBlock;
 
     QVector<QPoint> _dots;
     QPoint _fruitPos;
