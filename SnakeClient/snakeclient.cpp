@@ -33,17 +33,18 @@ SnakeClient::SnakeClient(QWidget *parent)
     this->resize(_width * _field_width, _height * _field_height);
     this->setWindowTitle("Snake Game");
 
-    QInputDialog *startWindow = new QInputDialog();
+    /*QInputDialog *startWindow = new QInputDialog();
     startWindow->setLabelText(tr("Enter your name:"));
     startWindow->setWindowTitle(tr("Start"));
     startWindow->setTextEchoMode(QLineEdit::Normal);
     startWindow->adjustSize();
     startWindow->move(QGuiApplication::primaryScreen()->geometry().center() -
                       startWindow->rect().center());
-    QString text = "";
+    QString text = "";*/
     _homeDots.resize(2);
     _enemyDots.resize(2);
-    if (startWindow->exec() == QDialog::Accepted)
+
+    /*if (startWindow->exec() == QDialog::Accepted)
     {
         text = startWindow->textValue();
         socket->connectToHost("127.0.0.1", 33221);
@@ -51,18 +52,30 @@ SnakeClient::SnakeClient(QWidget *parent)
     }
     if (text.isEmpty())
         text = "Score: " + QString::number(_score);
-    ui->userName->setText(text);
 
-    initiateGame();
+
+    initiateGame();*/
 }
 
 SnakeClient::~SnakeClient() { delete ui; }
+
+void SnakeClient::ConnectToServer(QString ip, int port, QString name)
+{
+    _ip = ip;
+    _port = port;
+    _snakeName = name;
+    ui->userName->setText(_snakeName);
+    socket->connectToHost(_ip, _port);
+    SendToServer(_homeDots);
+    initiateGame();
+}
 
 void SnakeClient::SendToServer(QVector<QPoint> _homeDots)
 {
     Data.clear();
     QDataStream out(&Data, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_6_3);
+    out.setVersion(QDataStream::Qt_6_2);
+    // out.setVersion(QDataStream::Qt_6_3);
     QString data = "i " + convertToString(_homeDots);
     qDebug() << data;
     out << data;

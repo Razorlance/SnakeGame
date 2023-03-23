@@ -1,11 +1,13 @@
-#include "snakeclient.h"
-
 #include <QApplication>
+
+#include "enter.h"
+#include "snakeclient.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    SnakeClient w;
-    w.show();
+    //#SnakeClient w;
+    enter h;
+    h.show();
     return a.exec();
 }

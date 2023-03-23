@@ -34,6 +34,10 @@ class SnakeClient : public QMainWindow
    public:
     SnakeClient(QWidget* parent = nullptr);
     ~SnakeClient();
+    void ConnectToServer(
+        QString ip, int port,
+        QString SnakeName);  // w.ConnectToServer(ui->ip->displayText(),
+                             // ui->port->text().toInt());
 
    public slots:
     void slotReadyRead();
@@ -49,6 +53,8 @@ class SnakeClient : public QMainWindow
 
     QTcpSocket* socket;
     QByteArray Data;
+    QString _ip;
+    int _port;
 
     // The size of a field
     static const int _width = 25;  // The size of points
@@ -61,6 +67,7 @@ class SnakeClient : public QMainWindow
     int _score = 0;
 
     QString _input;
+    QString _snakeName;
     bool _stillGame;
     bool _await = false;
     QVector<QPoint> _homeDots;

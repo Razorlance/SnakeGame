@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(SnakeClient VERSION 0.1 LANGUAGES CXX)
+project(SnakeClient1 VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -21,6 +21,9 @@ set(PROJECT_SOURCES
         snakeclient.cpp
         snakeclient.h
         snakeclient.ui
+        enter.cpp
+        enter.h
+        enter.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
