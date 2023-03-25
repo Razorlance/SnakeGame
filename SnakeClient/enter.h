@@ -8,31 +8,28 @@
 
 namespace Ui
 {
-class enter;
+    class enter;
 }
 
-class enter : public QWidget
+class Enter : public QWidget
 {
     Q_OBJECT
 
    public:
-    explicit enter(QWidget *parent = nullptr);
-    ~enter();
+    explicit Enter(QWidget* parent = nullptr);
+    ~Enter();
 
    private slots:
-
     void on_PlayerButton_clicked();
-
     void on_CancelButton_clicked();
-
     void on_ViewerButton_clicked();
 
    private:
-    Ui::enter *ui;
-    SnakeClient w;
-    bool ValidIP(QString ip);
-    bool ValidPort(int port);
-    bool isNumber(QString str);
+    Ui::enter* _ui;
+    SnakeClient _w;
+    bool _validIP(const QString& ip);
+    bool _validPort(int port);
+    bool _isNumber(const QString& str);
 };
 
 #endif  // ENTER_H
