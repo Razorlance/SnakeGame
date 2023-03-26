@@ -36,7 +36,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="playerName"/>
+      <widget class="QLineEdit" name="playerName">
+       <property name="text">
+        <string>Player</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QLabel" name="label_2">
@@ -46,7 +50,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="ip"/>
+      <widget class="QLineEdit" name="ip">
+       <property name="text">
+        <string>127.0.0.1</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QLabel" name="label_3">
@@ -56,7 +64,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="port"/>
+      <widget class="QLineEdit" name="port">
+       <property name="text">
+        <string>33221</string>
+       </property>
+      </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">

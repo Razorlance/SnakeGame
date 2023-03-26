@@ -1,4 +1,5 @@
 #include "snakeclient.h"
+
 #include "./ui_snakeclient.h"
 
 /*
@@ -17,14 +18,13 @@
  */
 
 SnakeClient::SnakeClient(QWidget* parent)
-    : QMainWindow(parent)
-    , _ui(new Ui::SnakeClient)
+    : QMainWindow(parent), _ui(new Ui::SnakeClient)
 {
     _ui->setupUi(this);
     _socket = new QTcpSocket(this);
     connect(_socket, &QTcpSocket::readyRead, this, &SnakeClient::slotReadyRead);
-    connect(_socket, &QTcpSocket::disconnected,
-            _socket, &QTcpSocket::deleteLater);
+    connect(_socket, &QTcpSocket::disconnected, _socket,
+            &QTcpSocket::deleteLater);
     this->resize(_WIDTH * _FIELD_WIDTH, _HEIGHT * _FIELD_HEIGHT);
     this->setWindowTitle("Snake Game");
     _homeDots.resize(2);
@@ -33,7 +33,8 @@ SnakeClient::SnakeClient(QWidget* parent)
 
 SnakeClient::~SnakeClient() { delete _ui; }
 
-void SnakeClient::connectToServer(const QString& ip, int port, const QString& name)
+void SnakeClient::connectToServer(const QString& ip, int port,
+                                  const QString& name)
 {
     _ui->userName->setText(name);
     _socket->connectToHost(ip, port);
@@ -85,7 +86,7 @@ void SnakeClient::slotReadyRead()
 
 QVector<QPoint> SnakeClient::getMap() { return _homeDots; }
 
-void SnakeClient::keyPressEvent(QKeyEvent *event)
+void SnakeClient::keyPressEvent(QKeyEvent* event)
 {
     int key = event->key();
     if ((key == Qt::Key_Left || key == Qt::Key_A) && _direction != right)
@@ -105,36 +106,30 @@ void SnakeClient::_drawSnake()
     if (_stillGame)
     {
         painter.setBrush(Qt::red);
-        painter.drawEllipse(_fruitPos.x() * _WIDTH,
-                            _fruitPos.y() * _HEIGHT,
-                            _WIDTH,
-                            _HEIGHT);
+        painter.drawEllipse(_fruitPos.x() * _WIDTH, _fruitPos.y() * _HEIGHT,
+                            _WIDTH, _HEIGHT);
         for (size_t i = 0; i < _homeDots.size(); i++)
         {
             if (!i)
             {
                 painter.setBrush(Qt::white);
                 painter.drawEllipse(_homeDots[i].x() * _WIDTH,
-                                    _homeDots[i].y() * _HEIGHT,
-                                    _WIDTH,
+                                    _homeDots[i].y() * _HEIGHT, _WIDTH,
                                     _HEIGHT);
                 painter.setBrush(Qt::black);
                 painter.drawEllipse(_enemyDots[i].x() * _WIDTH,
-                                    _enemyDots[i].y() * _HEIGHT,
-                                    _WIDTH,
+                                    _enemyDots[i].y() * _HEIGHT, _WIDTH,
                                     _HEIGHT);
             }
             else
             {
                 painter.setBrush(Qt::darkBlue);
                 painter.drawEllipse(_homeDots[i].x() * _WIDTH,
-                                    _homeDots[i].y() * _HEIGHT,
-                                    _WIDTH,
+                                    _homeDots[i].y() * _HEIGHT, _WIDTH,
                                     _HEIGHT);
                 painter.setBrush(Qt::green);
                 painter.drawEllipse(_enemyDots[i].x() * _WIDTH,
-                                    _enemyDots[i].y() * _HEIGHT,
-                                    _WIDTH,
+                                    _enemyDots[i].y() * _HEIGHT, _WIDTH,
                                     _HEIGHT);
             }
         }
@@ -228,7 +223,6 @@ void SnakeClient::_step()
         this->repaint();
     }
 }
-
 
 void SnakeClient::_gameOver()
 {
