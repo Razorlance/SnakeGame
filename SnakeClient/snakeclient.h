@@ -19,9 +19,7 @@
 
 #include "ui_snakeclient.h"
 
-
 using namespace std;
-
 
 class SnakeClient : public QMainWindow
 {
@@ -47,6 +45,9 @@ class SnakeClient : public QMainWindow
     QString _ip;
     int _port;
 
+    QVector<QPoint> _homeDots;
+    QVector<QPoint> _enemyDots;
+
     // The size of a field
     static const int _WIDTH = 25;  // The size of points
     static const int _HEIGHT = 24;
@@ -61,8 +62,7 @@ class SnakeClient : public QMainWindow
     QString _snakeName;
     bool _stillGame;
     bool _await = false;
-    QVector<QPoint> _homeDots;
-    QVector<QPoint> _enemyDots;
+
     QPoint _fruitPos = QPoint(0, 0);
 
     QString _convertToString(const QVector<QPoint>&);

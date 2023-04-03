@@ -47,7 +47,7 @@ void SnakeClient::_sendToServer(const QVector<QPoint>& _homeDots)
     _data.clear();
     QDataStream out(&_data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_6_2);
-    QString data = "i " + _convertToString(_homeDots);
+    QString data = "d " + QString::number(_direction);
     qDebug() << data;
     out << data;
     _socket->write(_data);
@@ -74,6 +74,8 @@ void SnakeClient::slotReadyRead()
     }
     if (l[0] == 'g')
         _enemyDots = _convertToDots(l);
+    if (l[0] == 'h')
+        _homeDots = _convertToDots(l);
     if (l[0] == 'r')
         _stillGame = l[1].toInt();
     if (l[0] == 'c')
@@ -151,11 +153,11 @@ void SnakeClient::_locateFruit()
 
 void SnakeClient::_move()
 {
-    for (size_t i = _homeDots.size() - 1; i > 0; i--)
-    {
-        _homeDots[i] = _homeDots[i - 1];
-        _enemyDots[i] = _enemyDots[i - 1];
-    }
+    //    for (size_t i = _homeDots.size() - 1; i > 0; i--)
+    //    {
+    //        _homeDots[i] = _homeDots[i - 1];
+    //        _enemyDots[i] = _enemyDots[i - 1];
+    //    }
 
     switch (_direction)
     {
@@ -218,7 +220,7 @@ void SnakeClient::_step()
     qDebug() << "Tick" << _convertToString(_enemyDots);
     if (_stillGame & _await)
     {
-        _move();
+        //        _move();
         _await = false;
         this->repaint();
     }
@@ -267,10 +269,10 @@ QVector<QPoint> SnakeClient::_convertToDots(const QStringList& str)
 void SnakeClient::_initiateGame()
 {
     _direction = right;
-    for (size_t i = 0; i < _homeDots.size(); i++)
-    {
-        _homeDots[i].rx() = _homeDots.size() - i - 1;
-        _homeDots[i].ry() = 0;
-    }
+    //    for (size_t i = 0; i < _homeDots.size(); i++)
+    //    {
+    //        _homeDots[i].rx() = _homeDots.size() - i - 1;
+    //        _homeDots[i].ry() = 0;
+    //    }
     _sendToServer(_homeDots);
 }
