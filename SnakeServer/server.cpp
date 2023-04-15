@@ -78,6 +78,7 @@ void Server::SendToClient(QString str)
         out.device()->seek(0);
         out << quint16(Data.size() - sizeof(quint16));
         it.value()->write(Data);
+        it.value()->waitForBytesWritten();
     }
 }
 
@@ -103,6 +104,7 @@ void Server::SendEnemyCoordinates()
             out.device()->seek(0);
             out << quint16(Data.size() - sizeof(quint16));
             it.value()->write(Data);
+            it.value()->waitForBytesWritten();
         }
     }
 }
@@ -127,6 +129,7 @@ void Server::SendEnemyDirections()
             out.device()->seek(0);
             out << quint16(Data.size() - sizeof(quint16));
             it.value()->write(Data);
+            it.value()->waitForBytesWritten();
         }
     }
 }
@@ -152,6 +155,7 @@ void Server::SendHomeCoordinates()
                 out.device()->seek(0);
                 out << quint16(Data.size() - sizeof(quint16));
                 it.value()->write(Data);
+                it.value()->waitForBytesWritten();
             }
         }
     }
