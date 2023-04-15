@@ -42,6 +42,7 @@ class SnakeClient : public QMainWindow
     Ui::SnakeClient* _ui;
     QTcpSocket* _socket;
     QByteArray _data;
+    quint16 nextBlockSize;
     QString _ip;
     int _port;
 
@@ -75,16 +76,17 @@ class SnakeClient : public QMainWindow
     void _gameOver();
     void _eatFruit();
 
-    void _sendToServer(const QVector<QPoint>& _dots);
+    void _sendToServer();
 
     enum Directions
     {
-        left,
-        right,
-        up,
-        down
+        left = 0,
+        right = 1,
+        up = 2,
+        down = 3
     };
 
     Directions _direction;
+    Directions _enemyDirection;
 };
 #endif  // SNAKECLIENT_H

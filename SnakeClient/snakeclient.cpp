@@ -27,6 +27,7 @@ SnakeClient::SnakeClient(QWidget* parent)
             &QTcpSocket::deleteLater);
     this->resize(_WIDTH * _FIELD_WIDTH, _HEIGHT * _FIELD_HEIGHT);
     this->setWindowTitle("Snake Game");
+    nextBlockSize = 0;
     _homeDots.resize(2);
     _enemyDots.resize(2);
 }
@@ -38,18 +39,20 @@ void SnakeClient::connectToServer(const QString& ip, int port,
 {
     _ui->userName->setText(name);
     _socket->connectToHost(ip, port);
-    _sendToServer(_homeDots);
+    _sendToServer();
     _initiateGame();
 }
 
-void SnakeClient::_sendToServer(const QVector<QPoint>& _homeDots)
+void SnakeClient::_sendToServer()
 {
     _data.clear();
     QDataStream out(&_data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_6_2);
     QString data = "d " + QString::number(_direction);
     qDebug() << data;
-    out << data;
+    out << quint16(0) << data;
+    out.device()->seek(0);
+    out << quint16(_data.size() - sizeof(quint16));
     _socket->write(_data);
 }
 
@@ -59,31 +62,53 @@ void SnakeClient::slotReadyRead()
     if (in.status() == QDataStream::Ok)
     {
         qDebug() << "Reading...";
-        in >> _input;
+        //        in >> _input;
+        while (true)
+        {
+            if (nextBlockSize == 0)
+            {
+                if (_socket->bytesAvailable() < 2)
+                    break;
+                in >> nextBlockSize;
+            }
+            if (_socket->bytesAvailable() < nextBlockSize)
+                break;
+            in >> _input;
+            nextBlockSize = 0;
+            qDebug() << _input;
+            QStringList l = _input.split(' ');
+            if (l[0] == 'e')
+                _gameOver();
+            if (l[0] == 'd')
+            {
+                _enemyDirection = Directions(l[1].toInt());
+            }
+            if (l[0] == 'f')
+            {
+                _fruitPos.rx() = l[1].toInt();
+                _fruitPos.ry() = l[2].toInt();
+            }
+            if (l[0] == 'g')
+            {
+                _enemyDots = _convertToDots(l);
+            }
+            if (l[0] == 'h')
+            {
+                _homeDots = _convertToDots(l);
+            }
+            if (l[0] == 'r')
+                _stillGame = l[1].toInt();
+            if (l[0] == 'c')
+            {
+                qDebug() << "Await is true";
+                _await = l[1].toInt();
+            }
+            _step();
+            break;
+        }
     }
     else
         qDebug() << "Error";
-    qDebug() << _input;
-    QStringList l = _input.split(' ');
-    if (l[0] == 'e')
-        _gameOver();
-    if (l[0] == 'f')
-    {
-        _fruitPos.rx() = l[1].toInt();
-        _fruitPos.ry() = l[2].toInt();
-    }
-    if (l[0] == 'g')
-        _enemyDots = _convertToDots(l);
-    if (l[0] == 'h')
-        _homeDots = _convertToDots(l);
-    if (l[0] == 'r')
-        _stillGame = l[1].toInt();
-    if (l[0] == 'c')
-    {
-        qDebug() << "Await is true";
-        _await = l[1].toInt();
-    }
-    _step();
 }
 
 QVector<QPoint> SnakeClient::getMap() { return _homeDots; }
@@ -99,6 +124,7 @@ void SnakeClient::keyPressEvent(QKeyEvent* event)
         _direction = up;
     if ((key == Qt::Key_Down || key == Qt::Key_S) && _direction != up)
         _direction = down;
+    _sendToServer();
 }
 
 void SnakeClient::_drawSnake()
@@ -153,24 +179,12 @@ void SnakeClient::_locateFruit()
 
 void SnakeClient::_move()
 {
-    //    for (size_t i = _homeDots.size() - 1; i > 0; i--)
-    //    {
-    //        _homeDots[i] = _homeDots[i - 1];
-    //        _enemyDots[i] = _enemyDots[i - 1];
-    //    }
-
     switch (_direction)
     {
         case left:
             _homeDots[0].rx()--;
             _ui->userName->setGeometry(_homeDots[0].x() * _WIDTH - 5,
                                        _homeDots[0].y() * _HEIGHT - 15,
-                                       _ui->userName->geometry().width(),
-                                       _ui->userName->geometry().height());
-
-            _enemyDots[0].rx()--;
-            _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
-                                       _enemyDots[0].y() * _HEIGHT - 15,
                                        _ui->userName->geometry().width(),
                                        _ui->userName->geometry().height());
             break;
@@ -180,21 +194,11 @@ void SnakeClient::_move()
                                        _homeDots[0].y() * _HEIGHT - 15,
                                        _ui->userName->geometry().width(),
                                        _ui->userName->geometry().height());
-            _enemyDots[0].rx()++;
-            _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
-                                       _enemyDots[0].y() * _HEIGHT - 15,
-                                       _ui->userName->geometry().width(),
-                                       _ui->userName->geometry().height());
             break;
         case up:
             _homeDots[0].ry()--;
             _ui->userName->setGeometry(_homeDots[0].x() * _WIDTH - 5,
                                        _homeDots[0].y() * _HEIGHT - 15,
-                                       _ui->userName->geometry().width(),
-                                       _ui->userName->geometry().height());
-            _enemyDots[0].ry()--;
-            _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
-                                       _enemyDots[0].y() * _HEIGHT - 15,
                                        _ui->userName->geometry().width(),
                                        _ui->userName->geometry().height());
             break;
@@ -204,6 +208,33 @@ void SnakeClient::_move()
                                        _homeDots[0].y() * _HEIGHT + 25,
                                        _ui->userName->geometry().width(),
                                        _ui->userName->geometry().height());
+
+            break;
+    }
+    switch (_enemyDirection)
+    {
+        case left:
+            _enemyDots[0].rx()--;
+            _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
+                                       _enemyDots[0].y() * _HEIGHT - 15,
+                                       _ui->userName->geometry().width(),
+                                       _ui->userName->geometry().height());
+            break;
+        case right:
+            _enemyDots[0].rx()++;
+            _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
+                                       _enemyDots[0].y() * _HEIGHT - 15,
+                                       _ui->userName->geometry().width(),
+                                       _ui->userName->geometry().height());
+            break;
+        case up:
+            _enemyDots[0].ry()--;
+            _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
+                                       _enemyDots[0].y() * _HEIGHT - 15,
+                                       _ui->userName->geometry().width(),
+                                       _ui->userName->geometry().height());
+            break;
+        case down:
             _enemyDots[0].ry()++;
             _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
                                        _enemyDots[0].y() * _HEIGHT + 25,
@@ -216,7 +247,6 @@ void SnakeClient::_move()
 
 void SnakeClient::_step()
 {
-    _sendToServer(_homeDots);
     qDebug() << "Tick" << _convertToString(_enemyDots);
     if (_stillGame & _await)
     {
@@ -224,6 +254,8 @@ void SnakeClient::_step()
         _await = false;
         this->repaint();
     }
+
+    _sendToServer();
 }
 
 void SnakeClient::_gameOver()
@@ -274,5 +306,5 @@ void SnakeClient::_initiateGame()
     //        _homeDots[i].rx() = _homeDots.size() - i - 1;
     //        _homeDots[i].ry() = 0;
     //    }
-    _sendToServer(_homeDots);
+    _sendToServer();
 }
