@@ -45,8 +45,10 @@ class Server : public QTcpServer
     QVector<QPoint> convertToDots(QStringList &str);
     QString convertToString(QVector<QPoint> &dots);
     QByteArray Data;
+    quint16 nextBlockSize;
     void SendToClient(QString str);
     void SendEnemyCoordinates();
+    void SendEnemyDirections();
     void SendHomeCoordinates();
     bool checkBoundary();
     void locateFruit();
