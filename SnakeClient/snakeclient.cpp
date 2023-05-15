@@ -53,6 +53,7 @@ void SnakeClient::_sendToServer()
     out << quint16(0) << data;
     out.device()->seek(0);
     out << quint16(_data.size() - sizeof(quint16));
+    _socket->waitForBytesWritten();
     _socket->write(_data);
 }
 
@@ -74,37 +75,42 @@ void SnakeClient::slotReadyRead()
             if (_socket->bytesAvailable() < nextBlockSize)
                 break;
             in >> _input;
+            _socket->waitForBytesWritten();
             nextBlockSize = 0;
             qDebug() << _input;
-            QStringList l = _input.split(' ');
-            if (l[0] == 'e')
-                _gameOver();
-            if (l[0] == 'd')
+            QStringList commandList = _input.split(';');
+            for (QString c : commandList)
             {
-                _enemyDirection = Directions(l[1].toInt());
+                QStringList l = c.split(' ');
+                if (l[0] == 'e')
+                    _gameOver();
+                if (l[0] == 'd')
+                {
+                    _enemyDirection = Directions(l[1].toInt());
+                }
+                if (l[0] == 'f')
+                {
+                    _fruitPos.rx() = l[1].toInt();
+                    _fruitPos.ry() = l[2].toInt();
+                }
+                if (l[0] == 'g')
+                {
+                    _enemyDots = _convertToDots(l);
+                }
+                if (l[0] == 'h')
+                {
+                    _homeDots = _convertToDots(l);
+                }
+                if (l[0] == 'r')
+                    _stillGame = l[1].toInt();
+                if (l[0] == 'c')
+                {
+                    qDebug() << "Await is true";
+                    _await = l[1].toInt();
+                }
+                _step();
+                break;
             }
-            if (l[0] == 'f')
-            {
-                _fruitPos.rx() = l[1].toInt();
-                _fruitPos.ry() = l[2].toInt();
-            }
-            if (l[0] == 'g')
-            {
-                _enemyDots = _convertToDots(l);
-            }
-            if (l[0] == 'h')
-            {
-                _homeDots = _convertToDots(l);
-            }
-            if (l[0] == 'r')
-                _stillGame = l[1].toInt();
-            if (l[0] == 'c')
-            {
-                qDebug() << "Await is true";
-                _await = l[1].toInt();
-            }
-            _step();
-            break;
         }
     }
     else
@@ -179,6 +185,11 @@ void SnakeClient::_locateFruit()
 
 void SnakeClient::_move()
 {
+    for (size_t i = _homeDots.size() - 1; i > 0; i--)
+    {
+        _homeDots[i] = _homeDots[i - 1];
+        //        _enemyDots[i] = _enemyDots[i - 1];
+    }
     switch (_direction)
     {
         case left:
@@ -250,7 +261,7 @@ void SnakeClient::_step()
     qDebug() << "Tick" << _convertToString(_enemyDots);
     if (_stillGame & _await)
     {
-        //        _move();
+        _move();
         _await = false;
         this->repaint();
     }
