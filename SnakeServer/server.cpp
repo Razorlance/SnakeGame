@@ -34,10 +34,10 @@ void Server::timerEvent(QTimerEvent *event)
     //    }
     //    SendToServer(_homeDots);
 
-    SendHomeCoordinates();
-    SendEnemyCoordinates();
-    SendEnemyDirections();
-
+    //    SendHomeCoordinates();
+    //    SendEnemyCoordinates();
+    //    SendEnemyDirections();
+    SendData();
     if (checkBoundary())
     {
         //        if (_count.size() == Sockets.size())
@@ -157,6 +157,46 @@ void Server::SendHomeCoordinates()
                 it.value()->write(Data);
                 it.value()->waitForBytesWritten();
             }
+        }
+    }
+}
+
+void Server::SendData()
+{
+    qDebug() << "Sending enemy coordinates, directions and home coordinates...";
+    for (QMap<qintptr, QTcpSocket *>::Iterator it = Sockets.begin();
+         it != Sockets.end(); it++)
+    {
+        Data.clear();
+        QDataStream out(&Data, QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_6_3);
+        QString homeCoordinates =
+            "h " + convertToString(PlayerList[it.key()]->_homeDots);
+        for (QMap<qintptr, Snake *>::Iterator it1 = PlayerList.begin();
+             it1 != PlayerList.end(); it1++)
+        {
+            qDebug() << it.key() << " " << it1.key();
+
+            if (it.key() == it1.key())
+                continue;
+            // 11123 12332 123123 123123
+            // Player1: socket, home, enemy, direction
+            // Player1 -> Player2, Player3, Player4
+            QString enemyCoordinates =
+                "g " + convertToString(it1.value()->_homeDots);
+
+            QString enemyDirections =
+                "d " + QString::number(it1.value()->direction);
+
+            QString dataToSend = enemyCoordinates + ";" + enemyDirections +
+                                 ";" + homeCoordinates + ";c 1";
+
+            qDebug() << dataToSend;
+            out << quint16(0) << dataToSend;
+            out.device()->seek(0);
+            out << quint16(Data.size() - sizeof(quint16));
+            it.value()->write(Data);
+            it.value()->waitForBytesWritten();
         }
     }
 }
