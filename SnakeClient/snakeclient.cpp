@@ -1,5 +1,9 @@
 #include "snakeclient.h"
 #include "./ui_snakeclient.h"
+#include <QPushButton>
+#include <QFormLayout>
+#include <QDebug>
+#include <QComboBox>
 
 /*
  * TODO:
@@ -11,6 +15,7 @@
 SnakeClient::SnakeClient(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::SnakeClient)
+    , _playerList(new QListWidget)
 {
     ui->setupUi(this);
     this->resize(_width * _field_width, _height * _field_height);
@@ -18,21 +23,67 @@ SnakeClient::SnakeClient(QWidget *parent)
 
     _moveBlock = false;
 
-    QInputDialog* startWindow = new QInputDialog();
-    startWindow->setLabelText(tr("Enter your name:"));
-    startWindow->setWindowTitle(tr("Start"));
-    startWindow->setTextEchoMode(QLineEdit::Normal);
+    QDialog* startWindow = new QDialog();
+    startWindow->setWindowTitle("Start1");
     startWindow->adjustSize();
     startWindow->move(QGuiApplication::primaryScreen()->geometry().center() - startWindow->rect().center());
-    QString text = "";
-    if(startWindow->exec() == QDialog::Accepted)
-        text = startWindow->textValue();
 
-    if (text.isEmpty())
-        text = "Player";
-    ui->userName->setText(text);
+    QFormLayout *form = new QFormLayout(startWindow);
+    QLineEdit* name = new QLineEdit(startWindow);
+    QComboBox* mode = new QComboBox(startWindow);
 
+    mode->addItem("Player");
+    mode->addItem("Viewer");
+    form->addRow("Enter your name:", name);
+    form->addRow("Enter your mode of the game:", mode);
+
+    QPushButton *button = new QPushButton("OK", startWindow);
+    QObject::connect(button, &QPushButton::clicked, startWindow, &QDialog::accept);
+    form->addWidget(button);
+
+    QString nameText = "";
+    QString modeText = "";
+    if (startWindow->exec() == QDialog::Accepted)
+    {
+        QString nameText = name->text();
+        QString modeText = mode->currentText();
+        if (nameText.size() == 0)
+            nameText = "Player";
+        ui->userName->setText(nameText);
+        //ui->labelName->setText(nameText);
+    }
+//    else
+//    {
+//        QCoreApplication::exit(); // does not help, need to close the mainWindow when the cancel (red) button is pressed
+                                    // now if it is pressed, the game still opens
+//    }
+
+    if (modeText == "Player")
+    {
+        //...
+    }
+    if (modeText == "Viewer")
+    {
+        //...
+    }
     initiateGame();
+
+
+//    QInputDialog* startWindow = new QInputDialog();
+//    startWindow->setWindowTitle(tr("Start"));
+//    startWindow->setLabelText(tr("Enter your name:"));
+//    startWindow->setTextEchoMode(QLineEdit::Normal);
+//    startWindow->adjustSize();
+//    startWindow->move(QGuiApplication::primaryScreen()->geometry().center() - startWindow->rect().center());
+//    QString text = "";
+//    if (startWindow->exec() == QDialog::Accepted)
+//        text = startWindow->textValue();
+
+//    if (text.isEmpty())
+//        text = "Player";
+//    ui->userName->setText(text);
+//    initiateGame();
+
 }
 
 SnakeClient::~SnakeClient()
@@ -111,10 +162,13 @@ void SnakeClient::drawSnake()
 void SnakeClient::locateFruit()
 {
     QTime time = QTime::currentTime();
-    qsrand((uint) time.msec());
+    srand((uint) time.msec()); //qsrand -> srand
 
-    _fruitPos.rx() = qrand() % _width;
-    _fruitPos.ry() = qrand() % _height;
+    _fruitPos.rx() = rand() % _width;  //qrand ->rand
+    _fruitPos.ry() = rand() % _height; //qrand ->rand
+
+    if (_fruitPos.x() >= _field_width)
+        locateFruit();
 
     for (size_t i = 0; i < _dots.size(); i++)
     {
