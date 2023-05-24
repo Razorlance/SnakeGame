@@ -95,7 +95,9 @@ void SnakeClient::slotReadyRead()
                 }
                 if (l[0] == 'g')
                 {
+                    qDebug() << l << "its L";
                     _enemyDots = _convertToDots(l);
+                    qDebug() << _enemyDots << "its enemy";
                 }
                 if (l[0] == 'h')
                 {
@@ -108,9 +110,9 @@ void SnakeClient::slotReadyRead()
                     qDebug() << "Await is true";
                     _await = l[1].toInt();
                 }
-                _step();
-                break;
             }
+            _step();
+            break;
         }
     }
     else
@@ -140,17 +142,16 @@ void SnakeClient::_drawSnake()
     if (_stillGame)
     {
         painter.setBrush(Qt::red);
-        painter.drawEllipse(_fruitPos.x() * _WIDTH,
-                            _fruitPos.y() * _HEIGHT,
+        painter.drawEllipse(_fruitPos.x() * _WIDTH, _fruitPos.y() * _HEIGHT,
                             _WIDTH, _HEIGHT);
         for (size_t i = 0; i < _homeDots.size(); i++)
         {
-            if (!i)
+            if (i != 0)
             {
                 painter.setBrush(Qt::white);
                 painter.drawEllipse(_homeDots[i].x() * _WIDTH,
-                                    _homeDots[i].y() * _HEIGHT,
-                                    _WIDTH, _HEIGHT);
+                                    _homeDots[i].y() * _HEIGHT, _WIDTH,
+                                    _HEIGHT);
                 painter.setBrush(Qt::black);
                 painter.drawEllipse(_enemyDots[i].x() * _WIDTH,
                                     _enemyDots[i].y() * _HEIGHT, _WIDTH,
@@ -189,7 +190,7 @@ void SnakeClient::_move()
     for (size_t i = _homeDots.size() - 1; i > 0; i--)
     {
         _homeDots[i] = _homeDots[i - 1];
-        // _enemyDots[i] = _enemyDots[i - 1];
+        _enemyDots[i] = _enemyDots[i - 1];
     }
 
     switch (_direction)
@@ -305,9 +306,9 @@ QString SnakeClient::_convertToString(const QVector<QPoint>& dots)
 
 QVector<QPoint> SnakeClient::_convertToDots(const QStringList& str)
 {
-    QVector<QPoint> dots(2);
-    dots[0] = QPoint(str[3].toInt(), str[4].toInt());
-    dots[1] = QPoint(str[1].toInt(), str[2].toInt());
+    QVector<QPoint> dots;
+    for (size_t i = 1; i < str.size(); i += 2)
+        dots.push_back(QPoint(str[i].toInt(), str[i + 1].toInt()));
     return dots;
 }
 
