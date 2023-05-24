@@ -51,6 +51,7 @@ class Server : public QTcpServer
     void SendEnemyDirections();
     void SendHomeCoordinates();
     void SendData();
+    void SendData(QString str);
     bool checkBoundary();
     void locateFruit();
     void initiateGame();

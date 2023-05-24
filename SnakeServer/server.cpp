@@ -9,6 +9,8 @@ Server::Server()
 
     Players.enqueue(&Player1);
     Players.enqueue(&Player2);
+    Players.enqueue(&Player3);
+    Players.enqueue(&Player4);
     nextBlockSize = 0;
 
     //    Players.enqueue(&Player3);
@@ -44,12 +46,14 @@ void Server::timerEvent(QTimerEvent *event)
         //        {
         qDebug() << "Continue the game";
         move();
-        SendToClient("c 1");
+        //        SendToClient("c 1");
+        SendData();
         _count.clear();
         //        }
     }
     else
         endGame();
+    //    SendData();
 }
 
 void Server::SendToClient(QString str)
@@ -201,9 +205,48 @@ void Server::SendData()
     }
 }
 
+void Server::SendData(QString str)
+{
+    qDebug() << "Sending enemy coordinates, directions and home coordinates...";
+    for (QMap<qintptr, QTcpSocket *>::Iterator it = Sockets.begin();
+         it != Sockets.end(); it++)
+    {
+        Data.clear();
+        QDataStream out(&Data, QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_6_3);
+        QString homeCoordinates =
+            "h " + convertToString(PlayerList[it.key()]->_homeDots);
+        for (QMap<qintptr, Snake *>::Iterator it1 = PlayerList.begin();
+             it1 != PlayerList.end(); it1++)
+        {
+            qDebug() << it.key() << " " << it1.key();
+
+            if (it.key() == it1.key())
+                continue;
+            // 11123 12332 123123 123123
+            // Player1: socket, home, enemy, direction
+            // Player1 -> Player2, Player3, Player4
+            QString enemyCoordinates =
+                "g " + convertToString(it1.value()->_homeDots);
+
+            QString enemyDirections =
+                "d " + QString::number(it1.value()->direction);
+
+            QString dataToSend = enemyCoordinates + ";" + enemyDirections +
+                                 ";" + homeCoordinates + ";c 1;" + str;
+
+            qDebug() << dataToSend;
+            out << quint16(0) << dataToSend;
+            out.device()->seek(0);
+            out << quint16(Data.size() - sizeof(quint16));
+            it.value()->write(Data);
+            it.value()->waitForBytesWritten();
+        }
+    }
+}
+
 bool Server::checkBoundary()
 {
-    return true;  // Costyl
     for (QMap<qintptr, Snake *>::Iterator it = PlayerList.begin();
          it != PlayerList.end(); it++)
     {
@@ -244,8 +287,8 @@ void Server::locateFruit()
 
     _fruitPos.rx() = rand() % _width;
     _fruitPos.ry() = rand() % _height;
-    SendToClient("f " + QString::number(_fruitPos.rx()) + " " +
-                 QString::number(_fruitPos.ry()));
+    SendData("f " + QString::number(_fruitPos.rx()) + " " +
+             QString::number(_fruitPos.ry()));
 }
 
 void Server::initiateGame()
@@ -257,12 +300,12 @@ void Server::initiateGame()
     locateFruit();
     //        for (qintptr &socket : Sockets.keys())
     qDebug() << "Sending command to start..";
-    SendToClient("r 1");
+    SendData("r 1");
 }
 
 void Server::endGame()
 {
-    SendToClient("e");
+    SendData("e");
     killTimer(_timer);
 }
 
