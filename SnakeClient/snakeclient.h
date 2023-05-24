@@ -58,16 +58,14 @@ class SnakeClient : public QMainWindow
 
     int _timer;
     int _score = 0;
-
-    QString _input;
-    QString _snakeName;
     bool _stillGame;
     bool _await = false;
-
     QPoint _fruitPos = QPoint(0, 0);
-
+    QString _input;
+    QString _snakeName;
     QString _convertToString(const QVector<QPoint>&);
     QVector<QPoint> _convertToDots(const QStringList&);
+
     void _initiateGame();
     void _drawSnake();
     void _locateFruit();
@@ -75,7 +73,6 @@ class SnakeClient : public QMainWindow
     void _step();
     void _gameOver();
     void _eatFruit();
-
     void _sendToServer();
 
     enum Directions

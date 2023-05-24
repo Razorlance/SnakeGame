@@ -140,7 +140,8 @@ void SnakeClient::_drawSnake()
     if (_stillGame)
     {
         painter.setBrush(Qt::red);
-        painter.drawEllipse(_fruitPos.x() * _WIDTH, _fruitPos.y() * _HEIGHT,
+        painter.drawEllipse(_fruitPos.x() * _WIDTH,
+                            _fruitPos.y() * _HEIGHT,
                             _WIDTH, _HEIGHT);
         for (size_t i = 0; i < _homeDots.size(); i++)
         {
@@ -148,8 +149,8 @@ void SnakeClient::_drawSnake()
             {
                 painter.setBrush(Qt::white);
                 painter.drawEllipse(_homeDots[i].x() * _WIDTH,
-                                    _homeDots[i].y() * _HEIGHT, _WIDTH,
-                                    _HEIGHT);
+                                    _homeDots[i].y() * _HEIGHT,
+                                    _WIDTH, _HEIGHT);
                 painter.setBrush(Qt::black);
                 painter.drawEllipse(_enemyDots[i].x() * _WIDTH,
                                     _enemyDots[i].y() * _HEIGHT, _WIDTH,
@@ -188,8 +189,9 @@ void SnakeClient::_move()
     for (size_t i = _homeDots.size() - 1; i > 0; i--)
     {
         _homeDots[i] = _homeDots[i - 1];
-        //        _enemyDots[i] = _enemyDots[i - 1];
+        // _enemyDots[i] = _enemyDots[i - 1];
     }
+
     switch (_direction)
     {
         case left:
