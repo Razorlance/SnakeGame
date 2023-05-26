@@ -39,7 +39,6 @@ void SnakeClient::connectToServer(const QString& ip, int port,
 {
     _ui->userName->setText(name);
     _socket->connectToHost(ip, port);
-    _sendToServer();
     _initiateGame();
 }
 
@@ -132,6 +131,8 @@ void SnakeClient::keyPressEvent(QKeyEvent* event)
         _direction = up;
     if ((key == Qt::Key_Down || key == Qt::Key_S) && _direction != up)
         _direction = down;
+    _sendToServer();
+    // Fix sending data after change of direction
 }
 
 void SnakeClient::_drawSnake()
@@ -187,96 +188,14 @@ void SnakeClient::_drawSnake()
         _gameOver();
 }
 
-void SnakeClient::_move()
-{
-    for (size_t i = _homeDots.size() - 1; i > 0; i--)
-    {
-        _homeDots[i] = _homeDots[i - 1];
-    }
-
-    for (size_t i = _enemyDots.size() - 1; i > 0; i--)
-    {
-        _enemyDots[i] = _enemyDots[i - 1];
-    }
-
-    switch (_direction)
-    {
-    case left:
-        _homeDots[0].rx()--;
-        _ui->userName->setGeometry(_homeDots[0].x() * _WIDTH - 5,
-                                   _homeDots[0].y() * _HEIGHT - 15,
-                                   _ui->userName->geometry().width(),
-                                   _ui->userName->geometry().height());
-        break;
-    case right:
-        _homeDots[0].rx()++;
-        _ui->userName->setGeometry(_homeDots[0].x() * _WIDTH - 5,
-                                   _homeDots[0].y() * _HEIGHT - 15,
-                                   _ui->userName->geometry().width(),
-                                   _ui->userName->geometry().height());
-        break;
-    case up:
-        _homeDots[0].ry()--;
-        _ui->userName->setGeometry(_homeDots[0].x() * _WIDTH - 5,
-                                   _homeDots[0].y() * _HEIGHT - 15,
-                                   _ui->userName->geometry().width(),
-                                   _ui->userName->geometry().height());
-        break;
-    case down:
-        _homeDots[0].ry()++;
-        _ui->userName->setGeometry(_homeDots[0].x() * _WIDTH - 5,
-                                   _homeDots[0].y() * _HEIGHT + 25,
-                                   _ui->userName->geometry().width(),
-                                   _ui->userName->geometry().height());
-
-        break;
-    }
-
-    switch (_enemyDirection)
-    {
-    case left:
-        _enemyDots[0].rx()--;
-        _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
-                                   _enemyDots[0].y() * _HEIGHT - 15,
-                                   _ui->userName->geometry().width(),
-                                   _ui->userName->geometry().height());
-        break;
-    case right:
-        _enemyDots[0].rx()++;
-        _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
-                                   _enemyDots[0].y() * _HEIGHT - 15,
-                                   _ui->userName->geometry().width(),
-                                   _ui->userName->geometry().height());
-        break;
-    case up:
-        _enemyDots[0].ry()--;
-        _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
-                                   _enemyDots[0].y() * _HEIGHT - 15,
-                                   _ui->userName->geometry().width(),
-                                   _ui->userName->geometry().height());
-        break;
-    case down:
-        _enemyDots[0].ry()++;
-        _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
-                                   _enemyDots[0].y() * _HEIGHT + 25,
-                                   _ui->userName->geometry().width(),
-                                   _ui->userName->geometry().height());
-
-        break;
-    }
-}
-
 void SnakeClient::_step()
 {
-    qDebug() << "Tick" << _convertToString(_enemyDots);
+    qDebug() << "Tick" << _enemyDirection;
     if (_stillGame & _await)
     {
-        _move();
         _await = false;
         this->repaint();
     }
-
-    _sendToServer();
 }
 
 void SnakeClient::_gameOver()
