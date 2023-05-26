@@ -66,13 +66,9 @@ class SnakeClient : public QMainWindow
     QString _convertToString(const QVector<QPoint>&);
     QVector<QPoint> _convertToDots(const QStringList&);
 
-    void _initiateGame();
     void _drawSnake();
-    void _locateFruit();
-    void _move();
     void _step();
     void _gameOver();
-    void _eatFruit();
     void _sendToServer();
 
     enum Directions
