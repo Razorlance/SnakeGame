@@ -26,8 +26,8 @@ void Server::timerEvent(QTimerEvent *event)
     if (checkBoundary())
     {
         qDebug() << "Continue the game";
-        move();
         eatFruit();
+        move();
         SendData();
         _count.clear();
     }
@@ -152,11 +152,12 @@ void Server::locateFruit()
 
 void Server::eatFruit()
 {
-    for (Snake *Player : PlayerList.values())
+    for (QMap<qintptr, Snake *>::Iterator it = PlayerList.begin();
+         it != PlayerList.end(); it++)
     {
-        if (Player->_homeDots[0] == _fruitPos)
+        if (it.value()->_homeDots[0] == _fruitPos)
         {
-            Player->_homeDots.push_back(_fruitPos);
+            it.value()->_homeDots.push_back(_fruitPos);
             locateFruit();
             QString fruitPosition = "f " + QString::number(_fruitPos.rx()) +
                                     " " + QString::number(_fruitPos.ry());
@@ -191,11 +192,15 @@ void Server::move()
     for (size_t i = Player1._homeDots.size() - 1; i > 0; i--)
     {
         Player1._homeDots[i] = Player1._homeDots[i - 1];
-        Player1._enemyDots[i] = Player1._enemyDots[i - 1];
-
-        Player2._homeDots[i] = Player2._homeDots[i - 1];
-        Player2._enemyDots[i] = Player2._enemyDots[i - 1];
     }
+
+    for (size_t i = Player2._homeDots.size() - 1; i > 0; i--)
+    {
+        Player2._homeDots[i] = Player2._homeDots[i - 1];
+    }
+
+    Player1._enemyDots = Player2._homeDots;
+    Player2._enemyDots = Player1._homeDots;
 
     switch (Player1.direction)
     {
@@ -228,19 +233,6 @@ void Server::move()
             Player2._homeDots[0].ry()++;
             break;
     }
-
-    Player1._enemyDots = Player2._homeDots;
-    Player2._enemyDots = Player1._homeDots;
-}
-
-QVector<QPoint> Server::convertToDots(QStringList &str)
-{
-    QVector<QPoint> dots(2);
-    //    for (size_t i = 1; i < str.size(); i+= 2){
-    dots[0] = QPoint(str[1].toInt(), str[2].toInt());
-    dots[1] = QPoint(str[3].toInt(), str[4].toInt());
-    //    }
-    return dots;
 }
 
 QString Server::convertToString(QVector<QPoint> &dots)
@@ -302,10 +294,6 @@ void Server::slotReadyRead()
                 PlayerList[socket->socketDescriptor()]->direction =
                     Directions(L[1].toInt());
                 _count.insert(socket->socketDescriptor());
-            }
-            if (L[0] == 'i')
-            {
-                _Dots[socket->socketDescriptor()] = convertToDots(L);
             }
             break;
         }
