@@ -23,11 +23,11 @@ Server::Server()
 
 void Server::timerEvent(QTimerEvent *event)
 {
+    eatFruit();
+    move();
     if (checkBoundary())
     {
         qDebug() << "Continue the game";
-        eatFruit();
-        move();
         SendData();
         _count.clear();
     }
@@ -106,11 +106,19 @@ void Server::SendData(QString str)
 
 bool Server::checkBoundary()
 {
-    // Look at it carefully
+    // Fix snake not running into itself
 
     for (QMap<qintptr, Snake *>::Iterator it = PlayerList.begin();
          it != PlayerList.end(); it++)
     {
+        for (size_t i = 0; i < it.value()->_homeDots.size(); i++)
+        {
+            if (it.value()->_enemyDots.contains(it.value()->_homeDots[i]))
+            {
+                return false;
+            }
+        }
+
         if (it.value()->_homeDots.size() > 4)
         {
             for (size_t i = 1; i < it.value()->_homeDots.size(); i++)
@@ -121,18 +129,22 @@ bool Server::checkBoundary()
                 }
             }
         }
+
         if (it.value()->_homeDots[0].rx() < 0)
         {
             return false;
         }
+
         if (it.value()->_homeDots[0].rx() == _field_width)
         {
             return false;
         }
+
         if (it.value()->_homeDots[0].ry() < 0)
         {
             return false;
         }
+
         if (it.value()->_homeDots[0].ry() == _field_height)
         {
             return false;
