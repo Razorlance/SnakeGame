@@ -63,7 +63,7 @@ void SnakeClient::slotReadyRead()
     if (in.status() == QDataStream::Ok)
     {
         qDebug() << "Reading...";
-        //        in >> _input;
+
         while (true)
         {
             if (nextBlockSize == 0)
@@ -79,7 +79,7 @@ void SnakeClient::slotReadyRead()
             nextBlockSize = 0;
             qDebug() << _input;
             QStringList commandList = _input.split(';');
-            for (QString c : commandList)
+            for (QString& c : commandList)
             {
                 QStringList l = c.split(' ');
                 if (l[0] == 'e')
@@ -132,7 +132,6 @@ void SnakeClient::keyPressEvent(QKeyEvent* event)
         _direction = up;
     if ((key == Qt::Key_Down || key == Qt::Key_S) && _direction != up)
         _direction = down;
-    _sendToServer();
 }
 
 void SnakeClient::_drawSnake()
@@ -142,47 +141,50 @@ void SnakeClient::_drawSnake()
     if (_stillGame)
     {
         painter.setBrush(Qt::red);
-        painter.drawEllipse(_fruitPos.x() * _WIDTH, _fruitPos.y() * _HEIGHT,
+        painter.drawEllipse(_fruitPos.x() * _WIDTH,
+                            _fruitPos.y() * _HEIGHT,
                             _WIDTH, _HEIGHT);
+
         for (size_t i = 0; i < _homeDots.size(); i++)
         {
             if (i != 0)
             {
                 painter.setBrush(Qt::white);
                 painter.drawEllipse(_homeDots[i].x() * _WIDTH,
-                                    _homeDots[i].y() * _HEIGHT, _WIDTH,
-                                    _HEIGHT);
-                painter.setBrush(Qt::black);
-                painter.drawEllipse(_enemyDots[i].x() * _WIDTH,
-                                    _enemyDots[i].y() * _HEIGHT, _WIDTH,
-                                    _HEIGHT);
+                                    _homeDots[i].y() * _HEIGHT,
+                                    _WIDTH, _HEIGHT);
             }
+
             else
             {
                 painter.setBrush(Qt::darkBlue);
                 painter.drawEllipse(_homeDots[i].x() * _WIDTH,
-                                    _homeDots[i].y() * _HEIGHT, _WIDTH,
-                                    _HEIGHT);
+                                    _homeDots[i].y() * _HEIGHT,
+                                    _WIDTH, _HEIGHT);
+            }
+        }
+
+        for (size_t i = 0; i < _enemyDots.size(); i++)
+        {
+            if (i != 0)
+            {
+                painter.setBrush(Qt::black);
+                painter.drawEllipse(_enemyDots[i].x() * _WIDTH,
+                                    _enemyDots[i].y() * _HEIGHT,
+                                    _WIDTH, _HEIGHT);
+            }
+
+            else
+            {
                 painter.setBrush(Qt::green);
                 painter.drawEllipse(_enemyDots[i].x() * _WIDTH,
-                                    _enemyDots[i].y() * _HEIGHT, _WIDTH,
-                                    _HEIGHT);
+                                    _enemyDots[i].y() * _HEIGHT,
+                                    _WIDTH, _HEIGHT);
             }
         }
     }
     else
-    {
         _gameOver();
-    }
-}
-
-void SnakeClient::_locateFruit()
-{
-    QTime time = QTime::currentTime();
-    srand((uint)time.msec());
-
-    _fruitPos.rx() = rand() % _WIDTH;
-    _fruitPos.ry() = rand() % _HEIGHT;
 }
 
 void SnakeClient::_move()
@@ -190,72 +192,77 @@ void SnakeClient::_move()
     for (size_t i = _homeDots.size() - 1; i > 0; i--)
     {
         _homeDots[i] = _homeDots[i - 1];
+    }
+
+    for (size_t i = _enemyDots.size() - 1; i > 0; i--)
+    {
         _enemyDots[i] = _enemyDots[i - 1];
     }
 
     switch (_direction)
     {
-        case left:
-            _homeDots[0].rx()--;
-            _ui->userName->setGeometry(_homeDots[0].x() * _WIDTH - 5,
-                                       _homeDots[0].y() * _HEIGHT - 15,
-                                       _ui->userName->geometry().width(),
-                                       _ui->userName->geometry().height());
-            break;
-        case right:
-            _homeDots[0].rx()++;
-            _ui->userName->setGeometry(_homeDots[0].x() * _WIDTH - 5,
-                                       _homeDots[0].y() * _HEIGHT - 15,
-                                       _ui->userName->geometry().width(),
-                                       _ui->userName->geometry().height());
-            break;
-        case up:
-            _homeDots[0].ry()--;
-            _ui->userName->setGeometry(_homeDots[0].x() * _WIDTH - 5,
-                                       _homeDots[0].y() * _HEIGHT - 15,
-                                       _ui->userName->geometry().width(),
-                                       _ui->userName->geometry().height());
-            break;
-        case down:
-            _homeDots[0].ry()++;
-            _ui->userName->setGeometry(_homeDots[0].x() * _WIDTH - 5,
-                                       _homeDots[0].y() * _HEIGHT + 25,
-                                       _ui->userName->geometry().width(),
-                                       _ui->userName->geometry().height());
+    case left:
+        _homeDots[0].rx()--;
+        _ui->userName->setGeometry(_homeDots[0].x() * _WIDTH - 5,
+                                   _homeDots[0].y() * _HEIGHT - 15,
+                                   _ui->userName->geometry().width(),
+                                   _ui->userName->geometry().height());
+        break;
+    case right:
+        _homeDots[0].rx()++;
+        _ui->userName->setGeometry(_homeDots[0].x() * _WIDTH - 5,
+                                   _homeDots[0].y() * _HEIGHT - 15,
+                                   _ui->userName->geometry().width(),
+                                   _ui->userName->geometry().height());
+        break;
+    case up:
+        _homeDots[0].ry()--;
+        _ui->userName->setGeometry(_homeDots[0].x() * _WIDTH - 5,
+                                   _homeDots[0].y() * _HEIGHT - 15,
+                                   _ui->userName->geometry().width(),
+                                   _ui->userName->geometry().height());
+        break;
+    case down:
+        _homeDots[0].ry()++;
+        _ui->userName->setGeometry(_homeDots[0].x() * _WIDTH - 5,
+                                   _homeDots[0].y() * _HEIGHT + 25,
+                                   _ui->userName->geometry().width(),
+                                   _ui->userName->geometry().height());
 
-            break;
+        break;
     }
+
     switch (_enemyDirection)
     {
-        case left:
-            _enemyDots[0].rx()--;
-            _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
-                                       _enemyDots[0].y() * _HEIGHT - 15,
-                                       _ui->userName->geometry().width(),
-                                       _ui->userName->geometry().height());
-            break;
-        case right:
-            _enemyDots[0].rx()++;
-            _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
-                                       _enemyDots[0].y() * _HEIGHT - 15,
-                                       _ui->userName->geometry().width(),
-                                       _ui->userName->geometry().height());
-            break;
-        case up:
-            _enemyDots[0].ry()--;
-            _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
-                                       _enemyDots[0].y() * _HEIGHT - 15,
-                                       _ui->userName->geometry().width(),
-                                       _ui->userName->geometry().height());
-            break;
-        case down:
-            _enemyDots[0].ry()++;
-            _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
-                                       _enemyDots[0].y() * _HEIGHT + 25,
-                                       _ui->userName->geometry().width(),
-                                       _ui->userName->geometry().height());
+    case left:
+        _enemyDots[0].rx()--;
+        _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
+                                   _enemyDots[0].y() * _HEIGHT - 15,
+                                   _ui->userName->geometry().width(),
+                                   _ui->userName->geometry().height());
+        break;
+    case right:
+        _enemyDots[0].rx()++;
+        _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
+                                   _enemyDots[0].y() * _HEIGHT - 15,
+                                   _ui->userName->geometry().width(),
+                                   _ui->userName->geometry().height());
+        break;
+    case up:
+        _enemyDots[0].ry()--;
+        _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
+                                   _enemyDots[0].y() * _HEIGHT - 15,
+                                   _ui->userName->geometry().width(),
+                                   _ui->userName->geometry().height());
+        break;
+    case down:
+        _enemyDots[0].ry()++;
+        _ui->userName->setGeometry(_enemyDots[0].x() * _WIDTH - 5,
+                                   _enemyDots[0].y() * _HEIGHT + 25,
+                                   _ui->userName->geometry().width(),
+                                   _ui->userName->geometry().height());
 
-            break;
+        break;
     }
 }
 
@@ -278,16 +285,6 @@ void SnakeClient::_gameOver()
     endOfGame.setText("Game Over");
     endOfGame.exec();
     this->close();
-}
-
-void SnakeClient::_eatFruit()
-{
-    if (_fruitPos == _homeDots[0])
-    {
-        _homeDots.push_back(_fruitPos);
-        _score++;
-        _locateFruit();
-    }
 }
 
 void SnakeClient::paintEvent(QPaintEvent* event)
@@ -315,10 +312,5 @@ QVector<QPoint> SnakeClient::_convertToDots(const QStringList& str)
 void SnakeClient::_initiateGame()
 {
     _direction = right;
-    //    for (size_t i = 0; i < _homeDots.size(); i++)
-    //    {
-    //        _homeDots[i].rx() = _homeDots.size() - i - 1;
-    //        _homeDots[i].ry() = 0;
-    //    }
     _sendToServer();
 }
