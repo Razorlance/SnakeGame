@@ -57,6 +57,7 @@ class Server : public QTcpServer
     void initiateGame();
     void endGame();
     void move();
+    void eatFruit();
 
    public slots:
     void incomingConnection(qintptr SocketDescriptor) override;
