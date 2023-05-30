@@ -29,7 +29,7 @@ SnakeClient::SnakeClient(QWidget *parent)
 
     //QVBoxLayout* layout = new QVBoxLayout();
 
-    startWindow->setWindowTitle("Start1");
+    startWindow->setWindowTitle("Start Window");
     startWindow->adjustSize();
     startWindow->move(QGuiApplication::primaryScreen()->geometry().center() - startWindow->rect().center());
 
@@ -111,10 +111,15 @@ SnakeClient::SnakeClient(QWidget *parent)
             qDebug() << "connecting";
             */
         }
+        ui->player1Label->setStyleSheet("QLabel { color : blue; }");
+        ui->player2Label->setStyleSheet("QLabel { color : red; }");
+        ui->player3Label->setStyleSheet("QLabel { color : green; }");
+        ui->player4Label->setStyleSheet("QLabel { color : orange; }");
         if (typeText.split(":")[1] == "1")
         {
-            ui->listWidget->addItem(nameText);
+            ui->player1Label->setText(nameText);
             //Adjusting the fond to the size of listWidget
+            /*
             for(int i = 0; i < ui->listWidget->count(); i++) // for future when there will be not just 1 Player
             {
                 QListWidgetItem* item = ui->listWidget->item(i);
@@ -126,12 +131,14 @@ SnakeClient::SnakeClient(QWidget *parent)
                 font.setBold(true);
                 item->setFont(font);
                 item->setForeground(Qt::blue);
-            }
+            }*/
             //QString nameScore = nameText + " " + QString::number(_score);
             //ui->listWidget->item(0)->setText(nameScore);
         }
         if (typeText.split(":")[1] == "Bot")
         {
+            ui->player1Label->setText(nameText);
+            ui->player2Label->setText("Bot");
             //ui->listWidget->addItem(nameText);
             //ui->listWidget->addItem(...);
         }
@@ -336,7 +343,8 @@ void SnakeClient::eatFruit()
         _score++;
         QString nameText = ui->userName->text();
         QString nameScore = nameText + " " + QString::number(_score);
-        ui->listWidget->item(0)->setText(nameScore);
+        ui->player1Label->setText(nameScore);
+        //ui->listWidget->item(0)->setText(nameScore);
         locateFruit();
     }
 }
