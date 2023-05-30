@@ -18,8 +18,7 @@
  */
 
 SnakeClient::SnakeClient(QWidget* parent)
-    :   QMainWindow(parent),
-        _ui(new Ui::SnakeClient)
+    : QMainWindow(parent), _ui(new Ui::SnakeClient)
 {
     _ui->setupUi(this);
     _socket = new QTcpSocket(this);
@@ -28,19 +27,16 @@ SnakeClient::SnakeClient(QWidget* parent)
             &QTcpSocket::deleteLater);
     this->resize(_WIDTH * _FIELD_WIDTH, _HEIGHT * _FIELD_HEIGHT);
     this->setWindowTitle("Snake Game");
-    _nextBlockSize = 0;
+    nextBlockSize = 0;
     _homeDots.resize(2);
     _enemyDots.resize(2);
 }
 
 SnakeClient::~SnakeClient() { delete _ui; }
 
-void SnakeClient::connectToServer(const QString& ip,
-                                  int port,
+void SnakeClient::connectToServer(const QString& ip, int port,
                                   const QString& name)
 {
-    // Review the code
-
     _ui->userName->setText(name);
     _socket->connectToHost(ip, port);
 }
@@ -68,69 +64,43 @@ void SnakeClient::slotReadyRead()
 
         while (true)
         {
-            if (_nextBlockSize == 0)
+            if (nextBlockSize == 0)
             {
                 if (_socket->bytesAvailable() < 2)
                     break;
-
-                in >> _nextBlockSize;
+                in >> nextBlockSize;
             }
-
-            if (_socket->bytesAvailable() < _nextBlockSize)
+            if (_socket->bytesAvailable() < nextBlockSize)
                 break;
-
             in >> _input;
             _socket->waitForBytesWritten();
-            _nextBlockSize = 0;
+            nextBlockSize = 0;
             qDebug() << _input;
             QStringList commandList = _input.split(';');
-
             for (QString& c : commandList)
             {
                 QStringList l = c.split(' ');
-
                 if (l[0] == 'e')
                     _gameOver();
-
-//                if (l[0] == 'd')
-//                {
-//                    _enemyDirection = Directions(l[1].toInt());
-//                }
-
+                if (l[0] == 'd')
+                {
+                    _enemyDirection = Directions(l[1].toInt());
+                }
                 if (l[0] == 'f')
                 {
                     _fruitPos.rx() = l[1].toInt();
                     _fruitPos.ry() = l[2].toInt();
                 }
-
                 if (l[0] == 'g')
                 {
                     _enemyDots = _convertToDots(l);
-                    _enemiesDots[l[1].toInt()] = _convertToDots(l);
                 }
-
                 if (l[0] == 'h')
                 {
                     _homeDots = _convertToDots(l);
                 }
-
                 if (l[0] == 'r')
-                {
-                    if (l[1].toInt() == 1)
-                        _enemiesDots[l[1].toInt()] = {};
-
-                    if (l[1].toInt() == 2)
-                        _enemiesDots[l[1].toInt()] = {};
-
-                    if (l[1].toInt() == 3)
-                        _enemiesDots[l[1].toInt()] = {};
-
-                    if (l[1].toInt() == 4)
-                        _enemiesDots[l[1].toInt()] = {};
-
                     _stillGame = l[1].toInt();
-                }
-
                 if (l[0] == 'c')
                 {
                     qDebug() << "Await is true";
@@ -145,22 +115,19 @@ void SnakeClient::slotReadyRead()
         qDebug() << "Error";
 }
 
+QVector<QPoint> SnakeClient::getMap() { return _homeDots; }
+
 void SnakeClient::keyPressEvent(QKeyEvent* event)
 {
     int key = event->key();
-
     if ((key == Qt::Key_Left || key == Qt::Key_A) && _direction != right)
         _direction = left;
-
     if ((key == Qt::Key_Right || key == Qt::Key_D) && _direction != left)
         _direction = right;
-
     if ((key == Qt::Key_Up || key == Qt::Key_W) && _direction != down)
         _direction = up;
-
     if ((key == Qt::Key_Down || key == Qt::Key_S) && _direction != up)
         _direction = down;
-
     _sendToServer();
 }
 
