@@ -6,6 +6,7 @@
 #include <QComboBox>
 #include <QSpinBox>
 #include <QVBoxLayout>
+#include <QCloseEvent>
 
 /*
  * TODO:
@@ -17,7 +18,7 @@
 SnakeClient::SnakeClient(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::SnakeClient)
-    , _playerList(new QListWidget)
+    //, _playerList(new QListWidget)
 {
     ui->setupUi(this);
     this->resize(_width * _field_width, _height * _field_height);
@@ -54,6 +55,7 @@ SnakeClient::SnakeClient(QWidget *parent)
     form->addRow("Enter your mode of the game:", mode);
     form->addRow("IP:", ip);
     form->addRow("Port:", port);
+
     //form->addRow("Choose a Game Type:", type);
 
 
@@ -71,6 +73,8 @@ SnakeClient::SnakeClient(QWidget *parent)
         QString ipText = ip->text();
         QString portText = port->text();
 
+
+
         //int numPlayersInt = numPlayers->value();
         // QString::number(input3Value)); //if string of # players will be needed
         if (nameText.size() == 0)
@@ -84,8 +88,9 @@ SnakeClient::SnakeClient(QWidget *parent)
             QFormLayout *form2 = new QFormLayout(gameType);
             QComboBox *type = new QComboBox(gameType);
             type->addItem("1:1");
-            type->addItem("1:Bot");
             type->addItem("1:3");
+            type->addItem("1:Bot");
+            type->addItem("Bot:Bot");
             form2->addRow("Choose Game Type", type);
             QPushButton *buttonOK = new QPushButton("OK", gameType);
             //QPushButton *buttonCancel = new QPushButton("Cancel", startWindow);
@@ -119,6 +124,7 @@ SnakeClient::SnakeClient(QWidget *parent)
             if (typeText.split(":")[1] == "Bot")
             {
                 //qDebug() << "YES";
+                /*
                 QDialog* difficulty = new QDialog();
                 difficulty->setWindowTitle("Game Difficulty");
                 difficulty->adjustSize();
@@ -135,6 +141,7 @@ SnakeClient::SnakeClient(QWidget *parent)
                 QObject::connect(buttonOK, &QPushButton::clicked, difficulty, &QDialog::accept);
                 form1->addWidget(buttonOK);
                 difficulty->exec();
+                */
 
                 ui->player1Label->setText(nameText);
                 ui->player2Label->setText("Bot");
@@ -188,6 +195,7 @@ SnakeClient::SnakeClient(QWidget *parent)
         ui->player4Label->setStyleSheet("QLabel { color : orange; }");
 
         ui->userName->setText(nameText);
+
         //ui->labelName->setText(nameText);
     }
 //    else
@@ -367,6 +375,7 @@ void SnakeClient::checkBoundary()
 
 void SnakeClient::gameOver()
 {
+    qDebug() << "Game Over";
     QMessageBox endOfGame;
     endOfGame.setText("Game Over");
     endOfGame.exec();
@@ -425,6 +434,7 @@ void SnakeClient::paintEvent(QPaintEvent *event)
 
     drawSnake();
 }
+
 
 void SnakeClient::initiateGame()
 {
