@@ -39,10 +39,22 @@ void SnakeClient::connectToServer(const QString& ip, int port,
 {
     _ui->userName->setText(name);
     _socket->connectToHost(ip, port);
+    _data.clear();
+    QDataStream out(&_data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_6_2);
+    QString data = "viewer " + QString::number(viewer);
+    qDebug() << data;
+    out << quint16(0) << data;
+    out.device()->seek(0);
+    out << quint16(_data.size() - sizeof(quint16));
+    _socket->waitForBytesWritten();
+    _socket->write(_data);
 }
 
 void SnakeClient::_sendToServer()
 {
+    if (this->viewer)
+        return;
     _data.clear();
     QDataStream out(&_data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_6_2);
@@ -77,9 +89,11 @@ void SnakeClient::slotReadyRead()
             nextBlockSize = 0;
             qDebug() << _input;
             QStringList commandList = _input.split(';');
+
             for (QString& c : commandList)
             {
                 QStringList l = c.split(' ');
+
                 if (l[0] == 'e')
                     _gameOver();
                 if (l[0] == 'd')
@@ -95,10 +109,17 @@ void SnakeClient::slotReadyRead()
                 {
                     _enemyDots = _convertToDots(l);
                 }
+                if (viewer && l[0] == 'h')
+                {
+                    _homeDots = _convertToDots(commandList[0].split(' '));
+                    _enemyDots = _convertToDots(commandList[1].split(' '));
+                    _await = true;
+                }
                 if (l[0] == 'h')
                 {
                     _homeDots = _convertToDots(l);
                 }
+
                 if (l[0] == 'r')
                     _stillGame = l[1].toInt();
                 if (l[0] == 'c')
@@ -128,7 +149,8 @@ void SnakeClient::keyPressEvent(QKeyEvent* event)
         _direction = up;
     if ((key == Qt::Key_Down || key == Qt::Key_S) && _direction != up)
         _direction = down;
-    _sendToServer();
+    if (!viewer)
+        _sendToServer();
 }
 
 void SnakeClient::_drawSnake()
@@ -136,9 +158,8 @@ void SnakeClient::_drawSnake()
     QPainter painter(this);
 
     painter.setBrush(Qt::red);
-    painter.drawEllipse(_fruitPos.x() * _WIDTH,
-                        _fruitPos.y() * _HEIGHT,
-                        _WIDTH, _HEIGHT);
+    painter.drawEllipse(_fruitPos.x() * _WIDTH, _fruitPos.y() * _HEIGHT, _WIDTH,
+                        _HEIGHT);
 
     for (size_t i = 0; i < _homeDots.size(); i++)
     {
@@ -146,16 +167,14 @@ void SnakeClient::_drawSnake()
         {
             painter.setBrush(Qt::white);
             painter.drawEllipse(_homeDots[i].x() * _WIDTH,
-                                _homeDots[i].y() * _HEIGHT,
-                                _WIDTH, _HEIGHT);
+                                _homeDots[i].y() * _HEIGHT, _WIDTH, _HEIGHT);
         }
 
         else
         {
             painter.setBrush(Qt::darkBlue);
             painter.drawEllipse(_homeDots[i].x() * _WIDTH,
-                                _homeDots[i].y() * _HEIGHT,
-                                _WIDTH, _HEIGHT);
+                                _homeDots[i].y() * _HEIGHT, _WIDTH, _HEIGHT);
         }
     }
 
@@ -165,16 +184,14 @@ void SnakeClient::_drawSnake()
         {
             painter.setBrush(Qt::black);
             painter.drawEllipse(_enemyDots[i].x() * _WIDTH,
-                                _enemyDots[i].y() * _HEIGHT,
-                                _WIDTH, _HEIGHT);
+                                _enemyDots[i].y() * _HEIGHT, _WIDTH, _HEIGHT);
         }
 
         else
         {
             painter.setBrush(Qt::green);
             painter.drawEllipse(_enemyDots[i].x() * _WIDTH,
-                                _enemyDots[i].y() * _HEIGHT,
-                                _WIDTH, _HEIGHT);
+                                _enemyDots[i].y() * _HEIGHT, _WIDTH, _HEIGHT);
         }
     }
 }

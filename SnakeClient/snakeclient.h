@@ -27,6 +27,8 @@ class SnakeClient : public QMainWindow
 
    public:
     SnakeClient(QWidget* parent = nullptr);
+    bool viewer = false;
+    bool bot = false;
     ~SnakeClient();
     void connectToServer(const QString& ip, int port, const QString& SnakeName);
 

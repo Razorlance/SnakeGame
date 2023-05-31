@@ -8,7 +8,7 @@
 
 namespace Ui
 {
-    class enter;
+class enter;
 }
 
 class Enter : public QWidget

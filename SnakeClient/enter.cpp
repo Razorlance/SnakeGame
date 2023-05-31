@@ -66,18 +66,23 @@ void Enter::on_PlayerButton_clicked()
 
 void Enter::on_CancelButton_clicked() { this->hide(); }
 
-// NEEDED TO REWRITE: WHAT TO DO WHEN IT IS A VIEWER
 void Enter::on_ViewerButton_clicked()
 {
     QMessageBox msgBox;
     if ((_validIP(_ui->ip->displayText()) &&
          _validPort(_ui->port->text().toInt())))
+    {
+        _w.viewer = true;
         _w.connectToServer(_ui->ip->displayText(), _ui->port->text().toInt(),
                            _ui->playerName->text());
+        _w.show();
+        this->close();
+    }
     else
     {
         msgBox.setText("The IP address or Port is not correct");
         msgBox.exec();
     }
+    qDebug() << "connecting";
     qDebug() << "connecting";
 }
