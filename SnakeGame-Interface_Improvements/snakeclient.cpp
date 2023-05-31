@@ -38,7 +38,7 @@ SnakeClient::SnakeClient(QWidget *parent)
     QComboBox* mode = new QComboBox(startWindow);
     QLineEdit* ip = new QLineEdit(startWindow);
     QLineEdit* port = new QLineEdit(startWindow);
-    QComboBox *type = new QComboBox(startWindow);
+    //QComboBox *type = new QComboBox(startWindow);
 
     ip->setText("127.0.0.1");
     port->setText("33221");
@@ -47,14 +47,14 @@ SnakeClient::SnakeClient(QWidget *parent)
 
     mode->addItem("Player");
     mode->addItem("Viewer");
-    type->addItem("1:1");
-    type->addItem("1:Bot");
-    type->addItem("1:3");
+    //type->addItem("1:1");
+    //type->addItem("1:Bot");
+    //type->addItem("1:3");
     form->addRow("Enter your name:", name);
     form->addRow("Enter your mode of the game:", mode);
     form->addRow("IP:", ip);
     form->addRow("Port:", port);
-    form->addRow("Game Type:", type);
+    //form->addRow("Choose a Game Type:", type);
 
 
     QPushButton *button = new QPushButton("OK", startWindow);
@@ -70,13 +70,84 @@ SnakeClient::SnakeClient(QWidget *parent)
         QString modeText = mode->currentText();
         QString ipText = ip->text();
         QString portText = port->text();
-        QString typeText = type->currentText();
+
         //int numPlayersInt = numPlayers->value();
         // QString::number(input3Value)); //if string of # players will be needed
         if (nameText.size() == 0)
             nameText = "Player";
         if (modeText == "Player")
         {
+            QDialog* gameType = new QDialog();
+            gameType->setWindowTitle("Game Type");
+            gameType->adjustSize();
+            gameType->move(QGuiApplication::primaryScreen()->geometry().center() - gameType->rect().center());
+            QFormLayout *form2 = new QFormLayout(gameType);
+            QComboBox *type = new QComboBox(gameType);
+            type->addItem("1:1");
+            type->addItem("1:Bot");
+            type->addItem("1:3");
+            form2->addRow("Choose Game Type", type);
+            QPushButton *buttonOK = new QPushButton("OK", gameType);
+            //QPushButton *buttonCancel = new QPushButton("Cancel", startWindow);
+            QObject::connect(buttonOK, &QPushButton::clicked, gameType, &QDialog::accept);
+            form2->addWidget(buttonOK);
+
+            gameType->exec();
+            QString typeText = type->currentText();
+            //qDebug() << typeText;
+
+            if (typeText.split(":")[1] == "1")
+            {
+                ui->player1Label->setText(nameText);
+                //Adjusting the fond to the size of listWidget
+                /*
+                for(int i = 0; i < ui->listWidget->count(); i++) // for future when there will be not just 1 Player
+                {
+                    QListWidgetItem* item = ui->listWidget->item(i);
+                    //item->setSizeHint(QSize(item->sizeHint().width(), ui->listWidget->height() / ui->listWidget->count()));
+                    //item->setSizeHint(QSize(117, 4190300));
+                    item->setSizeHint(QSize(_width * _field_width, _height * _field_height / 4));
+                    QFont font;
+                    font.setPointSize((27));
+                    font.setBold(true);
+                    item->setFont(font);
+                    item->setForeground(Qt::blue);
+                }*/
+                //QString nameScore = nameText + " " + QString::number(_score);
+                //ui->listWidget->item(0)->setText(nameScore);
+            }
+            if (typeText.split(":")[1] == "Bot")
+            {
+                //qDebug() << "YES";
+                QDialog* difficulty = new QDialog();
+                difficulty->setWindowTitle("Game Difficulty");
+                difficulty->adjustSize();
+                difficulty->move(QGuiApplication::primaryScreen()->geometry().center() - difficulty->rect().center());
+                QFormLayout *form1 = new QFormLayout(difficulty);
+                QComboBox *diff = new QComboBox(difficulty);
+                diff->addItem("Easy");
+                diff->addItem("Medium");
+                diff->addItem("Hard");
+                diff->addItem("Extremely Hard");
+                form1->addRow("Choose Game Difficulty vs Bot", diff);
+                QPushButton *buttonOK = new QPushButton("OK", difficulty);
+                //QPushButton *buttonCancel = new QPushButton("Cancel", startWindow);
+                QObject::connect(buttonOK, &QPushButton::clicked, difficulty, &QDialog::accept);
+                form1->addWidget(buttonOK);
+                difficulty->exec();
+
+                ui->player1Label->setText(nameText);
+                ui->player2Label->setText("Bot");
+
+                //ui->listWidget->addItem(nameText);
+                //ui->listWidget->addItem(...);
+            }
+            if (typeText.split(":")[1] == "3")
+            {
+                //ui->listWidget->addItem(nameText);
+                //ui->listWidget->addItem(...);
+                //ui->listWidget->addItem(...);
+            }
             /*
             QMessageBox msgBox;
             if ((_validIP(ipText) &&
@@ -115,39 +186,7 @@ SnakeClient::SnakeClient(QWidget *parent)
         ui->player2Label->setStyleSheet("QLabel { color : red; }");
         ui->player3Label->setStyleSheet("QLabel { color : green; }");
         ui->player4Label->setStyleSheet("QLabel { color : orange; }");
-        if (typeText.split(":")[1] == "1")
-        {
-            ui->player1Label->setText(nameText);
-            //Adjusting the fond to the size of listWidget
-            /*
-            for(int i = 0; i < ui->listWidget->count(); i++) // for future when there will be not just 1 Player
-            {
-                QListWidgetItem* item = ui->listWidget->item(i);
-                //item->setSizeHint(QSize(item->sizeHint().width(), ui->listWidget->height() / ui->listWidget->count()));
-                //item->setSizeHint(QSize(117, 4190300));
-                item->setSizeHint(QSize(_width * _field_width, _height * _field_height / 4));
-                QFont font;
-                font.setPointSize((27));
-                font.setBold(true);
-                item->setFont(font);
-                item->setForeground(Qt::blue);
-            }*/
-            //QString nameScore = nameText + " " + QString::number(_score);
-            //ui->listWidget->item(0)->setText(nameScore);
-        }
-        if (typeText.split(":")[1] == "Bot")
-        {
-            ui->player1Label->setText(nameText);
-            ui->player2Label->setText("Bot");
-            //ui->listWidget->addItem(nameText);
-            //ui->listWidget->addItem(...);
-        }
-        if (typeText.split(":")[1] == "3")
-        {
-            //ui->listWidget->addItem(nameText);
-            //ui->listWidget->addItem(...);
-            //ui->listWidget->addItem(...);
-        }
+
         ui->userName->setText(nameText);
         //ui->labelName->setText(nameText);
     }

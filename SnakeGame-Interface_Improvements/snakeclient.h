@@ -42,7 +42,7 @@ private:
     // The size of a field
     static const int _width = 25; // The size of points
     static const int _height = 24;
-    static const int _field_width = 20; // The number of points
+    static const int _field_width = 22; // The number of points
     static const int _field_height = 25;
     static const int _delay = 100;
 
