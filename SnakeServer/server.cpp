@@ -13,6 +13,7 @@ Server::Server()
     Players.enqueue(&Player2);
     Players.enqueue(&Player3);
     Players.enqueue(&Player4);
+
     nextBlockSize = 0;
 
     Player1._homeDots = {QPoint(0, 0), QPoint(1, 0)};
@@ -44,35 +45,53 @@ void Server::SendData()
         Data.clear();
         QDataStream out(&Data, QIODevice::WriteOnly);
         out.setVersion(QDataStream::Qt_6_3);
-        QString homeCoordinates =
-            "h " + convertToString(PlayerList[it.key()]->_homeDots);
-        for (QMap<qintptr, Snake *>::Iterator it1 = PlayerList.begin();
-             it1 != PlayerList.end(); it1++)
+        if (ViewerList.contains(it.key()))
         {
-            qDebug() << it.key() << " " << it1.key();
-
-            if (it.key() == it1.key())
-                continue;
-            // 11123 12332 123123 123123
-            // Player1: socket, home, enemy, direction
-            // Player1 -> Player2, Player3, Player4
-            QString enemyCoordinates =
-                "g " + convertToString(it1.value()->_homeDots);
-
-            QString enemyDirections =
-                "d " + QString::number(it1.value()->direction);
-
-            QString dataToSend = homeCoordinates + ";" + enemyCoordinates +
-                                 ";" + enemyDirections + +";c 1";
-
-            qDebug() << dataToSend;
-
-            qDebug() << dataToSend;
+            QString dataToSend = "h " + convertToString(Player1._homeDots) +
+                                 ";h " + convertToString(Player2._homeDots);
+            //                                 ";h " +
+            //                                 convertToString(Player3._homeDots)
+            //                                 +
+            //                                 ";h " +
+            //                                 convertToString(Player4._homeDots);
+            qDebug() << Player1._homeDots << " " << Player2._homeDots << " "
+                     << Player3._homeDots << " " << Player4._homeDots;
             out << quint16(0) << dataToSend;
             out.device()->seek(0);
             out << quint16(Data.size() - sizeof(quint16));
             it.value()->write(Data);
             it.value()->waitForBytesWritten();
+        }
+        else
+        {
+            QString homeCoordinates =
+                "h " + convertToString(PlayerList[it.key()]->_homeDots);
+            for (QMap<qintptr, Snake *>::Iterator it1 = PlayerList.begin();
+                 it1 != PlayerList.end(); it1++)
+            {
+                qDebug() << it.key() << " " << it1.key();
+
+                if (it.key() == it1.key())
+                    continue;
+                // 11123 12332 123123 123123
+                // Player1: socket, home, enemy, direction
+                // Player1 -> Player2, Player3, Player4
+                QString enemyCoordinates =
+                    "g " + convertToString(it1.value()->_homeDots);
+
+                QString enemyDirections =
+                    "d " + QString::number(it1.value()->direction);
+
+                QString dataToSend = homeCoordinates + ";" + enemyCoordinates +
+                                     ";" + enemyDirections + +";c 1";
+
+                qDebug() << dataToSend;
+                out << quint16(0) << dataToSend;
+                out.device()->seek(0);
+                out << quint16(Data.size() - sizeof(quint16));
+                it.value()->write(Data);
+                it.value()->waitForBytesWritten();
+            }
         }
     }
 }
@@ -264,16 +283,8 @@ void Server::incomingConnection(qintptr SocketDescriptor)
     connect(socket, &QTcpSocket::disconnected, socket,
             &QTcpSocket::deleteLater);
     socket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
-
     Sockets[SocketDescriptor] = socket;
-    Snake *S = Players.dequeue();
-    PlayerList[SocketDescriptor] = S;
-    S->socket = socket;
-    qDebug() << "Client connected" << SocketDescriptor;
-
     this->nextPendingConnection();
-    if (Sockets.size() == 2)
-        initiateGame();
 }
 
 void Server::slotReadyRead()
@@ -301,6 +312,28 @@ void Server::slotReadyRead()
             nextBlockSize = 0;
             QStringList L = str.split(" ");
             qDebug() << str;
+
+            if (L[0] == "viewer")
+            {
+                if (L[1].toInt())
+                {
+                    ViewerList.append(socket->socketDescriptor());
+                    qDebug()
+                        << "Viewer connected" << socket->socketDescriptor();
+                    this->nextPendingConnection();
+                }
+                else
+                {
+                    Snake *S = Players.dequeue();
+                    PlayerList[socket->socketDescriptor()] = S;
+                    S->socket = socket;
+                    qDebug()
+                        << "Client connected" << socket->socketDescriptor();
+                    this->nextPendingConnection();
+                }
+                if (Sockets.size() == 2)
+                    initiateGame();
+            }
             if (L[0] == 'd')
             {
                 PlayerList[socket->socketDescriptor()]->direction =

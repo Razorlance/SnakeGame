@@ -25,6 +25,7 @@ class Server : public QTcpServer
     QMap<qintptr, QTcpSocket *> Sockets;
     QMap<qintptr, QVector<QPoint>> _Dots;
     QMap<qintptr, Snake *> PlayerList;
+    QList<qintptr> ViewerList;
     QSet<qintptr> _count;
     QPoint _fruitPos;
 
