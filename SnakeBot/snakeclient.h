@@ -2,23 +2,27 @@
 #define SNAKECLIENT_H
 
 #include <QApplication>
-#include <QDebug>
-#include <QDir>
 #include <QInputDialog>
-#include <QKeyEvent>
+#include <QCloseEvent>
+#include <QFormLayout>
 #include <QMainWindow>
 #include <QMessageBox>
-#include <QPainter>
-#include <QPoint>
-#include <QScreen>
-#include <QSize>
+#include <QPushButton>
+#include <QVBoxLayout>
 #include <QTcpSocket>
-#include <QTime>
+#include <QComboBox>
+#include <QKeyEvent>
+#include <QPainter>
+#include <QSpinBox>
+#include <QScreen>
 #include <QVector>
 #include <QWidget>
 #include <QColor>
-#include <QFormLayout>
-#include <QComboBox>
+#include <QDebug>
+#include <QPoint>
+#include <QSize>
+#include <QTime>
+#include <QDir>
 
 #include "ui_snakeclient.h"
 
@@ -31,7 +35,7 @@ class SnakeClient : public QMainWindow
 public:
     SnakeClient(QWidget* parent = nullptr);
     ~SnakeClient();
-    void connectToServer(const QString& ip, int port, const QString& SnakeName, int viewer);
+    void connectToServer();
 
 public slots:
     void slotReadyRead();
@@ -63,11 +67,13 @@ private:
     int _score = 0;
     bool _stillGame;
     bool _await = false;
-    int _viewer;
+    int _viewer = 0;
 
     QPoint _fruitPos = QPoint(0, 0);
     QString _input;
     QString _snakeName;
+    QString _mode;
+    QString _type;
     QVector<QPoint> _convertHomeDots(const QStringList&);
     QVector<QPoint> _convertEnemyDots(const QStringList&);
 

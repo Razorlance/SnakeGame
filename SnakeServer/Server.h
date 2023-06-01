@@ -34,7 +34,7 @@ private:
     static const int _delay = 500;
     static const int _width = 25;  // The size of points
     static const int _height = 24;
-    static const int _field_width = 25;  // The number of points
+    static const int _field_width = 21;  // The number of points
     static const int _field_height = 25;
 
     Snake _Player1;

@@ -3,26 +3,12 @@
 
 #include <QDebug>
 #include <QDir>
-//#include <QKeyEvent>
-//#include <QMainWindow>
-//#include <QMessageBox>
 #include <QObject>
-//#include <QPainter>
 #include <QPoint>
-//#include <QScreen>
 #include <QSize>
 #include <QTcpServer>
 #include <QTime>
 #include <QVector>
-//#include <QWidget>
-
-// QT_BEGIN_NAMESPACE
-// namespace Ui
-//{
-// class SnakeClient;
-//}
-// using namespace std;
-// QT_END_NAMESPACE
 
 enum Directions
 {

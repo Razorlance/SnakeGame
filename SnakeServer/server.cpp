@@ -19,7 +19,7 @@ Server::Server()
     _Player1.direction = right;
     _Player1._id = 1;
 
-    _Player2._homeDots = {QPoint(24, 24), QPoint(23, 24)};
+    _Player2._homeDots = {QPoint(20, 24), QPoint(19, 24)};
     _Player2.direction = left;
     _Player2._id = 2;
 
@@ -27,7 +27,7 @@ Server::Server()
     _Player3.direction = up;
     _Player3._id = 3;
 
-    _Player4._homeDots = {QPoint(24, 0), QPoint(23, 1)};
+    _Player4._homeDots = {QPoint(20, 0), QPoint(19, 1)};
     _Player4.direction = down;
     _Player4._id = 4;
 
@@ -200,8 +200,15 @@ void Server::_locateFruit()
     QTime time = QTime::currentTime();
     srand((uint)time.msec());
 
-    _fruitPos.rx() = rand() % _width;
-    _fruitPos.ry() = rand() % _height;
+    _fruitPos.rx() = rand() % _field_width;
+    _fruitPos.ry() = rand() % _field_height;
+
+    for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
+         it != _PlayerList.end(); it++)
+    {
+        if (it.value()->_homeDots.contains(_fruitPos))
+            _locateFruit();
+    }
 }
 
 void Server::_eatFruit()
