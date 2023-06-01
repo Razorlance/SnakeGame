@@ -21,9 +21,6 @@ set(PROJECT_SOURCES
         snakeclient.cpp
         snakeclient.h
         snakeclient.ui
-        enter.cpp
-        enter.h
-        enter.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
