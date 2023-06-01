@@ -12,55 +12,52 @@
 class Server : public QTcpServer
 {
     Q_OBJECT
-   public:
+public:
     Server();
+    // Write a destructor for a server
     //    ~Server();
 
-    QTcpSocket *socket;
+    QTcpSocket* socket;
 
-   protected:
+protected:
     void timerEvent(QTimerEvent *event) override;
 
-   private:
-    QMap<qintptr, QTcpSocket *> Sockets;
+private:
+    QMap<qintptr, QTcpSocket *> _Sockets;
     QMap<qintptr, QVector<QPoint>> _Dots;
-    QMap<qintptr, Snake *> PlayerList;
-    QList<qintptr> ViewerList;
+    QMap<qintptr, Snake *> _PlayerList;
+    QList<qintptr> _ViewerList;
     QSet<qintptr> _count;
     QPoint _fruitPos;
 
     int _timer;
-    static const int _delay = 1000;
+    static const int _delay = 500;
     static const int _width = 25;  // The size of points
     static const int _height = 24;
     static const int _field_width = 25;  // The number of points
     static const int _field_height = 25;
 
-    Snake Player1;
-    Snake Player2;
-    Snake Player3;
-    Snake Player4;
+    Snake _Player1;
+    Snake _Player2;
+    Snake _Player3;
+    Snake _Player4;
 
-    QQueue<Snake *> Players;
+    QQueue<Snake *> _Players;
 
-    QVector<QPoint> convertToDots(QStringList &str);
-    QString convertToString(QVector<QPoint> &dots);
-    QByteArray Data;
-    quint16 nextBlockSize;
-    void SendToClient(QString str);
-    void SendEnemyCoordinates();
-    void SendEnemyDirections();
-    void SendHomeCoordinates();
-    void SendData();
-    void SendData(QString str);
-    bool checkBoundary();
-    void locateFruit();
-    void initiateGame();
-    void endGame();
-    void move();
-    void eatFruit();
+    QString _convertToString(QVector<QPoint> &dots);
+    QByteArray _Data;
+    quint16 _nextBlockSize;
 
-   public slots:
+    void _SendData();
+    void _SendData(QString str);
+    bool _checkBoundary();
+    void _locateFruit();
+    void _initiateGame();
+    void _eatFruit();
+    void _endGame();
+    void _move();
+
+public slots:
     void incomingConnection(qintptr SocketDescriptor) override;
     void slotReadyRead();
 };

@@ -7,128 +7,150 @@ Server::Server()
     else
         qDebug() << "Error";
 
-    // Starts drawing after the next
+    // Review code
 
-    Players.enqueue(&Player1);
-    Players.enqueue(&Player2);
-    Players.enqueue(&Player3);
-    Players.enqueue(&Player4);
+    _Players.enqueue(&_Player1);
+    _Players.enqueue(&_Player2);
+    _Players.enqueue(&_Player3);
+    _Players.enqueue(&_Player4);
+    _nextBlockSize = 0;
 
-    nextBlockSize = 0;
+    _Player1._homeDots = {QPoint(0, 0), QPoint(1, 0)};
+    _Player1.direction = right;
+    _Player1._id = 1;
 
-    Player1._homeDots = {QPoint(0, 0), QPoint(1, 0)};
-    Player2._homeDots = {QPoint(0, 8), QPoint(1, 8)};
-    Player3._homeDots = {QPoint(0, 16), QPoint(1, 16)};
-    Player4._homeDots = {QPoint(0, 24), QPoint(1, 24)};
+    _Player2._homeDots = {QPoint(24, 24), QPoint(23, 24)};
+    _Player2.direction = left;
+    _Player2._id = 2;
+
+    _Player3._homeDots = {QPoint(0, 24), QPoint(0, 23)};
+    _Player3.direction = up;
+    _Player3._id = 3;
+
+    _Player4._homeDots = {QPoint(24, 0), QPoint(23, 1)};
+    _Player4.direction = down;
+    _Player4._id = 4;
+
+    _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots},
+                             {_Player3._id, _Player3._homeDots},
+                             {_Player4._id, _Player4._homeDots}};
+
+    _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                             {_Player3._id, _Player3._homeDots},
+                             {_Player4._id, _Player4._homeDots}};
+
+    _Player3._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                             {_Player2._id, _Player2._homeDots},
+                             {_Player4._id, _Player4._homeDots}};
+
+    _Player4._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                             {_Player2._id, _Player2._homeDots},
+                             {_Player3._id, _Player3._homeDots}};
 }
 
 void Server::timerEvent(QTimerEvent *event)
 {
-    eatFruit();
-    move();
-    if (checkBoundary())
+    _eatFruit();
+    _move();
+    if (_checkBoundary())
     {
         qDebug() << "Continue the game";
-        SendData();
+        _SendData();
         _count.clear();
     }
     else
-        endGame();
+        _endGame();
 }
 
-void Server::SendData()
+void Server::_SendData()
 {
-    qDebug() << "Sending enemy coordinates, directions and home coordinates...";
-    for (QMap<qintptr, QTcpSocket *>::Iterator it = Sockets.begin();
-         it != Sockets.end(); it++)
+    qDebug() << "Sending enemy coordinates, id and home coordinates...";
+    for (QMap<qintptr, QTcpSocket *>::Iterator it = _Sockets.begin();
+         it != _Sockets.end(); it++)
     {
-        Data.clear();
-        QDataStream out(&Data, QIODevice::WriteOnly);
+        _Data.clear();
+        QDataStream out(&_Data, QIODevice::WriteOnly);
         out.setVersion(QDataStream::Qt_6_3);
-        if (ViewerList.contains(it.key()))
-        {
-            QString dataToSend = "h " + convertToString(Player1._homeDots) +
-                                 ";h " + convertToString(Player2._homeDots);
-            //                                 ";h " +
-            //                                 convertToString(Player3._homeDots)
-            //                                 +
-            //                                 ";h " +
-            //                                 convertToString(Player4._homeDots);
-            qDebug() << Player1._homeDots << " " << Player2._homeDots << " "
-                     << Player3._homeDots << " " << Player4._homeDots;
-            out << quint16(0) << dataToSend;
-            out.device()->seek(0);
-            out << quint16(Data.size() - sizeof(quint16));
-            it.value()->write(Data);
-            it.value()->waitForBytesWritten();
-        }
-        else
-        {
-            QString homeCoordinates =
-                "h " + convertToString(PlayerList[it.key()]->_homeDots);
-            for (QMap<qintptr, Snake *>::Iterator it1 = PlayerList.begin();
-                 it1 != PlayerList.end(); it1++)
-            {
-                qDebug() << it.key() << " " << it1.key();
+        QString homeCoordinates =
+            "h " + _convertToString(_PlayerList[it.key()]->_homeDots);
 
-                if (it.key() == it1.key())
-                    continue;
-                // 11123 12332 123123 123123
-                // Player1: socket, home, enemy, direction
-                // Player1 -> Player2, Player3, Player4
-                QString enemyCoordinates =
-                    "g " + convertToString(it1.value()->_homeDots);
-
-                QString enemyDirections =
-                    "d " + QString::number(it1.value()->direction);
-
-                QString dataToSend = homeCoordinates + ";" + enemyCoordinates +
-                                     ";" + enemyDirections + +";c 1";
-
-                qDebug() << dataToSend;
-                out << quint16(0) << dataToSend;
-                out.device()->seek(0);
-                out << quint16(Data.size() - sizeof(quint16));
-                it.value()->write(Data);
-                it.value()->waitForBytesWritten();
-            }
-        }
-    }
-}
-
-void Server::SendData(QString str)
-{
-    qDebug() << "Sending specific data...";
-    for (QMap<qintptr, QTcpSocket *>::Iterator it = Sockets.begin();
-         it != Sockets.end(); it++)
-    {
-        Data.clear();
-        QDataStream out(&Data, QIODevice::WriteOnly);
-        out.setVersion(QDataStream::Qt_6_3);
-        for (QMap<qintptr, Snake *>::Iterator it1 = PlayerList.begin();
-             it1 != PlayerList.end(); it1++)
+        for (QMap<qintptr, Snake *>::Iterator it1 = _PlayerList.begin();
+             it1 != _PlayerList.end(); it1++)
         {
             qDebug() << it.key() << " " << it1.key();
 
             if (it.key() == it1.key())
                 continue;
 
-            qDebug() << str;
-            out << quint16(0) << str;
+            // 11123 12332 123123 123123
+            // Player1: socket, home, enemy, direction
+            // Player1 -> Player2, Player3, Player4
+
+            /*
+            QString dataToSend = homeCoordinates + ";";
+
+            for (QMap<int, QVector<QPoint>>::Iterator ed = _PlayerList[it.value()]->_enemiesDots.begin();
+                 ed != _PlayerList[it.value()]->_enemiesDots.end(); ed++)
+            {
+                dataToSend += "g " + QString::number(ed.key())
+                              + " " + _convertToString(ed.value()) + ";";
+            }
+
+            dataToSend = dataToSend + "c 1";
+            */
+
+            QString enemyCoordinates =
+                "g " + QString::number(it1.value()->_id) +
+                    " " + _convertToString(it1.value()->_homeDots);
+
+            QString enemyDirections =
+                "d " + QString::number(it1.value()->direction);
+
+            QString dataToSend = homeCoordinates + ";" + enemyCoordinates + ";" + enemyDirections +
+                                 + ";c 1";
+
+            qDebug() << dataToSend;
+            out << quint16(0) << dataToSend;
             out.device()->seek(0);
-            out << quint16(Data.size() - sizeof(quint16));
-            it.value()->write(Data);
+            out << quint16(_Data.size() - sizeof(quint16));
+            it.value()->write(_Data);
             it.value()->waitForBytesWritten();
         }
     }
 }
 
-bool Server::checkBoundary()
+void Server::_SendData(QString str)
+{
+    qDebug() << "Sending specific data...";
+
+    for (QMap<qintptr, QTcpSocket *>::Iterator it = _Sockets.begin();
+         it != _Sockets.end(); it++)
+    {
+        _Data.clear();
+        QDataStream out(&_Data, QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_6_3);
+
+        QString dataToSend = str;
+
+        if (str[str.size() - 1] == 'r')
+            dataToSend = str + " " + QString::number(_PlayerList[it.key()]->_id);
+
+        qDebug() << dataToSend;
+
+        out << quint16(0) << dataToSend;
+        out.device()->seek(0);
+        out << quint16(_Data.size() - sizeof(quint16));
+        it.value()->write(_Data);
+        it.value()->waitForBytesWritten();
+    }
+}
+
+bool Server::_checkBoundary()
 {
     // Fix snake not running into itself
 
-    for (QMap<qintptr, Snake *>::Iterator it = PlayerList.begin();
-         it != PlayerList.end(); it++)
+    for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
+         it != _PlayerList.end(); it++)
     {
         for (size_t i = 0; i < it.value()->_homeDots.size(); i++)
         {
@@ -169,10 +191,11 @@ bool Server::checkBoundary()
             return false;
         }
     }
+
     return true;
 }
 
-void Server::locateFruit()
+void Server::_locateFruit()
 {
     QTime time = QTime::currentTime();
     srand((uint)time.msec());
@@ -181,92 +204,133 @@ void Server::locateFruit()
     _fruitPos.ry() = rand() % _height;
 }
 
-void Server::eatFruit()
+void Server::_eatFruit()
 {
-    for (QMap<qintptr, Snake *>::Iterator it = PlayerList.begin();
-         it != PlayerList.end(); it++)
+    for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
+         it != _PlayerList.end(); it++)
     {
         if (it.value()->_homeDots[0] == _fruitPos)
         {
             it.value()->_homeDots.push_back(_fruitPos);
-            locateFruit();
-            QString fruitPosition = "f " + QString::number(_fruitPos.rx()) +
-                                    " " + QString::number(_fruitPos.ry());
-            SendData(fruitPosition);
+            _locateFruit();
+            QString fruitPosition = "f " + QString::number(_fruitPos.rx()) + " " + QString::number(_fruitPos.ry());
+            _SendData(fruitPosition);
         }
     }
 }
 
-void Server::initiateGame()
+void Server::_initiateGame()
 {
     qDebug() << "Starting the game...";
     qDebug() << "Creating a timer...";
     _timer = startTimer(_delay);
     qDebug() << "Locating fruit...";
-    locateFruit();
-    QString fruitPosition = "f " + QString::number(_fruitPos.rx()) + " " +
-                            QString::number(_fruitPos.ry());
-    //        for (qintptr &socket : Sockets.keys())
+    _locateFruit();
+    QString fruitPosition = "f " + QString::number(_fruitPos.rx()) + " " + QString::number(_fruitPos.ry());
     qDebug() << "Sending command to start..";
-    SendData("r 1;" + fruitPosition);
+    // Make id for each player which specifies direction and color
+    _SendData(fruitPosition + ";r");
 }
 
-void Server::endGame()
+void Server::_endGame()
 {
-    SendData("e");
+    _SendData("e");
     killTimer(_timer);
 }
 
-void Server::move()
+void Server::_move()
 {
     // Fix for() loop
-    for (size_t i = Player1._homeDots.size() - 1; i > 0; i--)
+
+    for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
+         it != _PlayerList.end(); it++)
     {
-        Player1._homeDots[i] = Player1._homeDots[i - 1];
+        for (size_t i = it.value()->_homeDots.size() - 1; i > 0; i--)
+        {
+            it.value()->_homeDots[i] = it.value()->_homeDots[i - 1];
+        }
+
+        switch (it.value()->direction)
+        {
+            case left:
+                it.value()->_homeDots[0].rx()--;
+                break;
+            case right:
+                it.value()->_homeDots[0].rx()++;
+                break;
+            case up:
+                it.value()->_homeDots[0].ry()--;
+                break;
+            case down:
+                it.value()->_homeDots[0].ry()++;
+                break;
+        }
+
+        for (QMap<qintptr, Snake *>::Iterator es = _PlayerList.begin();
+             es != _PlayerList.end(); es++)
+        {
+            if (it.key() == es.key())
+                continue;
+
+            es.value()->_enemiesDots[it.value()->_id] = it.value()->_homeDots;
+        }
     }
 
-    for (size_t i = Player2._homeDots.size() - 1; i > 0; i--)
+    for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
+         it != _PlayerList.end(); it++)
     {
-        Player2._homeDots[i] = Player2._homeDots[i - 1];
+        qDebug() << it.value()->_enemiesDots;
     }
 
-    Player1._enemyDots = Player2._homeDots;
-    Player2._enemyDots = Player1._homeDots;
+//    for (size_t i = _Player1._homeDots.size() - 1; i > 0; i--)
+//    {
+//        _Player1._homeDots[i] = _Player1._homeDots[i - 1];
+//    }
 
-    switch (Player1.direction)
-    {
-        case left:
-            Player1._homeDots[0].rx()--;
-            break;
-        case right:
-            Player1._homeDots[0].rx()++;
-            break;
-        case up:
-            Player1._homeDots[0].ry()--;
-            break;
-        case down:
-            Player1._homeDots[0].ry()++;
-            break;
-    }
+//    for (size_t i = _Player2._homeDots.size() - 1; i > 0; i--)
+//    {
+//        _Player2._homeDots[i] = _Player2._homeDots[i - 1];
+//    }
 
-    switch (Player2.direction)
-    {
-        case left:
-            Player2._homeDots[0].rx()--;
-            break;
-        case right:
-            Player2._homeDots[0].rx()++;
-            break;
-        case up:
-            Player2._homeDots[0].ry()--;
-            break;
-        case down:
-            Player2._homeDots[0].ry()++;
-            break;
-    }
+//    switch (_Player1.direction)
+//    {
+//        case left:
+//            _Player1._homeDots[0].rx()--;
+//            break;
+//        case right:
+//            _Player1._homeDots[0].rx()++;
+//            break;
+//        case up:
+//            _Player1._homeDots[0].ry()--;
+//            break;
+//        case down:
+//            _Player1._homeDots[0].ry()++;
+//            break;
+//    }
+
+//    switch (_Player2.direction)
+//    {
+//        case left:
+//            _Player2._homeDots[0].rx()--;
+//            break;
+//        case right:
+//            _Player2._homeDots[0].rx()++;
+//            break;
+//        case up:
+//            _Player2._homeDots[0].ry()--;
+//            break;
+//        case down:
+//            _Player2._homeDots[0].ry()++;
+//            break;
+//    }
+
+    // Think carefully about this
+
+    _Player1._enemyDots = _Player2._homeDots;
+    _Player2._enemyDots = _Player1._homeDots;
 }
 
-QString Server::convertToString(QVector<QPoint> &dots)
+QString Server::_convertToString(QVector<QPoint> &dots)
 {
     QString str("");
     for (const QPoint &dot : dots)
@@ -283,7 +347,7 @@ void Server::incomingConnection(qintptr SocketDescriptor)
     connect(socket, &QTcpSocket::disconnected, socket,
             &QTcpSocket::deleteLater);
     socket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
-    Sockets[SocketDescriptor] = socket;
+    _Sockets[SocketDescriptor] = socket;
     this->nextPendingConnection();
 }
 
@@ -300,84 +364,55 @@ void Server::slotReadyRead()
 
         while (true)
         {
-            if (nextBlockSize == 0)
+            if (_nextBlockSize == 0)
             {
                 if (socket->bytesAvailable() < 2)
                     break;
-                in >> nextBlockSize;
+
+                in >> _nextBlockSize;
             }
-            if (socket->bytesAvailable() < nextBlockSize)
+
+            if (socket->bytesAvailable() < _nextBlockSize)
                 break;
+
             in >> str;
-            nextBlockSize = 0;
+            _nextBlockSize = 0;
             QStringList L = str.split(" ");
             qDebug() << str;
 
-            if (L[0] == "viewer")
+            qDebug() << L;
+
+            if (L[0] == "v")
             {
-                if (L[1].toInt())
+                if (L[1] == "1")
                 {
-                    ViewerList.append(socket->socketDescriptor());
-                    qDebug()
-                        << "Viewer connected" << socket->socketDescriptor();
+                    _ViewerList.append(socket->socketDescriptor());
                     this->nextPendingConnection();
                 }
+
                 else
                 {
-                    Snake *S = Players.dequeue();
-                    PlayerList[socket->socketDescriptor()] = S;
+                    Snake *S = _Players.dequeue();
+                    _PlayerList[socket->socketDescriptor()] = S;
                     S->socket = socket;
-                    qDebug()
-                        << "Client connected" << socket->socketDescriptor();
+                    qDebug() << "Client connected" << socket->socketDescriptor();
                     this->nextPendingConnection();
                 }
-                if (Sockets.size() == 2)
-                    initiateGame();
+
+                if (_Sockets.size() == 2)
+                    _initiateGame();
             }
+
             if (L[0] == 'd')
             {
-                PlayerList[socket->socketDescriptor()]->direction =
+                _PlayerList[socket->socketDescriptor()]->direction =
                     Directions(L[1].toInt());
                 _count.insert(socket->socketDescriptor());
             }
+
             break;
         }
     }
     else
         qDebug() << "Error";
 }
-
-/*
-void Server::timerEvent(QTimerEvent *event)
-{
-    //    qDebug() << "Tick" << _stillGame << _await;
-    //    if (_stillGame & _await)
-    //    {
-    //        eatFruit();
-    //        move();
-    //        checkBoundary();
-    //        _await = false;
-    //        this->repaint();
-    //    }
-    //    SendToServer(_homeDots);
-
-    //    SendHomeCoordinates();
-    //    SendEnemyCoordinates();
-    //    SendEnemyDirections();
-
-    if (checkBoundary())
-    {
-        //        if (_count.size() == Sockets.size())
-        //        {
-        qDebug() << "Continue the game";
-        move();
-        //        SendToClient("c 1");
-        SendData();
-        _count.clear();
-        //        }
-    }
-    else
-        endGame();
-    //    SendData();
-}
-*/

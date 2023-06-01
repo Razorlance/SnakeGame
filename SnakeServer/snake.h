@@ -34,48 +34,31 @@ enum Directions
 
 class Snake
 {
-   public:
+public:
     Snake();
     Snake(const Snake& other) { direction = other.direction; }
     ~Snake();
     Directions direction;
     QTcpSocket* socket;
 
-   public slots:
+public slots:
     void slotReadyRead();
     QVector<QPoint> getMap();
 
     QByteArray _data;
     QString _ip;
     int _port;
+    int _id;
 
     // The size of a field
     static const int _WIDTH = 25;  // The size of points
     static const int _HEIGHT = 24;
     static const int _FIELD_WIDTH = 25;  // The number of points
     static const int _FIELD_HEIGHT = 25;
-    static const int _DELAY = 500;
 
-    int _timer;
-    int _score = 0;
-
-    QString _input;
-    QString _snakeName;
-    bool _stillGame;
-    bool _await = false;
     QVector<QPoint> _homeDots;
     QVector<QPoint> _enemyDots;
-    QPoint _fruitPos = QPoint(0, 0);
-
-    QString _convertToString(const QVector<QPoint>&);
-    QVector<QPoint> _convertToDots(const QStringList&);
-    //    void _initiateGame();
-    //    void _drawSnake();
-    //    void _locateFruit();
-    void _move();
-    void _step();
-    //    void _gameOver();
-    //    void _eatFruit();
+    QMap<int, QVector<QPoint>> _enemiesDots;
 };
 
 #endif  // SNAKE_H

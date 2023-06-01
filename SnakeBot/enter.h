@@ -27,6 +27,7 @@ class Enter : public QWidget
    private:
     Ui::enter* _ui;
     SnakeClient _w;
+    bool _player;
     bool _validIP(const QString& ip);
     bool _validPort(int port);
     bool _isNumber(const QString& str);
