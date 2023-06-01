@@ -133,7 +133,18 @@ void Server::_SendData(QString str)
         QString dataToSend = str;
 
         if (str[str.size() - 1] == 'r')
-            dataToSend = str + " " + QString::number(_PlayerList[it.key()]->_id);
+        {
+            dataToSend += " " + QString::number(_PlayerList[it.key()]->_id);
+
+            for (QMap<qintptr, Snake *>::Iterator it1 = _PlayerList.begin();
+                 it1 != _PlayerList.end(); it1++)
+            {
+                if (it.key() == it1.key())
+                    continue;
+
+                dataToSend += ";n " + QString::number(it1.value()->_id) + " " + it1.value()->_snakeName;
+            }
+        }
 
         qDebug() << dataToSend;
 
@@ -401,6 +412,7 @@ void Server::slotReadyRead()
                 {
                     Snake *S = _Players.dequeue();
                     _PlayerList[socket->socketDescriptor()] = S;
+                    S->_snakeName = L[2];
                     S->socket = socket;
                     qDebug() << "Client connected" << socket->socketDescriptor();
                     this->nextPendingConnection();

@@ -33,6 +33,7 @@ public slots:
 
     QByteArray _data;
     QString _ip;
+    QString _snakeName;
     int _port;
     int _id;
 

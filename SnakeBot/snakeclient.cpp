@@ -136,8 +136,8 @@ SnakeClient::SnakeClient(QWidget* parent)
                 difficulty->exec();
                 */
 
-                _ui->player1Label->setText(_snakeName);
-                _ui->player2Label->setText("Bot");
+                //_ui->player1Label->setText(_snakeName);
+                //_ui->player2Label->setText("Bot");
 
                 //ui->listWidget->addItem(nameText);
                 //ui->listWidget->addItem(...);
@@ -185,12 +185,11 @@ SnakeClient::SnakeClient(QWidget* parent)
             qDebug() << "connecting";
             */
         }
+
         _ui->player1Label->setStyleSheet("QLabel { color : blue; }");
         _ui->player2Label->setStyleSheet("QLabel { color : red; }");
         _ui->player3Label->setStyleSheet("QLabel { color : green; }");
         _ui->player4Label->setStyleSheet("QLabel { color : orange; }");
-
-        _ui->userName->setText(_snakeName);
     }
     _nextBlockSize = 0;
     qDebug() << "Connecting to server...";
@@ -208,7 +207,7 @@ void SnakeClient::connectToServer()
     QDataStream out(&_data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_6_2);
 
-    QString dataToSend = "v " + QString::number(_viewer);
+    QString dataToSend = "v " + QString::number(_viewer) + " " + _snakeName;
     qDebug() << dataToSend;
 
     out << quint16(0) << dataToSend;
@@ -295,27 +294,48 @@ void SnakeClient::slotReadyRead()
                         {
                             _direction = right;
                             _colour = blue;
+                            _ui->player1Label->setText(_snakeName);
                         }
 
                         else if (l[1].toInt() == 2)
                         {
                             _direction = left;
                             _colour = red;
+                            _ui->player2Label->setText(_snakeName);
                         }
 
                         else if (l[1].toInt() == 3)
                         {
                             _direction = up;
                             _colour = green;
+                            _ui->player3Label->setText(_snakeName);
                         }
 
                         else if (l[1].toInt() == 4)
                         {
                             _direction = down;
                             _colour = magenta;
+                            _ui->player4Label->setText(_snakeName);
                         }
 
                         _stillGame = l[1].toInt();
+                    }
+
+                    if (l[0] == 'n')
+                    {
+                        // Fix enemy name splitted into spaces
+
+                        if (l[1].toInt() == 1)
+                            _ui->player1Label->setText(l[2]);
+
+                        else if (l[1].toInt() == 2)
+                            _ui->player2Label->setText(l[2]);
+
+                        else if (l[1].toInt() == 3)
+                            _ui->player3Label->setText(l[2]);
+
+                        else if (l[1].toInt() == 4)
+                            _ui->player4Label->setText(l[2]);
                     }
                 }
 
