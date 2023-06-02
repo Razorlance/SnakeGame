@@ -534,21 +534,27 @@ void Server::slotReadyRead()
                     }
                 }
 
-                if (l[0] == 'v')
+                if (l[0] == 'p')
                 {
-                    if (l[1] == "1")
+                    if (l[1] == "0")
                     {
                         _ViewerList.append(socket->socketDescriptor());
                         this->nextPendingConnection();
                     }
 
-                    else
+                    else if (l[1] == "1")
                     {
                         Snake *S = _Players.dequeue();
                         _PlayerList[socket->socketDescriptor()] = S;
                         S->_snakeName = l[2];
                         S->socket = socket;
                         qDebug() << "Client connected" << socket->socketDescriptor();
+                        this->nextPendingConnection();
+                    }
+
+                    else if (l[1] == "2")
+                    {
+                        _ViewerList.append(socket->socketDescriptor());
                         this->nextPendingConnection();
                     }
 

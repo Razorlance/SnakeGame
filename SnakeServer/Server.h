@@ -1,6 +1,7 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include <QApplication>
 #include <QQueue>
 #include <QTcpServer>
 #include <QTcpSocket>

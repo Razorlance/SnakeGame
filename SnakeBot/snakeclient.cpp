@@ -108,7 +108,7 @@ void SnakeClient::connectToServer()
     QDataStream out(&_data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_6_2);
 
-    QString dataToSend = "t " + QString::number(_type) + ";v 0 " + _snakeName;
+    QString dataToSend = "t " + QString::number(_type) + ";p 1 " + _snakeName;
     qDebug() << dataToSend;
 
     out << quint16(0) << dataToSend;
