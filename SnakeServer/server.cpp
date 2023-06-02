@@ -18,17 +18,18 @@ Server::Server()
     _Player4.direction = down;
     _Player4._id = 4;
 
-    QDialog* startWindow = new QDialog();
+    QDialog *startWindow = new QDialog();
 
     startWindow->setWindowTitle("Preferences Window");
     startWindow->adjustSize();
-    startWindow->move(QGuiApplication::primaryScreen()->geometry().center() - startWindow->rect().center());
+    startWindow->move(QGuiApplication::primaryScreen()->geometry().center() -
+                      startWindow->rect().center());
 
     QFormLayout *form = new QFormLayout(startWindow);
-    QComboBox* type = new QComboBox(startWindow);
-    QLineEdit* port = new QLineEdit(startWindow);
+    QComboBox *type = new QComboBox(startWindow);
+    QLineEdit *port = new QLineEdit(startWindow);
 
-    port->setText("");
+    port->setText("33221");
 
     type->addItem("Test Bot");
     type->addItem("1:1");
@@ -43,8 +44,9 @@ Server::Server()
     form->addRow("Port:", port);
 
     QPushButton *button = new QPushButton("OK", startWindow);
-    //QPushButton *buttonCancel = new QPushButton("Cancel", startWindow);
-    QObject::connect(button, &QPushButton::clicked, startWindow, &QDialog::accept);
+    // QPushButton *buttonCancel = new QPushButton("Cancel", startWindow);
+    QObject::connect(button, &QPushButton::clicked, startWindow,
+                     &QDialog::accept);
     form->addWidget(button);
 
     if (startWindow->exec() == QDialog::Accepted)
@@ -239,8 +241,9 @@ void Server::_SendData()
             /*
             QString dataToSend = homeCoordinates + ";";
 
-            for (QMap<int, QVector<QPoint>>::Iterator ed = _PlayerList[it.value()]->_enemiesDots.begin();
-                 ed != _PlayerList[it.value()]->_enemiesDots.end(); ed++)
+            for (QMap<int, QVector<QPoint>>::Iterator ed =
+            _PlayerList[it.value()]->_enemiesDots.begin(); ed !=
+            _PlayerList[it.value()]->_enemiesDots.end(); ed++)
             {
                 dataToSend += "g " + QString::number(ed.key())
                               + " " + _convertToString(ed.value()) + ";";
@@ -249,15 +252,15 @@ void Server::_SendData()
             dataToSend = dataToSend + "c 1";
             */
 
-            QString enemyCoordinates =
-                "g " + QString::number(it1.value()->_id) +
-                    " " + _convertToString(it1.value()->_homeDots);
+            QString enemyCoordinates = "g " +
+                                       QString::number(it1.value()->_id) + " " +
+                                       _convertToString(it1.value()->_homeDots);
 
             QString enemyDirections =
                 "d " + QString::number(it1.value()->direction);
 
-            QString dataToSend = homeCoordinates + ";" + enemyCoordinates + ";" + enemyDirections +
-                                 + ";c 1";
+            QString dataToSend = homeCoordinates + ";" + enemyCoordinates +
+                                 ";" + enemyDirections + +";c 1";
 
             qDebug() << dataToSend;
             out << quint16(0) << dataToSend;
@@ -292,7 +295,8 @@ void Server::_SendData(QString str)
                 if (it.key() == it1.key())
                     continue;
 
-                dataToSend += ";n " + QString::number(it1.value()->_id) + " " + it1.value()->_snakeName;
+                dataToSend += ";n " + QString::number(it1.value()->_id) + " " +
+                              it1.value()->_snakeName;
             }
         }
 
@@ -397,7 +401,8 @@ void Server::_eatFruit()
         {
             it.value()->_homeDots.push_back(_fruitPos);
             _locateFruit();
-            QString fruitPosition = "f " + QString::number(_fruitPos.rx()) + " " + QString::number(_fruitPos.ry());
+            QString fruitPosition = "f " + QString::number(_fruitPos.rx()) +
+                                    " " + QString::number(_fruitPos.ry());
             _SendData(fruitPosition);
         }
     }
@@ -410,7 +415,8 @@ void Server::_initiateGame()
     _timer = startTimer(_delay);
     qDebug() << "Locating fruit...";
     _locateFruit();
-    QString fruitPosition = "f " + QString::number(_fruitPos.rx()) + " " + QString::number(_fruitPos.ry());
+    QString fruitPosition = "f " + QString::number(_fruitPos.rx()) + " " +
+                            QString::number(_fruitPos.ry());
     qDebug() << "Sending command to start..";
     // Make id for each player which specifies direction and color
     _SendData(fruitPosition + ";r");
@@ -522,7 +528,7 @@ void Server::slotReadyRead()
 
             qDebug() << L;
 
-            for (QString& c : L)
+            for (QString &c : L)
             {
                 QStringList l = c.split(' ');
 
@@ -548,7 +554,8 @@ void Server::slotReadyRead()
                         _PlayerList[socket->socketDescriptor()] = S;
                         S->_snakeName = l[2];
                         S->socket = socket;
-                        qDebug() << "Client connected" << socket->socketDescriptor();
+                        qDebug()
+                            << "Client connected" << socket->socketDescriptor();
                         this->nextPendingConnection();
                     }
 

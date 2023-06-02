@@ -2,27 +2,27 @@
 #define SNAKECLIENT_H
 
 #include <QApplication>
-#include <QInputDialog>
 #include <QCloseEvent>
+#include <QColor>
+#include <QComboBox>
+#include <QDebug>
+#include <QDir>
 #include <QFormLayout>
+#include <QInputDialog>
+#include <QKeyEvent>
 #include <QMainWindow>
 #include <QMessageBox>
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QTcpSocket>
-#include <QComboBox>
-#include <QKeyEvent>
 #include <QPainter>
-#include <QSpinBox>
+#include <QPoint>
+#include <QPushButton>
 #include <QScreen>
+#include <QSize>
+#include <QSpinBox>
+#include <QTcpSocket>
+#include <QTime>
+#include <QVBoxLayout>
 #include <QVector>
 #include <QWidget>
-#include <QColor>
-#include <QDebug>
-#include <QPoint>
-#include <QSize>
-#include <QTime>
-#include <QDir>
 
 #include "ui_snakeclient.h"
 
@@ -32,19 +32,18 @@ class SnakeClient : public QMainWindow
 {
     Q_OBJECT
 
-public:
+   public:
     SnakeClient(QWidget* parent = nullptr);
     ~SnakeClient();
     void connectToServer();
 
-public slots:
+   public slots:
     void slotReadyRead();
 
-protected:
-    void keyPressEvent(QKeyEvent* event) override;
+   protected:
     void paintEvent(QPaintEvent* event) override;
 
-private:
+   private:
     Ui::SnakeClient* _ui;
     QTcpSocket* _socket;
     QByteArray _data;

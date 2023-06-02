@@ -2,20 +2,27 @@
 #define SNAKECLIENT_H
 
 #include <QApplication>
-#include <QDebug>
-#include <QDir>
 #include <QInputDialog>
-#include <QKeyEvent>
+#include <QCloseEvent>
+#include <QFormLayout>
 #include <QMainWindow>
 #include <QMessageBox>
-#include <QPainter>
-#include <QPoint>
-#include <QScreen>
-#include <QSize>
+#include <QPushButton>
+#include <QVBoxLayout>
 #include <QTcpSocket>
-#include <QTime>
+#include <QComboBox>
+#include <QKeyEvent>
+#include <QPainter>
+#include <QSpinBox>
+#include <QScreen>
 #include <QVector>
 #include <QWidget>
+#include <QColor>
+#include <QDebug>
+#include <QPoint>
+#include <QSize>
+#include <QTime>
+#include <QDir>
 
 #include "ui_snakeclient.h"
 
@@ -25,30 +32,28 @@ class SnakeClient : public QMainWindow
 {
     Q_OBJECT
 
-   public:
+public:
     SnakeClient(QWidget* parent = nullptr);
-    bool viewer = false;
-    bool bot = false;
     ~SnakeClient();
-    void connectToServer(const QString& ip, int port, const QString& SnakeName);
+    void connectToServer();
 
-   public slots:
+public slots:
     void slotReadyRead();
-    QVector<QPoint> getMap();
 
-   protected:
+protected:
     void keyPressEvent(QKeyEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 
-   private:
+private:
     Ui::SnakeClient* _ui;
     QTcpSocket* _socket;
     QByteArray _data;
-    quint16 nextBlockSize;
+    quint16 _nextBlockSize;
     QString _ip;
     int _port;
 
     QVector<QPoint> _homeDots;
+    QMap<int, QVector<QPoint>> _enemiesDots;
     QVector<QPoint> _enemyDots;
 
     // The size of a field
@@ -62,11 +67,15 @@ class SnakeClient : public QMainWindow
     int _score = 0;
     bool _stillGame;
     bool _await = false;
+    int _viewer = 0;
+
     QPoint _fruitPos = QPoint(0, 0);
     QString _input;
     QString _snakeName;
-    QString _convertToString(const QVector<QPoint>&);
-    QVector<QPoint> _convertToDots(const QStringList&);
+    QString _mode;
+    QString _type;
+    QVector<QPoint> _convertHomeDots(const QStringList&);
+    QVector<QPoint> _convertEnemyDots(const QStringList&);
 
     void _drawSnake();
     void _step();
@@ -83,5 +92,15 @@ class SnakeClient : public QMainWindow
 
     Directions _direction;
     Directions _enemyDirection;
+
+    enum Colours
+    {
+        blue = 0,
+        red = 1,
+        green = 2,
+        magenta = 3
+    };
+
+    Colours _colour;
 };
 #endif  // SNAKECLIENT_H
