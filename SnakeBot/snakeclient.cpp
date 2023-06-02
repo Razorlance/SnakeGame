@@ -109,7 +109,9 @@ void SnakeClient::connectToServer()
     _data.clear();
     QDataStream out(&_data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_6_2);
-
+    // p 1 - bot
+    // p 2 - viewer
+    // p 0 - player
     QString dataToSend = "t " + QString::number(_type) + ";p 1 " + _snakeName;
     qDebug() << dataToSend;
 

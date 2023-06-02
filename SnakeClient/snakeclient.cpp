@@ -1,4 +1,5 @@
 #include "snakeclient.h"
+
 #include "./ui_snakeclient.h"
 
 /*
@@ -17,8 +18,7 @@
  */
 
 SnakeClient::SnakeClient(QWidget* parent)
-    :   QMainWindow(parent),
-    _ui(new Ui::SnakeClient)
+    : QMainWindow(parent), _ui(new Ui::SnakeClient)
 {
     _ui->setupUi(this);
     _socket = new QTcpSocket(this);
@@ -32,9 +32,10 @@ SnakeClient::SnakeClient(QWidget* parent)
 
     startWindow->setWindowTitle("Start Window");
     startWindow->adjustSize();
-    startWindow->move(QGuiApplication::primaryScreen()->geometry().center() - startWindow->rect().center());
+    startWindow->move(QGuiApplication::primaryScreen()->geometry().center() -
+                      startWindow->rect().center());
 
-    QFormLayout *form = new QFormLayout(startWindow);
+    QFormLayout* form = new QFormLayout(startWindow);
     QLineEdit* name = new QLineEdit(startWindow);
     QComboBox* mode = new QComboBox(startWindow);
     QLineEdit* ip = new QLineEdit(startWindow);
@@ -51,10 +52,10 @@ SnakeClient::SnakeClient(QWidget* parent)
     form->addRow("IP:", ip);
     form->addRow("Port:", port);
 
-
-    QPushButton *button = new QPushButton("OK", startWindow);
-    //QPushButton *buttonCancel = new QPushButton("Cancel", startWindow);
-    QObject::connect(button, &QPushButton::clicked, startWindow, &QDialog::accept);
+    QPushButton* button = new QPushButton("OK", startWindow);
+    // QPushButton *buttonCancel = new QPushButton("Cancel", startWindow);
+    QObject::connect(button, &QPushButton::clicked, startWindow,
+                     &QDialog::accept);
     form->addWidget(button);
 
     if (startWindow->exec() == QDialog::Accepted)
@@ -64,8 +65,9 @@ SnakeClient::SnakeClient(QWidget* parent)
         _ip = ip->text();
         _port = port->text().toInt();
 
-        //int numPlayersInt = numPlayers->value();
-        // QString::number(input3Value)); //if string of # players will be needed
+        // int numPlayersInt = numPlayers->value();
+        // QString::number(input3Value)); //if string of # players will be
+        // needed
         if (_snakeName.size() == 0)
             _snakeName = "Player";
 
@@ -76,126 +78,161 @@ SnakeClient::SnakeClient(QWidget* parent)
             QDialog* gameType = new QDialog();
             gameType->setWindowTitle("Game Type");
             gameType->adjustSize();
-            gameType->move(QGuiApplication::primaryScreen()->geometry().center() - gameType->rect().center());
-            QFormLayout *form2 = new QFormLayout(gameType);
-            QComboBox *type = new QComboBox(gameType);
+            gameType->move(
+                QGuiApplication::primaryScreen()->geometry().center() -
+                gameType->rect().center());
+            QFormLayout* form2 = new QFormLayout(gameType);
+            QComboBox* type = new QComboBox(gameType);
             type->addItem("1:1");
             type->addItem("1:3");
             type->addItem("1:Bot");
             type->addItem("Bot:Bot");
             form2->addRow("Choose Game Type", type);
-            QPushButton *buttonOK = new QPushButton("OK", gameType);
-            //QPushButton *buttonCancel = new QPushButton("Cancel", startWindow);
-            QObject::connect(buttonOK, &QPushButton::clicked, gameType, &QDialog::accept);
+            QPushButton* buttonOK = new QPushButton("OK", gameType);
+            // QPushButton *buttonCancel = new QPushButton("Cancel",
+            // startWindow);
+            QObject::connect(buttonOK, &QPushButton::clicked, gameType,
+                             &QDialog::accept);
             form2->addWidget(buttonOK);
             gameType->exec();
 
-            QString _type = type->currentText();
-            //qDebug() << typeText;
+            //            QString _type = type->currentText();
+            // qDebug() << typeText;
+            _snakeName = name->text();
+            _mode = mode->currentText();
+            _ip = ip->text();
+            _port = port->text().toInt();
 
-            if (_type.split(":")[1] == "1")
-            {
-                _ui->player1Label->setText(_snakeName);
-                //Adjusting the fond to the size of listWidget
-                /*
-                for(int i = 0; i < ui->listWidget->count(); i++) // for future when there will be not just 1 Player
-                {
-                    QListWidgetItem* item = ui->listWidget->item(i);
-                    //item->setSizeHint(QSize(item->sizeHint().width(), ui->listWidget->height() / ui->listWidget->count()));
-                    //item->setSizeHint(QSize(117, 4190300));
-                    item->setSizeHint(QSize(_width * _field_width, _height * _field_height / 4));
-                    QFont font;
-                    font.setPointSize((27));
-                    font.setBold(true);
-                    item->setFont(font);
-                    item->setForeground(Qt::blue);
-                }*/
-                //QString nameScore = nameText + " " + QString::number(_score);
-                //ui->listWidget->item(0)->setText(nameScore);
-            }
+            if (type->currentText() == "1:1")
+                _type = 1;
 
-            if (_type.split(":")[1] == "Bot")
-            {
-                //qDebug() << "YES";
-                /*
-                QDialog* difficulty = new QDialog();
-                difficulty->setWindowTitle("Game Difficulty");
-                difficulty->adjustSize();
-                difficulty->move(QGuiApplication::primaryScreen()->geometry().center() - difficulty->rect().center());
-                QFormLayout *form1 = new QFormLayout(difficulty);
-                QComboBox *diff = new QComboBox(difficulty);
-                diff->addItem("Easy");
-                diff->addItem("Medium");
-                diff->addItem("Hard");
-                diff->addItem("Extremely Hard");
-                form1->addRow("Choose Game Difficulty vs Bot", diff);
-                QPushButton *buttonOK = new QPushButton("OK", difficulty);
-                //QPushButton *buttonCancel = new QPushButton("Cancel", startWindow);
-                QObject::connect(buttonOK, &QPushButton::clicked, difficulty, &QDialog::accept);
-                form1->addWidget(buttonOK);
-                difficulty->exec();
-                */
+            else if (type->currentText() == "1:3")
+                _type = 3;
 
-                //_ui->player1Label->setText(_snakeName);
-                //_ui->player2Label->setText("Bot");
+            else if (type->currentText() == "1:Bot")
+                _type = 4;
 
-                //ui->listWidget->addItem(nameText);
-                //ui->listWidget->addItem(...);
-            }
+            else if (type->currentText() == "Bot:Bot")
+                _type = 5;
 
-            if (_type.split(":")[1] == "3")
-            {
-                //ui->listWidget->addItem(nameText);
-                //ui->listWidget->addItem(...);
-                //ui->listWidget->addItem(...);
-            }
-            /*
-            QMessageBox msgBox;
-            if ((_validIP(ipText) &&
-                 _validPort(portText.toInt())))
-            {
-                _w.connectToServer(ipText, portText.toInt(),
-                                   nameText);
-                _w.show();
-                this->close();
-            }
-            else
-            {
-                msgBox.setText("The IP address or Port is not correct");
-                msgBox.exec();
-            }
-            qDebug() << "connecting";*/
+            if (_snakeName.size() == 0)
+                _snakeName = "Bot";
+
+            _ui->player1Label->setStyleSheet("QLabel { color : blue; }");
+            _ui->player2Label->setStyleSheet("QLabel { color : red; }");
+            //                _ui->player3Label->setStyleSheet("QLabel {
+            //                color : green; }");
+            //                _ui->player4Label->setStyleSheet("QLabel {
+            //                color : orange; }");
+
+            //            if (_type.split(":")[1] == "1")
+            //            {
+            //                _ui->player1Label->setText(_snakeName);
+            //                //Adjusting the fond to the size of listWidget
+            //                /*
+            //                for(int i = 0; i < ui->listWidget->count(); i++)
+            //                // for future when there will be not just 1 Player
+            //                {
+            //                    QListWidgetItem* item =
+            //                    ui->listWidget->item(i);
+            //                    //item->setSizeHint(QSize(item->sizeHint().width(),
+            //                    ui->listWidget->height() /
+            //                    ui->listWidget->count()));
+            //                    //item->setSizeHint(QSize(117, 4190300));
+            //                    item->setSizeHint(QSize(_width * _field_width,
+            //                    _height * _field_height / 4)); QFont font;
+            //                    font.setPointSize((27));
+            //                    font.setBold(true);
+            //                    item->setFont(font);
+            //                    item->setForeground(Qt::blue);
+            //                }*/
+            //                //QString nameScore = nameText + " " +
+            //                QString::number(_score);
+            //                //ui->listWidget->item(0)->setText(nameScore);
+            //            }
+
+            //            if (_type.split(":")[1] == "Bot")
+            //            {
+            //                //qDebug() << "YES";
+            //                /*
+            //                QDialog* difficulty = new QDialog();
+            //                difficulty->setWindowTitle("Game Difficulty");
+            //                difficulty->adjustSize();
+            //                difficulty->move(QGuiApplication::primaryScreen()->geometry().center()
+            //                - difficulty->rect().center()); QFormLayout *form1
+            //                = new QFormLayout(difficulty); QComboBox *diff =
+            //                new QComboBox(difficulty); diff->addItem("Easy");
+            //                diff->addItem("Medium");
+            //                diff->addItem("Hard");
+            //                diff->addItem("Extremely Hard");
+            //                form1->addRow("Choose Game Difficulty vs Bot",
+            //                diff); QPushButton *buttonOK = new
+            //                QPushButton("OK", difficulty);
+            //                //QPushButton *buttonCancel = new
+            //                QPushButton("Cancel", startWindow);
+            //                QObject::connect(buttonOK, &QPushButton::clicked,
+            //                difficulty, &QDialog::accept);
+            //                form1->addWidget(buttonOK);
+            //                difficulty->exec();
+            //                */
+
+            //                //_ui->player1Label->setText(_snakeName);
+            //                //_ui->player2Label->setText("Bot");
+
+            //                //ui->listWidget->addItem(nameText);
+            //                //ui->listWidget->addItem(...);
+            //            }
+
+            //            if (_type.split(":")[1] == "3")
+            //            {
+            //                //ui->listWidget->addItem(nameText);
+            //                //ui->listWidget->addItem(...);
+            //                //ui->listWidget->addItem(...);
+            //            }
+            //            /*
+            //            QMessageBox msgBox;
+            //            if ((_validIP(ipText) &&
+            //                 _validPort(portText.toInt())))
+            //            {
+            //                _w.connectToServer(ipText, portText.toInt(),
+            //                                   nameText);
+            //                _w.show();
+            //                this->close();
+            //            }
+            //            else
+            //            {
+            //                msgBox.setText("The IP address or Port is not
+            //                correct"); msgBox.exec();
+            //            }
+            //            qDebug() << "connecting";*/
+            //        }
+
+            //        if (_mode == "Viewer")
+            //        {
+            //            _viewer = 1;
+            //            /*
+            //            //NEEDED TO REWRITE: WHAT TO DO WHEN IT IS A VIEWER
+            //            QMessageBox msgBox;
+            //            if ((_validIP(ipText) &&
+            //                 _validPort(portText.toInt())))
+            //                _w.connectToServer(ipText, portText.toInt(),
+            //                                   nameText);
+            //            else
+            //            {
+            //                msgBox.setText("The IP address or Port is not
+            //                correct"); msgBox.exec();
+            //            }
+            //            qDebug() << "connecting";
+            //            */
+            //        }
+
+            //    }
+            _nextBlockSize = 0;
+            qDebug() << "Connecting to server...";
+            connectToServer();
         }
-
-        if (_mode == "Viewer")
-        {
-            _viewer = 1;
-            /*
-            //NEEDED TO REWRITE: WHAT TO DO WHEN IT IS A VIEWER
-            QMessageBox msgBox;
-            if ((_validIP(ipText) &&
-                 _validPort(portText.toInt())))
-                _w.connectToServer(ipText, portText.toInt(),
-                                   nameText);
-            else
-            {
-                msgBox.setText("The IP address or Port is not correct");
-                msgBox.exec();
-            }
-            qDebug() << "connecting";
-            */
-        }
-
-        _ui->player1Label->setStyleSheet("QLabel { color : blue; }");
-        _ui->player2Label->setStyleSheet("QLabel { color : red; }");
-        _ui->player3Label->setStyleSheet("QLabel { color : green; }");
-        _ui->player4Label->setStyleSheet("QLabel { color : orange; }");
     }
-    _nextBlockSize = 0;
-    qDebug() << "Connecting to server...";
-    connectToServer();
 }
-
 SnakeClient::~SnakeClient() { delete _ui; }
 
 void SnakeClient::connectToServer()
@@ -207,7 +244,8 @@ void SnakeClient::connectToServer()
     QDataStream out(&_data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_6_2);
 
-    QString dataToSend = "v " + QString::number(_viewer) + " " + _snakeName;
+    QString dataToSend = "t " + QString::number(_type) + ";p " +
+                         QString::number(!_viewer) + " " + _snakeName;
     qDebug() << dataToSend;
 
     out << quint16(0) << dataToSend;
@@ -222,7 +260,7 @@ void SnakeClient::_sendToServer()
     _data.clear();
     QDataStream out(&_data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_6_2);
-    QString dataToSend = "d " + QString::number(_direction) + " " + _snakeName + " " + _type;
+    QString dataToSend = "d " + QString::number(_direction);
     qDebug() << dataToSend;
     out << quint16(0) << dataToSend;
     out.device()->seek(0);
@@ -380,9 +418,8 @@ void SnakeClient::_drawSnake()
     QPainter painter(this);
 
     painter.setBrush(Qt::red);
-    painter.drawEllipse(_fruitPos.x() * _WIDTH,
-                        _fruitPos.y() * _HEIGHT,
-                        _WIDTH, _HEIGHT);
+    painter.drawEllipse(_fruitPos.x() * _WIDTH, _fruitPos.y() * _HEIGHT, _WIDTH,
+                        _HEIGHT);
 
     for (size_t i = 0; i < _homeDots.size(); i++)
     {
@@ -390,8 +427,7 @@ void SnakeClient::_drawSnake()
         {
             painter.setBrush(Qt::white);
             painter.drawEllipse(_homeDots[i].x() * _WIDTH,
-                                _homeDots[i].y() * _HEIGHT,
-                                _WIDTH, _HEIGHT);
+                                _homeDots[i].y() * _HEIGHT, _WIDTH, _HEIGHT);
         }
 
         else
@@ -409,8 +445,7 @@ void SnakeClient::_drawSnake()
                 painter.setBrush(Qt::darkMagenta);
 
             painter.drawEllipse(_homeDots[i].x() * _WIDTH,
-                                _homeDots[i].y() * _HEIGHT,
-                                _WIDTH, _HEIGHT);
+                                _homeDots[i].y() * _HEIGHT, _WIDTH, _HEIGHT);
         }
     }
 
@@ -423,8 +458,8 @@ void SnakeClient::_drawSnake()
             {
                 painter.setBrush(Qt::white);
                 painter.drawEllipse(it.value()[i].x() * _WIDTH,
-                                    it.value()[i].y() * _HEIGHT,
-                                    _WIDTH, _HEIGHT);
+                                    it.value()[i].y() * _HEIGHT, _WIDTH,
+                                    _HEIGHT);
             }
 
             else
@@ -442,8 +477,8 @@ void SnakeClient::_drawSnake()
                     painter.setBrush(Qt::darkMagenta);
 
                 painter.drawEllipse(it.value()[i].x() * _WIDTH,
-                                    it.value()[i].y() * _HEIGHT,
-                                    _WIDTH, _HEIGHT);
+                                    it.value()[i].y() * _HEIGHT, _WIDTH,
+                                    _HEIGHT);
             }
         }
     }
@@ -473,7 +508,7 @@ void SnakeClient::paintEvent(QPaintEvent* event)
     _drawSnake();
 }
 
-QVector<QPoint> SnakeClient::_convertHomeDots(const QStringList &str)
+QVector<QPoint> SnakeClient::_convertHomeDots(const QStringList& str)
 {
     QVector<QPoint> dots;
     for (size_t i = 1; i < str.size(); i += 2)
@@ -481,7 +516,7 @@ QVector<QPoint> SnakeClient::_convertHomeDots(const QStringList &str)
     return dots;
 }
 
-QVector<QPoint> SnakeClient::_convertEnemyDots(const QStringList &str)
+QVector<QPoint> SnakeClient::_convertEnemyDots(const QStringList& str)
 {
     QVector<QPoint> dots;
     for (size_t i = 2; i < str.size(); i += 2)
