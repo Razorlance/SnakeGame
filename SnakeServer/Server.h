@@ -1,38 +1,37 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include <QApplication>
+#include <QComboBox>
+#include <QDialog>
+#include <QFormLayout>
+#include <QGuiApplication>
+#include <QLineEdit>
+#include <QPushButton>
 #include <QQueue>
+#include <QScreen>
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QTime>
 #include <QVector>
 #include <QWidget>
-#include <QFormLayout>
-#include <QLineEdit>
-#include <QComboBox>
-#include <QLineEdit>
-#include <QDialog>
-#include <QGuiApplication>
-#include <QPushButton>
-#include <QScreen>
-
 
 #include "snake.h"
 
 class Server : public QTcpServer
 {
     Q_OBJECT
-public:
+   public:
     Server();
     // Write a destructor for a server
     //    ~Server();
 
-    QTcpSocket* socket;
+    QTcpSocket *socket;
 
-protected:
+   protected:
     void timerEvent(QTimerEvent *event) override;
 
-private:
+   private:
     QMap<qintptr, QTcpSocket *> _Sockets;
     QMap<qintptr, QVector<QPoint>> _Dots;
     QMap<qintptr, Snake *> _PlayerList;
@@ -45,7 +44,7 @@ private:
     int _port;
     int _playerCount = 0;
     int _botCount = 0;
-    int _viewerCount = 0; // ?
+    int _viewerCount = 0;  // ?
     static const int _delay = 500;
     static const int _width = 25;  // The size of points
     static const int _height = 24;
@@ -65,7 +64,7 @@ private:
 
     void _SendData();
     void _SendData(QString str);
-    void _SendClientBack(QTcpSocket* clientSocket);
+    void _SendClientBack(QTcpSocket *clientSocket);
     bool _checkBoundary();
     void _locateFruit();
     void _initiateGame();
@@ -73,7 +72,7 @@ private:
     void _endGame();
     void _move();
 
-public slots:
+   public slots:
     void incomingConnection(qintptr SocketDescriptor) override;
     void slotReadyRead();
 };
