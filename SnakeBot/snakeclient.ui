@@ -84,32 +84,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QLabel" name="player3Label">
-        <property name="font">
-         <font>
-          <pointsize>21</pointsize>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="player4Label">
-        <property name="font">
-         <font>
-          <pointsize>21</pointsize>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
    </layout>

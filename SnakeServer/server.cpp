@@ -2,19 +2,6 @@
 
 Server::Server()
 {
-    if (this->listen(QHostAddress::Any, 33221))
-        qDebug() << "Started";
-    else
-        qDebug() << "Error";
-
-    // Review code
-
-    _Players.enqueue(&_Player1);
-    _Players.enqueue(&_Player2);
-    _Players.enqueue(&_Player3);
-    _Players.enqueue(&_Player4);
-    _nextBlockSize = 0;
-
     _Player1._homeDots = {QPoint(0, 0), QPoint(1, 0)};
     _Player1.direction = right;
     _Player1._id = 1;
@@ -31,21 +18,184 @@ Server::Server()
     _Player4.direction = down;
     _Player4._id = 4;
 
-    _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots},
-                             {_Player3._id, _Player3._homeDots},
-                             {_Player4._id, _Player4._homeDots}};
+    QDialog* startWindow = new QDialog();
 
-    _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots},
-                             {_Player3._id, _Player3._homeDots},
-                             {_Player4._id, _Player4._homeDots}};
+    startWindow->setWindowTitle("Preferences Window");
+    startWindow->adjustSize();
+    startWindow->move(QGuiApplication::primaryScreen()->geometry().center() - startWindow->rect().center());
 
-    _Player3._enemiesDots = {{_Player1._id, _Player1._homeDots},
-                             {_Player2._id, _Player2._homeDots},
-                             {_Player4._id, _Player4._homeDots}};
+    QFormLayout *form = new QFormLayout(startWindow);
+    QComboBox* type = new QComboBox(startWindow);
+    QLineEdit* port = new QLineEdit(startWindow);
 
-    _Player4._enemiesDots = {{_Player1._id, _Player1._homeDots},
-                             {_Player2._id, _Player2._homeDots},
-                             {_Player3._id, _Player3._homeDots}};
+    port->setText("");
+
+    type->addItem("Test Bot");
+    type->addItem("1:1");
+    type->addItem("1:2");
+    type->addItem("1:3");
+    type->addItem("1:Bot");
+    type->addItem("Bot:Bot");
+    type->addItem("Bot:2 Bots");
+    type->addItem("Bot:3 Bots");
+
+    form->addRow("Specify game type:", type);
+    form->addRow("Port:", port);
+
+    QPushButton *button = new QPushButton("OK", startWindow);
+    //QPushButton *buttonCancel = new QPushButton("Cancel", startWindow);
+    QObject::connect(button, &QPushButton::clicked, startWindow, &QDialog::accept);
+    form->addWidget(button);
+
+    if (startWindow->exec() == QDialog::Accepted)
+    {
+        _port = port->text().toInt();
+
+        if (type->currentText() == "Test Bot")
+        {
+            _type = 0;
+            _botCount = 1;
+            _Players.enqueue(&_Player1);
+        }
+
+        else if (type->currentText() == "1:1")
+        {
+            _type = 1;
+            _playerCount = 2;
+
+            _Players.enqueue(&_Player1);
+            _Players.enqueue(&_Player2);
+
+            _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots}};
+
+            _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots}};
+        }
+
+        else if (type->currentText() == "1:2")
+        {
+            _type = 2;
+            _playerCount = 3;
+
+            _Players.enqueue(&_Player1);
+            _Players.enqueue(&_Player2);
+            _Players.enqueue(&_Player3);
+
+            _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots},
+                                     {_Player3._id, _Player3._homeDots}};
+
+            _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                                     {_Player3._id, _Player3._homeDots}};
+
+            _Player3._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                                     {_Player2._id, _Player2._homeDots}};
+        }
+
+        else if (type->currentText() == "1:3")
+        {
+            _type = 3;
+            _playerCount = 4;
+
+            _Players.enqueue(&_Player1);
+            _Players.enqueue(&_Player2);
+            _Players.enqueue(&_Player3);
+            _Players.enqueue(&_Player4);
+
+            _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots},
+                                     {_Player3._id, _Player3._homeDots},
+                                     {_Player4._id, _Player4._homeDots}};
+
+            _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                                     {_Player3._id, _Player3._homeDots},
+                                     {_Player4._id, _Player4._homeDots}};
+
+            _Player3._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                                     {_Player2._id, _Player2._homeDots},
+                                     {_Player4._id, _Player4._homeDots}};
+
+            _Player4._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                                     {_Player2._id, _Player2._homeDots},
+                                     {_Player3._id, _Player3._homeDots}};
+        }
+
+        else if (type->currentText() == "1:Bot")
+        {
+            _type = 4;
+            _playerCount = 1;
+            _botCount = 1;
+
+            _Players.enqueue(&_Player1);
+            _Players.enqueue(&_Player2);
+
+            _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots}};
+            _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots}};
+        }
+
+        else if (type->currentText() == "Bot:Bot")
+        {
+            _type = 5;
+            _botCount = 2;
+
+            _Players.enqueue(&_Player1);
+            _Players.enqueue(&_Player2);
+
+            _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots}};
+            _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots}};
+        }
+
+        else if (type->currentText() == "Bot:2 Bots")
+        {
+            _type = 6;
+            _botCount = 3;
+
+            _Players.enqueue(&_Player1);
+            _Players.enqueue(&_Player2);
+            _Players.enqueue(&_Player3);
+
+            _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots},
+                                     {_Player3._id, _Player3._homeDots}};
+
+            _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                                     {_Player3._id, _Player3._homeDots}};
+
+            _Player3._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                                     {_Player2._id, _Player2._homeDots}};
+        }
+
+        else if (type->currentText() == "Bot:3 Bots")
+        {
+            _type = 7;
+            _botCount = 4;
+
+            _Players.enqueue(&_Player1);
+            _Players.enqueue(&_Player2);
+            _Players.enqueue(&_Player3);
+            _Players.enqueue(&_Player4);
+
+            _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots},
+                                     {_Player3._id, _Player3._homeDots},
+                                     {_Player4._id, _Player4._homeDots}};
+
+            _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                                     {_Player3._id, _Player3._homeDots},
+                                     {_Player4._id, _Player4._homeDots}};
+
+            _Player3._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                                     {_Player2._id, _Player2._homeDots},
+                                     {_Player4._id, _Player4._homeDots}};
+
+            _Player4._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                                     {_Player2._id, _Player2._homeDots},
+                                     {_Player3._id, _Player3._homeDots}};
+        }
+    }
+
+    if (this->listen(QHostAddress::Any, _port))
+        qDebug() << "Started";
+    else
+        qDebug() << "Error";
+
+    // Review code
+    _nextBlockSize = 0;
 }
 
 void Server::timerEvent(QTimerEvent *event)
@@ -154,6 +304,22 @@ void Server::_SendData(QString str)
         it.value()->write(_Data);
         it.value()->waitForBytesWritten();
     }
+}
+
+void Server::_SendClientBack(QTcpSocket *clientSocket)
+{
+    // Maybe change this function
+
+    qDebug() << "Sending client back...";
+
+    _Data.clear();
+    QDataStream out(&_Data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_6_3);
+    out << quint16(0) << "wrong";
+    out.device()->seek(0);
+    out << quint16(_Data.size() - sizeof(quint16));
+    clientSocket->write(_Data);
+    clientSocket->waitForBytesWritten();
 }
 
 bool Server::_checkBoundary()
@@ -300,48 +466,6 @@ void Server::_move()
         qDebug() << it.value()->_enemiesDots;
     }
 
-//    for (size_t i = _Player1._homeDots.size() - 1; i > 0; i--)
-//    {
-//        _Player1._homeDots[i] = _Player1._homeDots[i - 1];
-//    }
-
-//    for (size_t i = _Player2._homeDots.size() - 1; i > 0; i--)
-//    {
-//        _Player2._homeDots[i] = _Player2._homeDots[i - 1];
-//    }
-
-//    switch (_Player1.direction)
-//    {
-//        case left:
-//            _Player1._homeDots[0].rx()--;
-//            break;
-//        case right:
-//            _Player1._homeDots[0].rx()++;
-//            break;
-//        case up:
-//            _Player1._homeDots[0].ry()--;
-//            break;
-//        case down:
-//            _Player1._homeDots[0].ry()++;
-//            break;
-//    }
-
-//    switch (_Player2.direction)
-//    {
-//        case left:
-//            _Player2._homeDots[0].rx()--;
-//            break;
-//        case right:
-//            _Player2._homeDots[0].rx()++;
-//            break;
-//        case up:
-//            _Player2._homeDots[0].ry()--;
-//            break;
-//        case down:
-//            _Player2._homeDots[0].ry()++;
-//            break;
-//    }
-
     // Think carefully about this
 
     _Player1._enemyDots = _Player2._homeDots;
@@ -360,7 +484,6 @@ void Server::incomingConnection(qintptr SocketDescriptor)
 {
     socket = new QTcpSocket;
     socket->setSocketDescriptor(SocketDescriptor);
-
     connect(socket, &QTcpSocket::readyRead, this, &Server::slotReadyRead);
     connect(socket, &QTcpSocket::disconnected, socket,
             &QTcpSocket::deleteLater);
@@ -395,38 +518,50 @@ void Server::slotReadyRead()
 
             in >> str;
             _nextBlockSize = 0;
-            QStringList L = str.split(" ");
-            qDebug() << str;
+            QStringList L = str.split(";");
 
             qDebug() << L;
 
-            if (L[0] == "v")
+            for (QString& c : L)
             {
-                if (L[1] == "1")
+                QStringList l = c.split(' ');
+
+                if (l[0] == 't')
                 {
-                    _ViewerList.append(socket->socketDescriptor());
-                    this->nextPendingConnection();
+                    if (_type != l[1].toInt())
+                    {
+                        _SendClientBack(socket);
+                    }
                 }
 
-                else
+                if (l[0] == 'v')
                 {
-                    Snake *S = _Players.dequeue();
-                    _PlayerList[socket->socketDescriptor()] = S;
-                    S->_snakeName = L[2];
-                    S->socket = socket;
-                    qDebug() << "Client connected" << socket->socketDescriptor();
-                    this->nextPendingConnection();
+                    if (l[1] == "1")
+                    {
+                        _ViewerList.append(socket->socketDescriptor());
+                        this->nextPendingConnection();
+                    }
+
+                    else
+                    {
+                        Snake *S = _Players.dequeue();
+                        _PlayerList[socket->socketDescriptor()] = S;
+                        S->_snakeName = l[2];
+                        S->socket = socket;
+                        qDebug() << "Client connected" << socket->socketDescriptor();
+                        this->nextPendingConnection();
+                    }
+
+                    if (_Sockets.size() == 2)
+                        _initiateGame();
                 }
 
-                if (_Sockets.size() == 2)
-                    _initiateGame();
-            }
-
-            if (L[0] == 'd')
-            {
-                _PlayerList[socket->socketDescriptor()]->direction =
-                    Directions(L[1].toInt());
-                _count.insert(socket->socketDescriptor());
+                if (l[0] == 'd')
+                {
+                    _PlayerList[socket->socketDescriptor()]->direction =
+                        Directions(l[1].toInt());
+                    _count.insert(socket->socketDescriptor());
+                }
             }
 
             break;

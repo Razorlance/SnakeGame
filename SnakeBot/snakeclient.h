@@ -67,19 +67,19 @@ private:
     int _score = 0;
     bool _stillGame;
     bool _await = false;
-    int _viewer = 0;
 
     QPoint _fruitPos = QPoint(0, 0);
     QString _input;
     QString _snakeName;
     QString _mode;
-    QString _type;
+    int _type;
     QVector<QPoint> _convertHomeDots(const QStringList&);
     QVector<QPoint> _convertEnemyDots(const QStringList&);
 
     void _drawSnake();
     void _step();
     void _gameOver();
+    void _wrongServer();
     void _sendToServer();
 
     enum Directions

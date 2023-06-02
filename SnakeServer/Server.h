@@ -6,6 +6,16 @@
 #include <QTcpSocket>
 #include <QTime>
 #include <QVector>
+#include <QWidget>
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QDialog>
+#include <QGuiApplication>
+#include <QPushButton>
+#include <QScreen>
+
 
 #include "snake.h"
 
@@ -31,6 +41,11 @@ private:
     QPoint _fruitPos;
 
     int _timer;
+    int _type;
+    int _port;
+    int _playerCount = 0;
+    int _botCount = 0;
+    int _viewerCount = 0; // ?
     static const int _delay = 500;
     static const int _width = 25;  // The size of points
     static const int _height = 24;
@@ -50,6 +65,7 @@ private:
 
     void _SendData();
     void _SendData(QString str);
+    void _SendClientBack(QTcpSocket* clientSocket);
     bool _checkBoundary();
     void _locateFruit();
     void _initiateGame();
