@@ -70,7 +70,7 @@ private:
     void checkBoundary();
     void gameOver();
     void eatFruit();
-    void showType(QComboBox* mode, QComboBox *type);
+    void showType(QComboBox* mode, QComboBox *type, QLabel *typeLabel);
     void validName(QLineEdit* name, QPushButton *button);
     void validIP(QLineEdit* ip, QPushButton *button);
     void validPort(QLineEdit* port, QPushButton *button);

@@ -35,11 +35,13 @@ SnakeClient::SnakeClient(QWidget *parent)
     QComboBox* mode = new QComboBox(startWindow);
     QLineEdit* ip = new QLineEdit(startWindow);
     QLineEdit* port = new QLineEdit(startWindow);
-    QPushButton *button = new QPushButton("OK", startWindow);
+    QPushButton *button = new QPushButton("Start", startWindow);
     QObject::connect(button, &QPushButton::clicked, startWindow, &QDialog::accept);
     QComboBox *type = new QComboBox;
-    QVector<QString> vec = {"Enter your name:", "Game Mode:", "IP:", "Port:", "Game Type:"};
-    QVector<QWidget*> widgetList = {name, mode, ip, port, type};
+    QVector<QString> vec = {"Enter your name:", "Game Mode:", "IP:", "Port:"};
+    QVector<QWidget*> widgetList = {name, mode, ip, port};
+
+    QLabel *typeLabel = new QLabel("Game Type:");
 
     mode->addItem("Viewer");
     mode->addItem("Player");
@@ -72,10 +74,17 @@ SnakeClient::SnakeClient(QWidget *parent)
 //    form->addRow("IP:", ip);
 //    form->addRow("Port:", port);
 //    form->addRow("Game Type:", type);
+    QFont font = typeLabel->font();
+    font.setPointSize(20);
+    font.setBold(true);
+    font.setFamily("Copperplate");
+    typeLabel->setFont(font);
+    typeLabel->setStyleSheet("QLabel { color : grey; }");
+    form->addRow(typeLabel, type);
     form->addWidget(button);
 
     validName(name, button);
-    showType(mode, type);
+    showType(mode, type, typeLabel);
     validIP(ip, button);
     validPort(port, button);
 
@@ -301,18 +310,20 @@ void SnakeClient::eatFruit()
     }
 }
 
-void SnakeClient::showType(QComboBox *mode, QComboBox *type)
+void SnakeClient::showType(QComboBox *mode, QComboBox *type, QLabel *typeLabel)
 {
-    connect(mode, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, mode, type](int index)
+    connect(mode, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, mode, type, typeLabel](int index)
     {
     // If the selected item is "Player", show the player options combo box. Otherwise, hide it.
     if (mode->currentText() == "Player")
     {
         type->show();
+        typeLabel->setStyleSheet("QLabel { color : white; }");
     }
     else
     {
         type->hide();
+        typeLabel->setStyleSheet("QLabel { color : grey; }");
     }
     });
 }
