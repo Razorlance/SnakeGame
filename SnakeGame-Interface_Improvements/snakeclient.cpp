@@ -1,16 +1,9 @@
 #include "snakeclient.h"
 #include "./ui_snakeclient.h"
-#include <QPushButton>
-#include <QFormLayout>
-#include <QDebug>
-#include <QComboBox>
-#include <QSpinBox>
-#include <QVBoxLayout>
-#include <QCloseEvent>
 
 /*
  * TODO:
- * 1. Think about the boundaries of the window. Disallow the change of size of the window maybe?
+ * 1. Think about the boundaries of the window. Disallow the change of size of the window maybe? !!!!!!!!!! DOSALLOWED
  * 5. Make the win situation.
  * 6. Improve label position.
 */
@@ -18,18 +11,21 @@
 SnakeClient::SnakeClient(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::SnakeClient)
-    //, _playerList(new QListWidget)
 {
     ui->setupUi(this);
+    setFixedSize(630, 630);
     this->resize(_width * _field_width, _height * _field_height);
     this->setWindowTitle("Snake Game");
 
     _moveBlock = false;
 
+    ui->player1Label->setFixedWidth(100);
+    ui->player2Label->setFixedWidth(100);
+    ui->player3Label->setFixedWidth(100);
+    ui->player4Label->setFixedWidth(100);
+
     QDialog* startWindow = new QDialog();
-
-    //QVBoxLayout* layout = new QVBoxLayout();
-
+    startWindow->setFixedSize(330, 220);
     startWindow->setWindowTitle("Start Window");
     startWindow->adjustSize();
     startWindow->move(QGuiApplication::primaryScreen()->geometry().center() - startWindow->rect().center());
@@ -39,191 +35,100 @@ SnakeClient::SnakeClient(QWidget *parent)
     QComboBox* mode = new QComboBox(startWindow);
     QLineEdit* ip = new QLineEdit(startWindow);
     QLineEdit* port = new QLineEdit(startWindow);
-    //QComboBox *type = new QComboBox(startWindow);
+    QPushButton *button = new QPushButton("OK", startWindow);
+    QObject::connect(button, &QPushButton::clicked, startWindow, &QDialog::accept);
+    QComboBox *type = new QComboBox;
+    QVector<QString> vec = {"Enter your name:", "Game Mode:", "IP:", "Port:", "Game Type:"};
+    QVector<QWidget*> widgetList = {name, mode, ip, port, type};
+
+    mode->addItem("Viewer");
+    mode->addItem("Player");
 
     ip->setText("127.0.0.1");
     port->setText("33221");
 
-    //numPlayers->setRange(1, 4);
+    type->addItem("1:1");
+    type->addItem("1:3");
+    type->addItem("1:Bot");
+    type->addItem("Bot:Bot");
 
-    mode->addItem("Player");
-    mode->addItem("Viewer");
-    //type->addItem("1:1");
-    //type->addItem("1:Bot");
-    //type->addItem("1:3");
-    form->addRow("Enter your name:", name);
-    form->addRow("Enter your mode of the game:", mode);
-    form->addRow("IP:", ip);
-    form->addRow("Port:", port);
+    type->hide();
 
-    //form->addRow("Choose a Game Type:", type);
-
-
-    QPushButton *button = new QPushButton("OK", startWindow);
-    //QPushButton *buttonCancel = new QPushButton("Cancel", startWindow);
-    QObject::connect(button, &QPushButton::clicked, startWindow, &QDialog::accept);
+    name->setStyleSheet("QLineEdit { border-radius: 5px; }");
+    ip->setStyleSheet("QLineEdit { border-radius: 5px; }");
+    port->setStyleSheet("QLineEdit { border-radius: 5px; }");
+    for (int i = 0; i < vec.length(); i++)
+    {
+        QLabel *label = new QLabel(vec[i]);
+        QFont font = label->font();
+        font.setPointSize(20);
+        font.setBold(true);
+        font.setFamily("Copperplate");
+        label->setFont(font);
+        form->addRow(label, widgetList[i]);
+    }
+//    form->addRow(label, name);
+//    form->addRow("Enter your mode of the game:", mode);
+//    form->addRow("IP:", ip);
+//    form->addRow("Port:", port);
+//    form->addRow("Game Type:", type);
     form->addWidget(button);
 
-    QString nameText = "";
-    QString modeText = "";
-    if (startWindow->exec() == QDialog::Accepted)
+    validName(name, button);
+    showType(mode, type);
+    validIP(ip, button);
+    validPort(port, button);
+
+    if (startWindow->exec() == QDialog::Rejected)
     {
-        QString nameText = name->text();
-        QString modeText = mode->currentText();
-        QString ipText = ip->text();
-        QString portText = port->text();
-
-
-
-        //int numPlayersInt = numPlayers->value();
-        // QString::number(input3Value)); //if string of # players will be needed
-        if (nameText.size() == 0)
-            nameText = "Player";
-        if (modeText == "Player")
-        {
-            QDialog* gameType = new QDialog();
-            gameType->setWindowTitle("Game Type");
-            gameType->adjustSize();
-            gameType->move(QGuiApplication::primaryScreen()->geometry().center() - gameType->rect().center());
-            QFormLayout *form2 = new QFormLayout(gameType);
-            QComboBox *type = new QComboBox(gameType);
-            type->addItem("1:1");
-            type->addItem("1:3");
-            type->addItem("1:Bot");
-            type->addItem("Bot:Bot");
-            form2->addRow("Choose Game Type", type);
-            QPushButton *buttonOK = new QPushButton("OK", gameType);
-            //QPushButton *buttonCancel = new QPushButton("Cancel", startWindow);
-            QObject::connect(buttonOK, &QPushButton::clicked, gameType, &QDialog::accept);
-            form2->addWidget(buttonOK);
-
-            gameType->exec();
-            QString typeText = type->currentText();
-            //qDebug() << typeText;
-
-            if (typeText.split(":")[1] == "1")
-            {
-                ui->player1Label->setText(nameText);
-                //Adjusting the fond to the size of listWidget
-                /*
-                for(int i = 0; i < ui->listWidget->count(); i++) // for future when there will be not just 1 Player
-                {
-                    QListWidgetItem* item = ui->listWidget->item(i);
-                    //item->setSizeHint(QSize(item->sizeHint().width(), ui->listWidget->height() / ui->listWidget->count()));
-                    //item->setSizeHint(QSize(117, 4190300));
-                    item->setSizeHint(QSize(_width * _field_width, _height * _field_height / 4));
-                    QFont font;
-                    font.setPointSize((27));
-                    font.setBold(true);
-                    item->setFont(font);
-                    item->setForeground(Qt::blue);
-                }*/
-                //QString nameScore = nameText + " " + QString::number(_score);
-                //ui->listWidget->item(0)->setText(nameScore);
-            }
-            if (typeText.split(":")[1] == "Bot")
-            {
-                //qDebug() << "YES";
-                /*
-                QDialog* difficulty = new QDialog();
-                difficulty->setWindowTitle("Game Difficulty");
-                difficulty->adjustSize();
-                difficulty->move(QGuiApplication::primaryScreen()->geometry().center() - difficulty->rect().center());
-                QFormLayout *form1 = new QFormLayout(difficulty);
-                QComboBox *diff = new QComboBox(difficulty);
-                diff->addItem("Easy");
-                diff->addItem("Medium");
-                diff->addItem("Hard");
-                diff->addItem("Extremely Hard");
-                form1->addRow("Choose Game Difficulty vs Bot", diff);
-                QPushButton *buttonOK = new QPushButton("OK", difficulty);
-                //QPushButton *buttonCancel = new QPushButton("Cancel", startWindow);
-                QObject::connect(buttonOK, &QPushButton::clicked, difficulty, &QDialog::accept);
-                form1->addWidget(buttonOK);
-                difficulty->exec();
-                */
-
-                ui->player1Label->setText(nameText);
-                ui->player2Label->setText("Bot");
-
-                //ui->listWidget->addItem(nameText);
-                //ui->listWidget->addItem(...);
-            }
-            if (typeText.split(":")[1] == "3")
-            {
-                //ui->listWidget->addItem(nameText);
-                //ui->listWidget->addItem(...);
-                //ui->listWidget->addItem(...);
-            }
-            /*
-            QMessageBox msgBox;
-            if ((_validIP(ipText) &&
-                 _validPort(portText.toInt())))
-            {
-                _w.connectToServer(ipText, portText.toInt(),
-                                   nameText);
-                _w.show();
-                this->close();
-            }
-            else
-            {
-                msgBox.setText("The IP address or Port is not correct");
-                msgBox.exec();
-            }
-            qDebug() << "connecting";*/
-        }
-        if (modeText == "Viewer")
-        {
-            /*
-            //NEEDED TO REWRITE: WHAT TO DO WHEN IT IS A VIEWER
-            QMessageBox msgBox;
-            if ((_validIP(ipText) &&
-                 _validPort(portText.toInt())))
-                _w.connectToServer(ipText, portText.toInt(),
-                                   nameText);
-            else
-            {
-                msgBox.setText("The IP address or Port is not correct");
-                msgBox.exec();
-            }
-            qDebug() << "connecting";
-            */
-        }
-        ui->player1Label->setStyleSheet("QLabel { color : blue; }");
-        ui->player2Label->setStyleSheet("QLabel { color : red; }");
-        ui->player3Label->setStyleSheet("QLabel { color : green; }");
-        ui->player4Label->setStyleSheet("QLabel { color : orange; }");
-
-        ui->userName->setText(nameText);
-
-        //ui->labelName->setText(nameText);
+        QApplication::quit();
+        return;
     }
-//    else
-//    {
-//        QCoreApplication::exit(); // does not help, need to close the mainWindow when the cancel (red) button is pressed
-                                    // now if it is pressed, the game still opens
-//    }
 
+    QString nameText = name->text();
+    QString modeText = mode->currentText();
+    QString ipText = ip->text();
+    QString portText = port->text();
 
+    if (nameText.size() == 0)
+        nameText = "Player";
+    _name = nameText;
+    _mode = modeText;
+
+    if (modeText == "Player")
+    {
+        QString typeText = type->currentText();
+        if (typeText.split(":")[1] == "1")
+        {
+            ui->player1Label->setText(nameText);
+        }
+        if (typeText.split(":")[0] == "Bot" && typeText.split(":")[1] == "Bot")
+        {
+            ui->player1Label->setText("Bot1");
+            ui->player2Label->setText("Bot2");
+        }
+        if (typeText.split(":")[0] != "Bot" && typeText.split(":")[1] == "Bot")
+        {
+            ui->player1Label->setText(nameText);
+            ui->player2Label->setText("Bot");
+        }
+        if (typeText.split(":")[1] == "3")
+        {
+            ui->player1Label->setText(nameText);
+            //...
+        }
+    }
+    else
+    {
+        //ui->player1Label->setText("");
+    }
+
+    ui->player1Label->setStyleSheet("QLabel { color : blue; }");
+    ui->player2Label->setStyleSheet("QLabel { color : red; }");
+    ui->player3Label->setStyleSheet("QLabel { color : green; }");
+    ui->player4Label->setStyleSheet("QLabel { color : orange; }");
 
     initiateGame();
-
-
-//    QInputDialog* startWindow = new QInputDialog();
-//    startWindow->setWindowTitle(tr("Start"));
-//    startWindow->setLabelText(tr("Enter your name:"));
-//    startWindow->setTextEchoMode(QLineEdit::Normal);
-//    startWindow->adjustSize();
-//    startWindow->move(QGuiApplication::primaryScreen()->geometry().center() - startWindow->rect().center());
-//    QString text = "";
-//    if (startWindow->exec() == QDialog::Accepted)
-//        text = startWindow->textValue();
-
-//    if (text.isEmpty())
-//        text = "Player";
-//    ui->userName->setText(text);
-//    initiateGame();
-
 }
 
 SnakeClient::~SnakeClient()
@@ -328,23 +233,23 @@ void SnakeClient::move()
     {
     case left:
         _dots[0].rx()--;
-        ui->userName->setGeometry(_dots[0].x() * _width - 5, _dots[0].y() * _height - 15,
-                ui->userName->geometry().width(), ui->userName->geometry().height());
+        //ui->userName->setGeometry(_dots[0].x() * _width - 5, _dots[0].y() * _height - 15,
+        //        ui->userName->geometry().width(), ui->userName->geometry().height());
         break;
     case right:
         _dots[0].rx()++;
-        ui->userName->setGeometry(_dots[0].x() * _width - 5, _dots[0].y() * _height - 15,
-                ui->userName->geometry().width(), ui->userName->geometry().height());
+        //ui->userName->setGeometry(_dots[0].x() * _width - 5, _dots[0].y() * _height - 15,
+        //        ui->userName->geometry().width(), ui->userName->geometry().height());
         break;
     case up:
         _dots[0].ry()--;
-        ui->userName->setGeometry(_dots[0].x() * _width - 5, _dots[0].y() * _height - 15,
-                ui->userName->geometry().width(), ui->userName->geometry().height());
+        //ui->userName->setGeometry(_dots[0].x() * _width - 5, _dots[0].y() * _height - 15,
+        //        ui->userName->geometry().width(), ui->userName->geometry().height());
         break;
     case down:
         _dots[0].ry()++;
-        ui->userName->setGeometry(_dots[0].x() * _width - 5, _dots[0].y() * _height + 25,
-                ui->userName->geometry().width(), ui->userName->geometry().height());
+        //ui->userName->setGeometry(_dots[0].x() * _width - 5, _dots[0].y() * _height + 25,
+        //        ui->userName->geometry().width(), ui->userName->geometry().height());
         break;
     }
 }
@@ -375,7 +280,6 @@ void SnakeClient::checkBoundary()
 
 void SnakeClient::gameOver()
 {
-    qDebug() << "Game Over";
     QMessageBox endOfGame;
     endOfGame.setText("Game Over");
     endOfGame.exec();
@@ -383,18 +287,87 @@ void SnakeClient::gameOver()
 
 void SnakeClient::eatFruit()
 {
-    //QString nameText = ui->listWidget->currentItem()->text();
-
     if (_fruitPos == _dots[0])
     {
         _dots.push_back(_fruitPos);
         _score++;
-        QString nameText = ui->userName->text();
-        QString nameScore = nameText + " " + QString::number(_score);
-        ui->player1Label->setText(nameScore);
-        //ui->listWidget->item(0)->setText(nameScore);
+        if (_mode == "Player")
+        {
+            QString nameText = _name;
+            QString nameScore = nameText + " " + QString::number(_score);
+            ui->player1Label->setText(nameScore);
+        }
         locateFruit();
     }
+}
+
+void SnakeClient::showType(QComboBox *mode, QComboBox *type)
+{
+    connect(mode, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, mode, type](int index)
+    {
+    // If the selected item is "Player", show the player options combo box. Otherwise, hide it.
+    if (mode->currentText() == "Player")
+    {
+        type->show();
+    }
+    else
+    {
+        type->hide();
+    }
+    });
+}
+
+void SnakeClient::validName(QLineEdit *name, QPushButton *button)
+{
+    connect(name, &QLineEdit::textChanged, this, [this, name, button](const QString &text)
+    {
+    if (text.length() > 7)
+    {
+        // If the length of the text exceeds 7, set the text color to red
+        name->setStyleSheet("QLineEdit { color: red; }");
+        button->setEnabled(false);
+    }
+    else
+    {
+        // If the length of the text is 7 or less, set the text color back to white
+        name->setStyleSheet("QLineEdit { color: white; }");
+        button->setEnabled(true);
+    }
+    });
+}
+
+void SnakeClient::validIP(QLineEdit *ip, QPushButton *button)
+{
+    connect(ip, &QLineEdit::textChanged, this, [this, ip, button](const QString &text)
+    {
+    if (!_validIP(text))
+    {
+        ip->setStyleSheet("QLineEdit { color: red; }");
+        button->setEnabled(false);
+    }
+    else
+    {
+        ip->setStyleSheet("QLineEdit { color: white; }");
+        button->setEnabled(true);
+    }
+    });
+}
+
+void SnakeClient::validPort(QLineEdit *port, QPushButton *button)
+{
+    connect(port, &QLineEdit::textChanged, this, [this, port, button](const QString &text)
+    {
+    if (!_validPort(text))
+    {
+        port->setStyleSheet("QLineEdit { color: red; }");
+        button->setEnabled(false);
+    }
+    else
+    {
+        port->setStyleSheet("QLineEdit { color: white; }");
+        button->setEnabled(true);
+    }
+    });
 }
 
 bool SnakeClient::_isNumber(const QString &str)
@@ -420,9 +393,14 @@ bool SnakeClient::_validIP(const QString &ip)
     return true;
 }
 
-bool SnakeClient::_validPort(int port)
+bool SnakeClient::_validPort(const QString& port)
 {
-    if (port >= 0 && port <= 65535)
+    for (const QChar& i : port)
+    {
+        if (i.isLetter())
+            return false;
+    }
+    if (port.toInt() >= 0 && port.toInt() <= 65535)
         return true;
     return false;
 }
@@ -449,6 +427,5 @@ void SnakeClient::initiateGame()
     }
 
     locateFruit();
-
     _timer = startTimer(_delay);
 }

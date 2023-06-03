@@ -16,6 +16,11 @@
 #include <QSize>
 #include <QTime>
 #include <QDir>
+#include <QComboBox>
+#include <QPushButton>
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QFont>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class SnakeClient; }
@@ -42,7 +47,7 @@ private:
     // The size of a field
     static const int _width = 25; // The size of points
     static const int _height = 24;
-    static const int _field_width = 21; // The number of points
+    static const int _field_width = 20; // The number of points
     static const int _field_height = 25;
     static const int _delay = 100;
 
@@ -51,6 +56,9 @@ private:
 
     bool _stillGame;
     bool _moveBlock;
+
+    QString _name;
+    QString _mode;
 
     QVector<QPoint> _dots;
     QPoint _fruitPos;
@@ -62,9 +70,13 @@ private:
     void checkBoundary();
     void gameOver();
     void eatFruit();
+    void showType(QComboBox* mode, QComboBox *type);
+    void validName(QLineEdit* name, QPushButton *button);
+    void validIP(QLineEdit* ip, QPushButton *button);
+    void validPort(QLineEdit* port, QPushButton *button);
 
     bool _validIP(const QString& ip);
-    bool _validPort(int port);
+    bool _validPort(const QString& port);
     bool _isNumber(const QString& str);
 
     enum Directions
