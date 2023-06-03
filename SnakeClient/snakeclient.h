@@ -32,19 +32,19 @@ class SnakeClient : public QMainWindow
 {
     Q_OBJECT
 
-   public:
+public:
     SnakeClient(QWidget* parent = nullptr);
     ~SnakeClient();
     void connectToServer();
 
-   public slots:
+public slots:
     void slotReadyRead();
 
-   protected:
+protected:
     void keyPressEvent(QKeyEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 
-   private:
+private:
     Ui::SnakeClient* _ui;
     QTcpSocket* _socket;
     QByteArray _data;
@@ -80,6 +80,8 @@ class SnakeClient : public QMainWindow
     void _drawSnake();
     void _step();
     void _gameOver();
+    void _startClient();
+    void _wrongServer();
     void _sendToServer();
 
     enum Directions

@@ -32,10 +32,10 @@ class Server : public QTcpServer
     void timerEvent(QTimerEvent *event) override;
 
    private:
-    QMap<qintptr, QTcpSocket *> _Sockets;
+    QMap<qintptr, QTcpSocket* > _Sockets;
     QMap<qintptr, QVector<QPoint>> _Dots;
-    QMap<qintptr, Snake *> _PlayerList;
-    QList<qintptr> _ViewerList;
+    QMap<qintptr, Snake* > _PlayerList;
+    QMap<qintptr, QTcpSocket* > _ViewerList;
     QSet<qintptr> _count;
     QPoint _fruitPos;
 
@@ -45,6 +45,7 @@ class Server : public QTcpServer
     int _playerCount = 0;
     int _botCount = 0;
     int _viewerCount = 0;  // ?
+    int _totalCount;
     static const int _delay = 500;
     static const int _width = 25;  // The size of points
     static const int _height = 24;
