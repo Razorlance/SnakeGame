@@ -14,6 +14,7 @@ SnakeClient::SnakeClient(QWidget *parent)
 {
     ui->setupUi(this);
     setFixedSize(630, 630);
+    //this->setStyleSheet("background-color: white;");
     this->resize(_width * _field_width, _height * _field_height);
     this->setWindowTitle("Snake Game");
 
@@ -31,17 +32,18 @@ SnakeClient::SnakeClient(QWidget *parent)
     startWindow->move(QGuiApplication::primaryScreen()->geometry().center() - startWindow->rect().center());
 
     QFormLayout *form = new QFormLayout(startWindow);
-    QLineEdit* name = new QLineEdit(startWindow);
     QComboBox* mode = new QComboBox(startWindow);
     QLineEdit* ip = new QLineEdit(startWindow);
     QLineEdit* port = new QLineEdit(startWindow);
+    QLineEdit* name = new QLineEdit(startWindow);
     QPushButton *button = new QPushButton("Start", startWindow);
     QObject::connect(button, &QPushButton::clicked, startWindow, &QDialog::accept);
     QComboBox *type = new QComboBox;
-    QVector<QString> vec = {"Enter your name:", "Game Mode:", "IP:", "Port:"};
-    QVector<QWidget*> widgetList = {name, mode, ip, port};
+    QVector<QString> vec = {"Game Mode:", "IP:", "Port:"};
+    QVector<QWidget*> widgetList = {mode, ip, port};
 
     QLabel *typeLabel = new QLabel("Game Type:");
+    QLabel *nameLabel = new QLabel("Enter your name:");
 
     mode->addItem("Viewer");
     mode->addItem("Player");
@@ -55,6 +57,8 @@ SnakeClient::SnakeClient(QWidget *parent)
     type->addItem("Bot:Bot");
 
     type->hide();
+    name->hide();
+    //name->setEnabled(false);
 
     name->setStyleSheet("QLineEdit { border-radius: 5px; }");
     ip->setStyleSheet("QLineEdit { border-radius: 5px; }");
@@ -74,7 +78,15 @@ SnakeClient::SnakeClient(QWidget *parent)
 //    form->addRow("IP:", ip);
 //    form->addRow("Port:", port);
 //    form->addRow("Game Type:", type);
-    QFont font = typeLabel->font();
+    QFont font = nameLabel->font();
+    font.setPointSize(20);
+    font.setBold(true);
+    font.setFamily("Copperplate");
+    nameLabel->setFont(font);
+    nameLabel->setStyleSheet("QLabel { color : grey; }");
+    form->addRow(nameLabel, name);
+
+    font = typeLabel->font();
     font.setPointSize(20);
     font.setBold(true);
     font.setFamily("Copperplate");
@@ -84,7 +96,7 @@ SnakeClient::SnakeClient(QWidget *parent)
     form->addWidget(button);
 
     validName(name, button);
-    showType(mode, type, typeLabel);
+    modeOption(mode, name, nameLabel, type, typeLabel);
     validIP(ip, button);
     validPort(port, button);
 
@@ -311,20 +323,26 @@ void SnakeClient::eatFruit()
     }
 }
 
-void SnakeClient::showType(QComboBox *mode, QComboBox *type, QLabel *typeLabel)
+void SnakeClient::modeOption(QComboBox *mode, QLineEdit *name, QLabel *nameLabel, QComboBox *type, QLabel *typeLabel)
 {
-    connect(mode, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, mode, type, typeLabel](int index)
+    connect(mode, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, mode, name, nameLabel, type, typeLabel](int index)
     {
     // If the selected item is "Player", show the player options combo box. Otherwise, hide it.
     if (mode->currentText() == "Player")
     {
+        name->show();
+        nameLabel->setStyleSheet("QLabel { color : white; }");
         type->show();
         typeLabel->setStyleSheet("QLabel { color : white; }");
+        name->show();
     }
     else
     {
+        name->hide();
+        nameLabel->setStyleSheet("QLabel { color : grey; }");
         type->hide();
         typeLabel->setStyleSheet("QLabel { color : grey; }");
+        //name->setEnabled(false);
     }
     });
 }
@@ -408,7 +426,6 @@ void SnakeClient::countDownDialog()
             timer->deleteLater();
         }
     });
-
 
     timer->start(1000);
 

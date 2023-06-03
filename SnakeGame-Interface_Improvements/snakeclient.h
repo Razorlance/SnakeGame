@@ -44,7 +44,6 @@ protected:
 
 private:
     Ui::SnakeClient *ui;
-    //QListWidget* _playerList;
 
     // The size of a field
     static const int _width = 25; // The size of points
@@ -72,7 +71,7 @@ private:
     void checkBoundary();
     void gameOver();
     void eatFruit();
-    void showType(QComboBox* mode, QComboBox *type, QLabel *typeLabel);
+    void modeOption(QComboBox *mode, QLineEdit *name, QLabel *nameLabel, QComboBox *type, QLabel *typeLabel);
     void validName(QLineEdit* name, QPushButton *button);
     void validIP(QLineEdit* ip, QPushButton *button);
     void validPort(QLineEdit* port, QPushButton *button);
