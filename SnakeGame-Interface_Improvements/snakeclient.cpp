@@ -93,6 +93,7 @@ SnakeClient::SnakeClient(QWidget *parent)
         QApplication::quit();
         return;
     }
+    countDownDialog();
 
     QString nameText = name->text();
     QString modeText = mode->currentText();
@@ -137,7 +138,7 @@ SnakeClient::SnakeClient(QWidget *parent)
     ui->player3Label->setStyleSheet("QLabel { color : green; }");
     ui->player4Label->setStyleSheet("QLabel { color : orange; }");
 
-    initiateGame();
+    //initiateGame();
 }
 
 SnakeClient::~SnakeClient()
@@ -379,6 +380,46 @@ void SnakeClient::validPort(QLineEdit *port, QPushButton *button)
         button->setEnabled(true);
     }
     });
+}
+
+void SnakeClient::countDownDialog()
+{
+    QDialog *readyDialog = new QDialog;
+    readyDialog->setWindowTitle("Ready Steady Go");
+    readyDialog->setFixedSize(200, 100);
+
+    QLabel *label = new QLabel("3", readyDialog);
+    label->setFont(QFont("Copperplate", 50));
+    label->setAlignment(Qt::AlignCenter);
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(label);
+    readyDialog->setLayout(layout);
+
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, [readyDialog, label, timer]()
+    {
+        static int countdown = 3;
+        countdown--;
+        label->setText(QString::number(countdown));
+        if (countdown <= 0)
+        {
+            readyDialog->accept();
+            timer->deleteLater();
+        }
+    });
+
+
+    timer->start(1000);
+
+    if (readyDialog->exec() == QDialog::Rejected)
+    {
+        QApplication::quit();
+        return;
+    }
+
+    initiateGame();
+    //readyDialog->exec();
 }
 
 bool SnakeClient::_isNumber(const QString &str)

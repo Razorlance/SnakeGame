@@ -21,6 +21,8 @@
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QFont>
+#include <QTimer>
+#include <QVBoxLayout>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class SnakeClient; }
@@ -74,6 +76,8 @@ private:
     void validName(QLineEdit* name, QPushButton *button);
     void validIP(QLineEdit* ip, QPushButton *button);
     void validPort(QLineEdit* port, QPushButton *button);
+
+    void countDownDialog();
 
     bool _validIP(const QString& ip);
     bool _validPort(const QString& port);
