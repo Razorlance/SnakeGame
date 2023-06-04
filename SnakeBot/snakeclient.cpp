@@ -27,81 +27,214 @@ SnakeClient::SnakeClient(QWidget* parent)
             &QTcpSocket::deleteLater);
     this->resize(_WIDTH * _FIELD_WIDTH, _HEIGHT * _FIELD_HEIGHT);
     this->setWindowTitle("Snake Game");
+    _startClient();
+}
+
+void SnakeClient::_startClient()
+{
+    _ui->player1Label->setFixedWidth(100);
+    _ui->player2Label->setFixedWidth(100);
+    _ui->player3Label->setFixedWidth(100);
+    _ui->player4Label->setFixedWidth(100);
 
     QDialog* startWindow = new QDialog();
-
+    startWindow->setFixedSize(330, 200);
     startWindow->setWindowTitle("Start Window");
     startWindow->adjustSize();
-    startWindow->move(QGuiApplication::primaryScreen()->geometry().center() -
-                      startWindow->rect().center());
+    startWindow->move(QGuiApplication::primaryScreen()->geometry().center() - startWindow->rect().center());
 
-    QFormLayout* form = new QFormLayout(startWindow);
-    QLineEdit* name = new QLineEdit(startWindow);
+    QFormLayout *form = new QFormLayout(startWindow);
     QComboBox* mode = new QComboBox(startWindow);
-    QComboBox* type = new QComboBox(startWindow);
     QLineEdit* ip = new QLineEdit(startWindow);
     QLineEdit* port = new QLineEdit(startWindow);
+    QLineEdit* name = new QLineEdit(startWindow);
+    QComboBox *type = new QComboBox;
+    QVector<QString> vec = {"Game Mode:", "IP:", "Port:"};
+    QVector<QWidget*> widgetList = {mode, ip, port};
+
+    QPushButton *button = new QPushButton("Start", startWindow);
+    QObject::connect(button, &QPushButton::clicked, startWindow, &QDialog::accept);
+
+    QLabel* typeLabel = new QLabel("Game Type:");
+    QLabel* nameLabel = new QLabel("Enter bot's name:");
+
+    mode->addItem("Bot");
 
     ip->setText("127.0.0.1");
     port->setText("33221");
 
-    mode->addItem("Bot");
-
     type->addItem("Test Bot");
     type->addItem("1:Bot");
     type->addItem("Bot:Bot");
-    type->addItem("Bot:2 Bots");
     type->addItem("Bot:3 Bots");
 
-    form->addRow("Enter the name of the bot:", name);
-    form->addRow("Enter the game mode:", mode);
-    form->addRow("Choose game type:", type);
-    form->addRow("IP:", ip);
-    form->addRow("Port:", port);
+    name->setStyleSheet("QLineEdit { border-radius: 5px; }");
+    ip->setStyleSheet("QLineEdit { border-radius: 5px; }");
+    port->setStyleSheet("QLineEdit { border-radius: 5px; }");
 
-    QPushButton* button = new QPushButton("OK", startWindow);
-    // QPushButton *buttonCancel = new QPushButton("Cancel", startWindow);
-    QObject::connect(button, &QPushButton::clicked, startWindow,
-                     &QDialog::accept);
-    form->addWidget(button);
-
-    if (startWindow->exec() == QDialog::Accepted)
+    for (int i = 0; i < vec.length(); i++)
     {
-        _snakeName = name->text();
-        _mode = mode->currentText();
-        _ip = ip->text();
-        _port = port->text().toInt();
-
-        if (type->currentText() == "Test Bot")
-            _type = 0;
-
-        else if (type->currentText() == "1:Bot")
-            _type = 4;
-
-        else if (type->currentText() == "Bot:Bot")
-            _type = 5;
-
-        else if (type->currentText() == "Bot:2 Bots")
-            _type = 6;
-
-        else if (type->currentText() == "Bot:3 Bots")
-            _type = 7;
-
-        if (_snakeName.size() == 0)
-            _snakeName = "Bot";
-
-        _ui->player1Label->setStyleSheet("QLabel { color : blue; }");
-        _ui->player2Label->setStyleSheet("QLabel { color : red; }");
+        QLabel *label = new QLabel(vec[i]);
+        QFont font = label->font();
+        font.setPointSize(15);
+        font.setBold(true);
+        font.setFamily("Copperplate");
+        label->setFont(font);
+        form->addRow(label, widgetList[i]);
     }
 
+    QFont font = nameLabel->font();
+    font.setPointSize(15);
+    font.setBold(true);
+    font.setFamily("Copperplate");
+    nameLabel->setFont(font);
+    nameLabel->setStyleSheet("QLabel { color : black; }");
+    typeLabel->setFont(font);
+    typeLabel->setStyleSheet("QLabel { color : black; }");
+    form->addRow(nameLabel, name);
+    form->addRow(typeLabel, type);
+    form->addWidget(button);
+
+    // Doesn't stop after closing
+
+    _validName(name, button);
+    _validIP(ip, button);
+    _validPort(port, button);
+
+    if (startWindow->exec() == QDialog::Rejected)
+    {
+        QApplication::quit();
+        return;
+    }
+
+    _snakeName = name->text();
+    _mode = mode->currentText();
+    _ip = ip->text();
+    _port = port->text().toInt();
+
+    if (_snakeName.size() == 0)
+        _snakeName = "Bot";
+
+    if (type->currentText() == "Test Bot")
+        _type = 0;
+
+    else if (type->currentText() == "1:Bot")
+        _type = 3;
+
+    else if (type->currentText() == "Bot:Bot")
+        _type = 4;
+
+    else if (type->currentText() == "Bot:3 Bots")
+        _type = 5;
+
+    _ui->player1Label->setStyleSheet("QLabel { color : blue; }");
+    _ui->player2Label->setStyleSheet("QLabel { color : red; }");
+    _ui->player3Label->setStyleSheet("QLabel { color : green; }");
+    _ui->player4Label->setStyleSheet("QLabel { color : orange; }");
     _nextBlockSize = 0;
     qDebug() << "Connecting to server...";
-    connectToServer();
+    _connectToServer();
+}
+
+void SnakeClient::_validName(QLineEdit *name, QPushButton *button)
+{
+    connect(name, &QLineEdit::textChanged, this, [this, name, button](const QString &text)
+            {
+                if (text.length() > 7 || text.count(" ") >= 1)
+                {
+                    // If the length of the text exceeds 7, set the text color to red
+                    name->setStyleSheet("QLineEdit { color: red; }");
+                    button->setEnabled(false);
+                }
+
+                else
+                {
+                    // If the length of the text is 7 or less, set the text color back to white
+                    name->setStyleSheet("QLineEdit { color: black; }");
+                    button->setEnabled(true);
+                }
+            });
+}
+
+void SnakeClient::_validIP(QLineEdit *ip, QPushButton *button)
+{
+    connect(ip, &QLineEdit::textChanged, this, [this, ip, button](const QString &text)
+            {
+                if (!_validIP(text))
+                {
+                    ip->setStyleSheet("QLineEdit { color: red; }");
+                    button->setEnabled(false);
+                }
+                else
+                {
+                    ip->setStyleSheet("QLineEdit { color: black; }");
+                    button->setEnabled(true);
+                }
+            });
+}
+
+void SnakeClient::_validPort(QLineEdit *port, QPushButton *button)
+{
+    connect(port, &QLineEdit::textChanged, this, [this, port, button](const QString &text)
+            {
+                if (!_validPort(text))
+                {
+                    port->setStyleSheet("QLineEdit { color: red; }");
+                    button->setEnabled(false);
+                }
+                else
+                {
+                    port->setStyleSheet("QLineEdit { color: black; }");
+                    button->setEnabled(true);
+                }
+            });
+}
+
+bool SnakeClient::_validIP(const QString &ip)
+{
+    QVector<QString> v = ip.split('.');
+
+    if ((v.size() != 4) || (v[3] == ""))
+        return false;
+
+    for (QString& str : v)
+        if (str.toInt() > 255 || str.toInt() < 0 || not(_isNumber(str)))
+            return false;
+
+    return true;
+}
+
+bool SnakeClient::_validPort(const QString &port)
+{
+    for (const QChar& i : port)
+    {
+        if (i.isLetter())
+            return false;
+    }
+
+    if (port.toInt() >= 0 && port.toInt() <= 65535)
+        return true;
+
+    return false;
+}
+
+bool SnakeClient::_isNumber(const QString &str)
+{
+    if (str == "0")
+        return true;
+
+    for (const QChar& i : str)
+    {
+        if (!i.isDigit())
+            return false;
+    }
+
+    return true;
 }
 
 SnakeClient::~SnakeClient() { delete _ui; }
 
-void SnakeClient::connectToServer()
+void SnakeClient::_connectToServer()
 {
     qDebug() << _ip << _port << _snakeName;
     _socket->connectToHost(_ip, _port);
@@ -109,9 +242,11 @@ void SnakeClient::connectToServer()
     _data.clear();
     QDataStream out(&_data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_6_2);
-    // p 1 - bot
-    // p 2 - viewer
-    // p 0 - player
+
+    // 0 - player
+    // 1 - viewer
+    // 2 - bot
+
     QString dataToSend = "t " + QString::number(_type) + ";p 2 " + _snakeName;
     qDebug() << dataToSend;
 
@@ -244,7 +379,7 @@ void SnakeClient::_drawSnake()
     {
         if (i == 0)
         {
-            painter.setBrush(Qt::white);
+            painter.setBrush(Qt::lightGray);
             painter.drawEllipse(_homeDots[i].x() * _WIDTH,
                                 _homeDots[i].y() * _HEIGHT, _WIDTH, _HEIGHT);
         }

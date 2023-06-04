@@ -21,6 +21,7 @@ SnakeClient::SnakeClient(QWidget* parent)
     : QMainWindow(parent), _ui(new Ui::SnakeClient)
 {
     _ui->setupUi(this);
+    setFixedSize(625, 625);
     _socket = new QTcpSocket(this);
     connect(_socket, &QTcpSocket::readyRead, this, &SnakeClient::slotReadyRead);
     connect(_socket, &QTcpSocket::disconnected, _socket,
@@ -33,106 +34,245 @@ SnakeClient::~SnakeClient() { delete _ui; }
 
 void SnakeClient::_startClient()
 {
-    QDialog* startWindow = new QDialog();
+    _ui->player1Label->setFixedWidth(100);
+    _ui->player2Label->setFixedWidth(100);
+    _ui->player3Label->setFixedWidth(100);
+    _ui->player4Label->setFixedWidth(100);
 
+    QDialog* startWindow = new QDialog();
+    startWindow->setFixedSize(330, 200);
     startWindow->setWindowTitle("Start Window");
     startWindow->adjustSize();
-    startWindow->move(QGuiApplication::primaryScreen()->geometry().center() -
-                      startWindow->rect().center());
+    startWindow->move(QGuiApplication::primaryScreen()->geometry().center() - startWindow->rect().center());
 
-    QFormLayout* form = new QFormLayout(startWindow);
-    QLineEdit* name = new QLineEdit(startWindow);
+    QFormLayout *form = new QFormLayout(startWindow);
     QComboBox* mode = new QComboBox(startWindow);
     QLineEdit* ip = new QLineEdit(startWindow);
     QLineEdit* port = new QLineEdit(startWindow);
+    QLineEdit* name = new QLineEdit(startWindow);
+    QComboBox *type = new QComboBox;
+    QVector<QString> vec = {"Game Mode:", "IP:", "Port:"};
+    QVector<QWidget*> widgetList = {mode, ip, port};
+
+    QPushButton *button = new QPushButton("Start", startWindow);
+    QObject::connect(button, &QPushButton::clicked, startWindow, &QDialog::accept);
+
+    QLabel* typeLabel = new QLabel("Game Type:");
+    QLabel* nameLabel = new QLabel("Enter your name:");
+
+    mode->addItem("Viewer");
+    mode->addItem("Player");
 
     ip->setText("127.0.0.1");
     port->setText("33221");
 
-    mode->addItem("Player");
-    mode->addItem("Viewer");
+    type->addItem("1:1");
+    type->addItem("1:3");
+    type->addItem("1:Bot");
 
-    form->addRow("Enter your name:", name);
-    form->addRow("Enter your mode of the game:", mode);
-    form->addRow("IP:", ip);
-    form->addRow("Port:", port);
+    type->hide();
+    name->hide();
 
-    QPushButton* button = new QPushButton("OK", startWindow);
-    // QPushButton *buttonCancel = new QPushButton("Cancel", startWindow);
-    QObject::connect(button, &QPushButton::clicked, startWindow,
-                     &QDialog::accept);
+    name->setStyleSheet("QLineEdit { border-radius: 5px; }");
+    ip->setStyleSheet("QLineEdit { border-radius: 5px; }");
+    port->setStyleSheet("QLineEdit { border-radius: 5px; }");
+
+    for (int i = 0; i < vec.length(); i++)
+    {
+        QLabel *label = new QLabel(vec[i]);
+        QFont font = label->font();
+        font.setPointSize(15);
+        font.setBold(true);
+        font.setFamily("Copperplate");
+        label->setFont(font);
+        form->addRow(label, widgetList[i]);
+    }
+
+    QFont font = nameLabel->font();
+    font.setPointSize(15);
+    font.setBold(true);
+    font.setFamily("Copperplate");
+    nameLabel->setFont(font);
+    nameLabel->setStyleSheet("QLabel { color : grey; }");
+    typeLabel->setFont(font);
+    typeLabel->setStyleSheet("QLabel { color : grey; }");
+    form->addRow(nameLabel, name);
+    form->addRow(typeLabel, type);
     form->addWidget(button);
 
-    if (startWindow->exec() == QDialog::Accepted)
+    // Doesn't stop after closing
+
+    _validName(name, button);
+    _modeOption(mode, name, nameLabel, type, typeLabel);
+    _validIP(ip, button);
+    _validPort(port, button);
+
+    if (startWindow->exec() == QDialog::Rejected)
     {
-        _snakeName = name->text();
-        _mode = mode->currentText();
-        _ip = ip->text();
-        _port = port->text().toInt();
-
-        // int numPlayersInt = numPlayers->value();
-        // QString::number(input3Value)); //if string of # players will be
-        // needed
-        if (_snakeName.size() == 0)
-            _snakeName = "Player";
-
-        if (_mode == "Player")
-        {
-            _viewer = 0;
-
-            QDialog* gameType = new QDialog();
-            gameType->setWindowTitle("Game Type");
-            gameType->adjustSize();
-            gameType->move(
-                QGuiApplication::primaryScreen()->geometry().center() -
-                gameType->rect().center());
-            QFormLayout* form2 = new QFormLayout(gameType);
-            QComboBox* type = new QComboBox(gameType);
-            type->addItem("1:1");
-            type->addItem("1:3");
-            type->addItem("1:Bot");
-            type->addItem("Bot:Bot");
-            form2->addRow("Choose Game Type", type);
-            QPushButton* buttonOK = new QPushButton("OK", gameType);
-            // QPushButton *buttonCancel = new QPushButton("Cancel",
-            // startWindow);
-            QObject::connect(buttonOK, &QPushButton::clicked, gameType,
-                             &QDialog::accept);
-            form2->addWidget(buttonOK);
-            gameType->exec();
-
-            _snakeName = name->text();
-            _mode = mode->currentText();
-            _ip = ip->text();
-            _port = port->text().toInt();
-
-            if (type->currentText() == "1:1")
-                _type = 1;
-
-            else if (type->currentText() == "1:3")
-                _type = 3;
-
-            else if (type->currentText() == "1:Bot")
-                _type = 4;
-
-            else if (type->currentText() == "Bot:Bot")
-                _type = 5;
-
-            if (_snakeName.size() == 0)
-                _snakeName = "Player";
-
-            _ui->player1Label->setStyleSheet("QLabel { color : blue; }");
-            _ui->player2Label->setStyleSheet("QLabel { color : red; }");
-            _ui->player3Label->setStyleSheet("QLabel { color : green; }");
-            _ui->player4Label->setStyleSheet("QLabel { color : orange; }");
-            _nextBlockSize = 0;
-            qDebug() << "Connecting to server...";
-            connectToServer();
-        }
+        QApplication::quit();
+        return;
     }
+
+    _snakeName = name->text();
+    _mode = mode->currentText();
+    _ip = ip->text();
+    _port = port->text().toInt();
+
+    if (_snakeName.size() == 0)
+        _snakeName = "Player";
+
+    if (_mode == "Player")
+    {
+        _viewer = 0;
+
+        if (type->currentText() == "1:1")
+            _type = 1;
+
+        else if (type->currentText() == "1:3")
+            _type = 2;
+
+        else if (type->currentText() == "1:Bot")
+            _type = 3;
+    }
+
+    else
+    {
+        _viewer = 1;
+    }
+
+    // Set size of the labels to run into walls correctly
+    _ui->player1Label->setStyleSheet("QLabel { color : blue; }");
+    _ui->player2Label->setStyleSheet("QLabel { color : red; }");
+    _ui->player3Label->setStyleSheet("QLabel { color : green; }");
+    _ui->player4Label->setStyleSheet("QLabel { color : orange; }");
+    _nextBlockSize = 0;
+    qDebug() << "Connecting to server...";
+    _connectToServer();
 }
 
-void SnakeClient::connectToServer()
+void SnakeClient::_modeOption(QComboBox *mode, QLineEdit *name, QLabel *nameLabel, QComboBox *type, QLabel *typeLabel)
+{
+    connect(mode, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this, mode, name, nameLabel, type, typeLabel](int index)
+            {
+                // If the selected item is "Player", show the player options combo box. Otherwise, hide it.
+
+                if (mode->currentText() == "Player")
+                {
+                    name->show();
+                    nameLabel->setStyleSheet("QLabel { color : black; }");
+                    type->show();
+                    typeLabel->setStyleSheet("QLabel { color : black; }");
+                    name->show();
+                }
+
+                else
+                {
+                    name->hide();
+                    nameLabel->setStyleSheet("QLabel { color : grey; }");
+                    type->hide();
+                    typeLabel->setStyleSheet("QLabel { color : grey; }");
+                }
+            });
+}
+
+void SnakeClient::_validName(QLineEdit *name, QPushButton *button)
+{
+    connect(name, &QLineEdit::textChanged, this, [this, name, button](const QString &text)
+            {
+                if (text.length() > 7 || text.count(" ") >= 1)
+                {
+                    // If the length of the text exceeds 7, set the text color to red
+                    name->setStyleSheet("QLineEdit { color: red; }");
+                    button->setEnabled(false);
+                }
+
+                else
+                {
+                    // If the length of the text is 7 or less, set the text color back to white
+                    name->setStyleSheet("QLineEdit { color: black; }");
+                    button->setEnabled(true);
+                }
+            });
+}
+
+void SnakeClient::_validIP(QLineEdit *ip, QPushButton *button)
+{
+    connect(ip, &QLineEdit::textChanged, this, [this, ip, button](const QString &text)
+            {
+                if (!_validIP(text))
+                {
+                    ip->setStyleSheet("QLineEdit { color: red; }");
+                    button->setEnabled(false);
+                }
+                else
+                {
+                    ip->setStyleSheet("QLineEdit { color: black; }");
+                    button->setEnabled(true);
+                }
+            });
+}
+
+void SnakeClient::_validPort(QLineEdit *port, QPushButton *button)
+{
+    connect(port, &QLineEdit::textChanged, this, [this, port, button](const QString &text)
+            {
+                if (!_validPort(text))
+                {
+                    port->setStyleSheet("QLineEdit { color: red; }");
+                    button->setEnabled(false);
+                }
+                else
+                {
+                    port->setStyleSheet("QLineEdit { color: black; }");
+                    button->setEnabled(true);
+                }
+            });
+}
+
+bool SnakeClient::_validIP(const QString &ip)
+{
+    QVector<QString> v = ip.split('.');
+
+    if ((v.size() != 4) || (v[3] == ""))
+        return false;
+
+    for (QString& str : v)
+        if (str.toInt() > 255 || str.toInt() < 0 || not(_isNumber(str)))
+            return false;
+
+    return true;
+}
+
+bool SnakeClient::_validPort(const QString &port)
+{
+    for (const QChar& i : port)
+    {
+        if (i.isLetter())
+            return false;
+    }
+
+    if (port.toInt() >= 0 && port.toInt() <= 65535)
+        return true;
+
+    return false;
+}
+
+bool SnakeClient::_isNumber(const QString &str)
+{
+    if (str == "0")
+        return true;
+
+    for (const QChar& i : str)
+    {
+        if (!i.isDigit())
+            return false;
+    }
+
+    return true;
+}
+
+void SnakeClient::_connectToServer()
 {
     qDebug() << _ip << _port << _viewer << _snakeName;
     _socket->connectToHost(_ip, _port);
@@ -140,11 +280,19 @@ void SnakeClient::connectToServer()
     _data.clear();
     QDataStream out(&_data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_6_2);
+
     // 0 - player
-    // 1 -  viewer
+    // 1 - viewer
     // 2 - bot
-    QString dataToSend = "t " + QString::number(_type) + ";p " +
-                         QString::number(_viewer) + " " + _snakeName;
+
+    QString dataToSend;
+
+    if (_viewer)
+        dataToSend = "p " + QString::number(_viewer);
+
+    else
+        dataToSend = "t " + QString::number(_type) + ";p " + QString::number(_viewer) + " " + _snakeName;
+
     qDebug() << dataToSend;
 
     out << quint16(0) << dataToSend;
@@ -408,7 +556,6 @@ void SnakeClient::_drawSnake()
 
 void SnakeClient::_step()
 {
-    qDebug() << "Tick" << _enemyDirection;
     if (_stillGame & _await)
     {
         _await = false;

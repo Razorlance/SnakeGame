@@ -6,7 +6,7 @@ Server::Server()
     _Player1.direction = right;
     _Player1._id = 1;
 
-    _Player2._homeDots = {QPoint(20, 24), QPoint(19, 24)};
+    _Player2._homeDots = {QPoint(19, 24), QPoint(18, 24)};
     _Player2.direction = left;
     _Player2._id = 2;
 
@@ -14,7 +14,7 @@ Server::Server()
     _Player3.direction = up;
     _Player3._id = 3;
 
-    _Player4._homeDots = {QPoint(20, 0), QPoint(19, 1)};
+    _Player4._homeDots = {QPoint(19, 0), QPoint(18, 1)};
     _Player4.direction = down;
     _Player4._id = 4;
 
@@ -25,22 +25,26 @@ Server::Server()
     startWindow->move(QGuiApplication::primaryScreen()->geometry().center() -
                       startWindow->rect().center());
 
-    QFormLayout *form = new QFormLayout(startWindow);
-    QComboBox *type = new QComboBox(startWindow);
-    QLineEdit *port = new QLineEdit(startWindow);
+    QFormLayout* form = new QFormLayout(startWindow);
+    QComboBox* type = new QComboBox(startWindow);
+    QComboBox* gameTime = new QComboBox(startWindow);
+    QLineEdit* port = new QLineEdit(startWindow);
 
     port->setText("33221");
 
     type->addItem("Test Bot");
     type->addItem("1:1");
-    type->addItem("1:2");
     type->addItem("1:3");
     type->addItem("1:Bot");
     type->addItem("Bot:Bot");
-    type->addItem("Bot:2 Bots");
     type->addItem("Bot:3 Bots");
 
+    gameTime->addItem("1");
+    gameTime->addItem("2");
+    gameTime->addItem("5");
+
     form->addRow("Specify game type:", type);
+    form->addRow("Specify game time (in minutes):", gameTime);
     form->addRow("Port:", port);
 
     QPushButton *button = new QPushButton("OK", startWindow);
@@ -51,6 +55,7 @@ Server::Server()
 
     if (startWindow->exec() == QDialog::Accepted)
     {
+        _gameTime = gameTime->currentText().toInt();
         _port = port->text().toInt();
 
         if (type->currentText() == "Test Bot")
@@ -73,28 +78,9 @@ Server::Server()
             _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots}};
         }
 
-        else if (type->currentText() == "1:2")
-        {
-            _type = 2;
-            _playerCount = 3;
-
-            _Players.enqueue(&_Player1);
-            _Players.enqueue(&_Player2);
-            _Players.enqueue(&_Player3);
-
-            _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots},
-                                     {_Player3._id, _Player3._homeDots}};
-
-            _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots},
-                                     {_Player3._id, _Player3._homeDots}};
-
-            _Player3._enemiesDots = {{_Player1._id, _Player1._homeDots},
-                                     {_Player2._id, _Player2._homeDots}};
-        }
-
         else if (type->currentText() == "1:3")
         {
-            _type = 3;
+            _type = 2;
             _playerCount = 4;
 
             _Players.enqueue(&_Player1);
@@ -121,7 +107,7 @@ Server::Server()
 
         else if (type->currentText() == "1:Bot")
         {
-            _type = 4;
+            _type = 3;
             _playerCount = 1;
             _botCount = 1;
 
@@ -134,7 +120,7 @@ Server::Server()
 
         else if (type->currentText() == "Bot:Bot")
         {
-            _type = 5;
+            _type = 4;
             _botCount = 2;
 
             _Players.enqueue(&_Player1);
@@ -144,28 +130,9 @@ Server::Server()
             _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots}};
         }
 
-        else if (type->currentText() == "Bot:2 Bots")
-        {
-            _type = 6;
-            _botCount = 3;
-
-            _Players.enqueue(&_Player1);
-            _Players.enqueue(&_Player2);
-            _Players.enqueue(&_Player3);
-
-            _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots},
-                                     {_Player3._id, _Player3._homeDots}};
-
-            _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots},
-                                     {_Player3._id, _Player3._homeDots}};
-
-            _Player3._enemiesDots = {{_Player1._id, _Player1._homeDots},
-                                     {_Player2._id, _Player2._homeDots}};
-        }
-
         else if (type->currentText() == "Bot:3 Bots")
         {
-            _type = 7;
+            _type = 5;
             _botCount = 4;
 
             _Players.enqueue(&_Player1);
