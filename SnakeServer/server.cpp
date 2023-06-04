@@ -361,9 +361,11 @@ bool Server::_checkBoundary()
     {
         for (size_t i = 0; i < it.value()->_homeDots.size(); i++)
         {
-            if (it.value()->_enemyDots.contains(it.value()->_homeDots[i]))
+            for (QMap<int, QVector<QPoint>>::Iterator ed = it.value()->_enemiesDots.begin();
+                 ed != it.value()->_enemiesDots.end(); ed++)
             {
-                return false;
+                if (ed.value().contains(it.value()->_homeDots[i]))
+                    return false;
             }
         }
 
@@ -497,11 +499,6 @@ void Server::_move()
     {
         qDebug() << it.value()->_enemiesDots;
     }
-
-    // Think carefully about this
-
-    _Player1._enemyDots = _Player2._homeDots;
-    _Player2._enemyDots = _Player1._homeDots;
 }
 
 QString Server::_convertToString(QVector<QPoint> &dots)

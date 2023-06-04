@@ -44,7 +44,6 @@ public slots:
     static const int _FIELD_HEIGHT = 25;
 
     QVector<QPoint> _homeDots;
-    QVector<QPoint> _enemyDots;
     QMap<int, QVector<QPoint>> _enemiesDots;
 };
 
