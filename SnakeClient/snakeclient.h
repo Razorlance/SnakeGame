@@ -32,19 +32,19 @@ class SnakeClient : public QMainWindow
 {
     Q_OBJECT
 
-public:
+   public:
     SnakeClient(QWidget* parent = nullptr);
     ~SnakeClient();
     void connectToServer();
 
-public slots:
+   public slots:
     void slotReadyRead();
 
-protected:
+   protected:
     void keyPressEvent(QKeyEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 
-private:
+   private:
     Ui::SnakeClient* _ui;
     QTcpSocket* _socket;
     QByteArray _data;
@@ -61,7 +61,7 @@ private:
     static const int _HEIGHT = 24;
     static const int _FIELD_WIDTH = 25;  // The number of points
     static const int _FIELD_HEIGHT = 25;
-    static const int _DELAY = 500;
+    static const int _DELAY = 1000;
 
     int _timer;
     int _score = 0;
@@ -70,6 +70,7 @@ private:
     int _viewer = 0;
 
     QPoint _fruitPos = QPoint(0, 0);
+    QVector<QPoint> _fruits;
     QString _input;
     QString _snakeName;
     QString _mode;

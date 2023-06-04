@@ -129,6 +129,10 @@ void SnakeClient::_startClient()
             qDebug() << "Connecting to server...";
             connectToServer();
         }
+        else
+        {
+            _viewer = 1;
+        }
     }
 }
 
@@ -207,8 +211,9 @@ void SnakeClient::slotReadyRead()
 
                 if (l[0] == 'f')
                 {
-                    _fruitPos.rx() = l[1].toInt();
-                    _fruitPos.ry() = l[2].toInt();
+                    //                    _fruitPos.rx() = l[1].toInt();
+                    //                    _fruitPos.ry() = l[2].toInt();
+                    _fruits = _convertHomeDots(l);
                 }
 
                 if (l[0] == 'c')
@@ -303,6 +308,8 @@ void SnakeClient::slotReadyRead()
                     {
                         _enemiesDots[l[1].toInt()] = _convertEnemyDots(l);
                     }
+                    // Fix _stillGame place in the code
+                    _stillGame = true;
                 }
             }
             _step();
@@ -338,11 +345,11 @@ void SnakeClient::keyPressEvent(QKeyEvent* event)
 void SnakeClient::_drawSnake()
 {
     QPainter painter(this);
-
-    painter.setBrush(Qt::red);
-    painter.drawEllipse(_fruitPos.x() * _WIDTH, _fruitPos.y() * _HEIGHT, _WIDTH,
-                        _HEIGHT);
-
+    for (QPoint f : _fruits)
+    {
+        painter.setBrush(Qt::red);
+        painter.drawEllipse(f.x() * _WIDTH, f.y() * _HEIGHT, _WIDTH, _HEIGHT);
+    }
     for (size_t i = 0; i < _homeDots.size(); i++)
     {
         if (i == 0)
