@@ -219,7 +219,7 @@ void Server::_SendData()
 {
     qDebug() << "Sending enemy coordinates, id and home coordinates...";
 
-    for (QMap<qintptr, QTcpSocket* >::Iterator it = _Sockets.begin();
+    for (QMap<qintptr, QTcpSocket *>::Iterator it = _Sockets.begin();
          it != _Sockets.end(); it++)
     {
         _Data.clear();
@@ -231,11 +231,11 @@ void Server::_SendData()
         QString dataToSend = "c 1;" + homeCoordinates + ";";
 
         for (QMap<int, QVector<QPoint>>::Iterator ed =
-             _PlayerList[it.key()]->_enemiesDots.begin(); ed !=
-             _PlayerList[it.key()]->_enemiesDots.end(); ed++)
+                 _PlayerList[it.key()]->_enemiesDots.begin();
+             ed != _PlayerList[it.key()]->_enemiesDots.end(); ed++)
         {
-            dataToSend += "g " + QString::number(ed.key())
-                          + " " + _convertToString(ed.value()) + ";";
+            dataToSend += "g " + QString::number(ed.key()) + " " +
+                          _convertToString(ed.value()) + ";";
         }
 
         qDebug() << dataToSend;
@@ -246,7 +246,8 @@ void Server::_SendData()
         it.value()->waitForBytesWritten();
     }
 
-    for (QMap<qintptr, QTcpSocket* >::Iterator it = _ViewerList.begin(); it != _ViewerList.end(); it++)
+    for (QMap<qintptr, QTcpSocket *>::Iterator it = _ViewerList.begin();
+         it != _ViewerList.end(); it++)
     {
         _Data.clear();
         QDataStream out(&_Data, QIODevice::WriteOnly);
@@ -273,7 +274,7 @@ void Server::_SendData(QString str)
 {
     qDebug() << "Sending specific data...";
 
-    for (QMap<qintptr, QTcpSocket* >::Iterator it = _Sockets.begin();
+    for (QMap<qintptr, QTcpSocket *>::Iterator it = _Sockets.begin();
          it != _Sockets.end(); it++)
     {
         _Data.clear();
@@ -306,7 +307,8 @@ void Server::_SendData(QString str)
         it.value()->waitForBytesWritten();
     }
 
-    for (QMap<qintptr, QTcpSocket* >::Iterator it = _ViewerList.begin(); it != _ViewerList.end(); it++)
+    for (QMap<qintptr, QTcpSocket *>::Iterator it = _ViewerList.begin();
+         it != _ViewerList.end(); it++)
     {
         _Data.clear();
         QDataStream out(&_Data, QIODevice::WriteOnly);
@@ -316,7 +318,7 @@ void Server::_SendData(QString str)
 
         if (str[str.size() - 1] == 'r')
         {
-            dataToSend.removeLast();
+            dataToSend.remove(dataToSend.size() - 1, 1);
             for (QMap<qintptr, Snake *>::Iterator it1 = _PlayerList.begin();
                  it1 != _PlayerList.end(); it1++)
             {
@@ -361,7 +363,8 @@ bool Server::_checkBoundary()
     {
         for (size_t i = 0; i < it.value()->_homeDots.size(); i++)
         {
-            for (QMap<int, QVector<QPoint>>::Iterator ed = it.value()->_enemiesDots.begin();
+            for (QMap<int, QVector<QPoint>>::Iterator ed =
+                     it.value()->_enemiesDots.begin();
                  ed != it.value()->_enemiesDots.end(); ed++)
             {
                 if (ed.value().contains(it.value()->_homeDots[i]))
@@ -565,7 +568,7 @@ void Server::slotReadyRead()
 
                 if (l[0] == 'p')
                 {
-                    if (l[1] == "1" && _playerCount > 0)
+                    if (l[1] == "0" && _playerCount > 0)
                     {
                         _playerCount--;
                         _Sockets[socket->socketDescriptor()] = socket;

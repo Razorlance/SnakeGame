@@ -112,7 +112,7 @@ void SnakeClient::connectToServer()
     // p 1 - bot
     // p 2 - viewer
     // p 0 - player
-    QString dataToSend = "t " + QString::number(_type) + ";p 1 " + _snakeName;
+    QString dataToSend = "t " + QString::number(_type) + ";p 2 " + _snakeName;
     qDebug() << dataToSend;
 
     out << quint16(0) << dataToSend;

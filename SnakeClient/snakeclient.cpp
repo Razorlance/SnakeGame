@@ -119,7 +119,7 @@ void SnakeClient::_startClient()
                 _type = 5;
 
             if (_snakeName.size() == 0)
-                _snakeName = "Bot";
+                _snakeName = "Player";
 
             _ui->player1Label->setStyleSheet("QLabel { color : blue; }");
             _ui->player2Label->setStyleSheet("QLabel { color : red; }");
@@ -140,9 +140,11 @@ void SnakeClient::connectToServer()
     _data.clear();
     QDataStream out(&_data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_6_2);
-
+    // 0 - player
+    // 1 -  viewer
+    // 2 - bot
     QString dataToSend = "t " + QString::number(_type) + ";p " +
-                         QString::number(!_viewer) + " " + _snakeName;
+                         QString::number(_viewer) + " " + _snakeName;
     qDebug() << dataToSend;
 
     out << quint16(0) << dataToSend;
