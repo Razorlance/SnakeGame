@@ -347,7 +347,7 @@ void SnakeClient::_drawSnake()
     {
         if (i == 0)
         {
-            painter.setBrush(Qt::white);
+            painter.setBrush(Qt::lightGray);
             painter.drawEllipse(_homeDots[i].x() * _WIDTH,
                                 _homeDots[i].y() * _HEIGHT, _WIDTH, _HEIGHT);
         }
