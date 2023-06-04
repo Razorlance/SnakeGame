@@ -452,16 +452,16 @@ void Server::_eatFruit()
                     std::find(_fruits.begin(), _fruits.end(), f);
                 _fruits.erase(it);
                 _locateFruit(1);
+                QString fruitPosition = "f";
+                for (QPoint p : _fruits)
+                {
+                    fruitPosition += " " + QString::number(p.rx()) + " " +
+                                     QString::number(p.ry());
+                }
+                _SendData(fruitPosition);
             }
         }
     }
-    QString fruitPosition = "f";
-    for (QPoint p : _fruits)
-    {
-        fruitPosition +=
-            " " + QString::number(p.rx()) + " " + QString::number(p.ry());
-    }
-    _SendData(fruitPosition);
 }
 
 void Server::_initiateGame()
