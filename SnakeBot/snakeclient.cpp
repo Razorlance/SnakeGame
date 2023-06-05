@@ -232,6 +232,18 @@ bool SnakeClient::_isNumber(const QString &str)
     return true;
 }
 
+bool SnakeClient::_bot()
+{
+    Directions dir;
+    if (dir != _direction){
+        _direction = dir;
+        return true;
+    }
+    else
+        return false;
+}
+
+
 SnakeClient::~SnakeClient() { delete _ui; }
 
 void SnakeClient::_connectToServer()
@@ -446,6 +458,9 @@ void SnakeClient::_step()
     {
         _await = false;
         this->repaint();
+
+        if (_bot())
+            _sendToServer();
     }
 }
 
