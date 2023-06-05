@@ -71,13 +71,12 @@ class SnakeClient : public QMainWindow
     bool _await = false;
     int _viewer = 0;
 
-    QPoint _fruitPos = QPoint(0, 0);
     QVector<QPoint> _fruits;
     QString _input;
     QString _snakeName;
     QString _mode;
     int _type;
-    QVector<QPoint> _convertHomeDots(const QStringList&);
+    QVector<QPoint> _convertDots(const QStringList&);
     QVector<QPoint> _convertEnemyDots(const QStringList&);
 
     void _drawSnake();

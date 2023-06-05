@@ -69,12 +69,12 @@ private:
     bool _stillGame;
     bool _await = false;
 
-    QPoint _fruitPos = QPoint(0, 0);
+    QVector<QPoint> _fruits;
     QString _input;
     QString _snakeName;
     QString _mode;
     int _type;
-    QVector<QPoint> _convertHomeDots(const QStringList&);
+    QVector<QPoint> _convertDots(const QStringList&);
     QVector<QPoint> _convertEnemyDots(const QStringList&);
 
     void _drawSnake();

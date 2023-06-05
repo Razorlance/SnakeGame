@@ -158,8 +158,8 @@ Server::Server()
                                      {_Player3._id, _Player3._homeDots}};
         }
     }
-    _gameTimer = new QTimer(this);
-    connect(_gameTimer, SIGNAL(timeout()), this, SLOT(timer_function()));
+    // _gameTimer = new QTimer(this);
+    // connect(_gameTimer, SIGNAL(timeout()), this, SLOT(timer_function()));
 
     if (this->listen(QHostAddress::Any, _port))
         qDebug() << "Started";
@@ -452,7 +452,7 @@ void Server::_initiateGame()
     qDebug() << fruitPosition;
     _SendData(fruitPosition + ";r");
 
-    _gameTimer->start(1000);
+    // _gameTimer->start(1000);
 }
 
 void Server::_endGame()
@@ -621,8 +621,8 @@ void Server::slotReadyRead()
         qDebug() << "Error";
 }
 
-void Server::timer_function()
-{
-    _gameTimer--;
-    qDebug() << _gameTimer;
-}
+//void Server::timer_function()
+//{
+//    _gameTimer--;
+//    qDebug() << _gameTimer;
+//}

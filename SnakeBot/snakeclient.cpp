@@ -309,8 +309,7 @@ void SnakeClient::slotReadyRead()
 
                 if (l[0] == 'f')
                 {
-                    _fruitPos.rx() = l[1].toInt();
-                    _fruitPos.ry() = l[2].toInt();
+                    _fruits = _convertDots(l);
                 }
 
                 if (l[0] == 'c')
@@ -326,7 +325,7 @@ void SnakeClient::slotReadyRead()
 
                 if (l[0] == 'h')
                 {
-                    _homeDots = _convertHomeDots(l);
+                    _homeDots = _convertDots(l);
                 }
 
                 if (l[0] == 'r')
@@ -371,9 +370,11 @@ void SnakeClient::_drawSnake()
 {
     QPainter painter(this);
 
-    painter.setBrush(Qt::red);
-    painter.drawEllipse(_fruitPos.x() * _WIDTH, _fruitPos.y() * _HEIGHT, _WIDTH,
-                        _HEIGHT);
+    for (QPoint f : _fruits)
+    {
+        painter.setBrush(Qt::red);
+        painter.drawEllipse(f.x() * _WIDTH, f.y() * _HEIGHT, _WIDTH, _HEIGHT);
+    }
 
     for (size_t i = 0; i < _homeDots.size(); i++)
     {
@@ -470,7 +471,7 @@ void SnakeClient::paintEvent(QPaintEvent* event)
     _drawSnake();
 }
 
-QVector<QPoint> SnakeClient::_convertHomeDots(const QStringList& str)
+QVector<QPoint> SnakeClient::_convertDots(const QStringList& str)
 {
     QVector<QPoint> dots;
     for (size_t i = 1; i < str.size(); i += 2)
