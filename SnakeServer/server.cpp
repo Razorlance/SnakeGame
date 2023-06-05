@@ -374,19 +374,29 @@ bool Server::_checkBoundary()
     return true;
 }
 
-void Server::_locateFruit()
+void Server::_locateFruit(int n)
 {
-    QTime time = QTime::currentTime();
-    srand((uint)time.msec());
-
-    _fruitPos.rx() = rand() % _field_width;
-    _fruitPos.ry() = rand() % _field_height;
-
-    for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
-         it != _PlayerList.end(); it++)
+    for (size_t i = 0; i < n; i++)
     {
-        if (it.value()->_homeDots.contains(_fruitPos))
-            _locateFruit();
+        QPoint fruit;
+        QTime time = QTime::currentTime();
+        srand((uint)time.msec());
+
+        fruit.rx() = rand() % _field_width;
+        fruit.ry() = rand() % _field_height;
+
+        for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
+             it != _PlayerList.end(); it++)
+        {
+            if (it.value()->_homeDots.contains(fruit) ||
+                _fruits.contains(fruit))
+            {
+                _locateFruit(1);
+                return;
+            }
+        }
+
+        _fruits.append(fruit);
     }
 }
 
@@ -395,13 +405,28 @@ void Server::_eatFruit()
     for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
          it != _PlayerList.end(); it++)
     {
-        if (it.value()->_homeDots[0] == _fruitPos)
+        for (QPoint f : _fruits)
         {
-            it.value()->_homeDots.push_back(_fruitPos);
-            _locateFruit();
-            QString fruitPosition = "f " + QString::number(_fruitPos.rx()) +
-                                    " " + QString::number(_fruitPos.ry());
-            _SendData(fruitPosition);
+            if (it.value()->_homeDots[0] == f)
+            {
+                it.value()->_homeDots.push_back(f);
+                //                _locateFruit();
+                //                QString fruitPosition = "f " +
+                //                QString::number(_fruitPos.rx()) +
+                //                                        " " +
+                //                                        QString::number(_fruitPos.ry());
+                QVector<QPoint>::Iterator it =
+                    std::find(_fruits.begin(), _fruits.end(), f);
+                _fruits.erase(it);
+                _locateFruit(1);
+                QString fruitPosition = "f";
+                for (QPoint p : _fruits)
+                {
+                    fruitPosition += " " + QString::number(p.rx()) + " " +
+                                     QString::number(p.ry());
+                }
+                _SendData(fruitPosition);
+            }
         }
     }
 }
@@ -412,11 +437,16 @@ void Server::_initiateGame()
     qDebug() << "Creating a timer...";
     _timer = startTimer(_delay);
     qDebug() << "Locating fruit...";
-    _locateFruit();
-    QString fruitPosition = "f " + QString::number(_fruitPos.rx()) + " " +
-                            QString::number(_fruitPos.ry());
-    qDebug() << "Sending command to start..";
-    // Make id for each player which specifies direction and color
+    _locateFruit(2);
+    QString fruitPosition = "f";
+    qDebug() << "Sending fruits..";
+    for (QPoint f : _fruits)
+    {
+        fruitPosition +=
+            " " + QString::number(f.rx()) + " " + QString::number(f.ry());
+        // Make id for each player which specifies direction and color
+    }
+    qDebug() << fruitPosition;
     _SendData(fruitPosition + ";r");
 }
 
