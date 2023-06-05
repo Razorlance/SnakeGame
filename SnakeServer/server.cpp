@@ -290,7 +290,7 @@ void Server::_SendData(QString str)
                  it1 != _PlayerList.end(); it1++)
             {
                 dataToSend += "n " + QString::number(it1.value()->_id) + " " +
-                              it1.value()->_snakeName;
+                              it1.value()->_snakeName + ";";
             }
         }
 
