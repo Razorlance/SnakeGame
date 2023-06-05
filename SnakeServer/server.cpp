@@ -25,10 +25,10 @@ Server::Server()
     startWindow->move(QGuiApplication::primaryScreen()->geometry().center() -
                       startWindow->rect().center());
 
-    QFormLayout* form = new QFormLayout(startWindow);
-    QComboBox* type = new QComboBox(startWindow);
-    QComboBox* gameTime = new QComboBox(startWindow);
-    QLineEdit* port = new QLineEdit(startWindow);
+    QFormLayout *form = new QFormLayout(startWindow);
+    QComboBox *type = new QComboBox(startWindow);
+    QComboBox *gameTime = new QComboBox(startWindow);
+    QLineEdit *port = new QLineEdit(startWindow);
 
     port->setText("33221");
 
@@ -55,7 +55,8 @@ Server::Server()
 
     if (startWindow->exec() == QDialog::Accepted)
     {
-        _gameTime = gameTime->currentText().toInt();
+        _gameTime = gameTime->currentText().toInt() * 60 * 1000;
+
         _port = port->text().toInt();
 
         if (type->currentText() == "Test Bot")
@@ -157,6 +158,8 @@ Server::Server()
                                      {_Player3._id, _Player3._homeDots}};
         }
     }
+    _gameTimer = new QTimer(this);
+    connect(_gameTimer, SIGNAL(timeout()), this, SLOT(timer_function()));
 
     if (this->listen(QHostAddress::Any, _port))
         qDebug() << "Started";
@@ -448,6 +451,8 @@ void Server::_initiateGame()
     }
     qDebug() << fruitPosition;
     _SendData(fruitPosition + ";r");
+
+    _gameTimer->start(1000);
 }
 
 void Server::_endGame()
@@ -614,4 +619,10 @@ void Server::slotReadyRead()
     }
     else
         qDebug() << "Error";
+}
+
+void Server::timer_function()
+{
+    _gameTimer--;
+    qDebug() << _gameTimer;
 }

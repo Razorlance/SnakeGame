@@ -13,6 +13,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QTime>
+#include <QTimer>
 #include <QVector>
 #include <QWidget>
 
@@ -40,6 +41,7 @@ class Server : public QTcpServer
     QPoint _fruitPos;
     QVector<QPoint> _fruits;
 
+    QTimer *_gameTimer;
     int _timer;
     int _gameTime;
     int _type;
@@ -78,6 +80,8 @@ class Server : public QTcpServer
    public slots:
     void incomingConnection(qintptr SocketDescriptor) override;
     void slotReadyRead();
+   private slots:
+    void timer_function();
 };
 
 #endif  // SERVER_H
