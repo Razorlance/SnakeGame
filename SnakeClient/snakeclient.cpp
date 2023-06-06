@@ -478,7 +478,7 @@ void SnakeClient::slotReadyRead()
                         if (!_enemiesCrashed[l[1].toInt()])
                             _enemiesDots[l[1].toInt()] = _convertEnemyDots(l);
                     }
-                    // Fix _stillGame place in the code
+
                     _stillGame = true;
                 }
             }

@@ -305,6 +305,12 @@ void SnakeClient::slotReadyRead()
             {
                 QStringList l = c.split(' ');
 
+                if (l[0] == 'e')
+                {
+                    _gameOver();
+                    break;
+                }
+
                 if (l[0] == 'd')
                 {
                     _noWinner();
@@ -379,6 +385,7 @@ void SnakeClient::slotReadyRead()
                     }
 
                     _stillGame = l[1].toInt();
+                    _numberOfPlayers++;
                 }
 
                 if (l[0] == 'n')
@@ -396,6 +403,8 @@ void SnakeClient::slotReadyRead()
 
                     else if (l[1].toInt() == 4)
                         _ui->player4Label->setText(l[2] + ": 0");
+
+                    _numberOfPlayers++;
                 }
             }
             _step();
@@ -490,8 +499,18 @@ void SnakeClient::_step()
     if (_stillGame & _await)
     {
         _await = false;
-        this->repaint();
+
+        if (_type == 0 || _numberOfPlayers > 1)
+            this->repaint();
     }
+}
+
+void SnakeClient::_gameOver()
+{
+    QMessageBox endOfGame;
+    endOfGame.setText("Game Over!");
+    endOfGame.exec();
+    this->close();
 }
 
 void SnakeClient::_noWinner()
@@ -509,6 +528,7 @@ void SnakeClient::_oneWinner(const QString& winner)
     endOfGame.exec();
     this->close();
 }
+
 void SnakeClient::_wrongServer()
 {
     QMessageBox endOfGame;

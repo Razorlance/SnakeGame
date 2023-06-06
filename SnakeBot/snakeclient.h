@@ -69,6 +69,7 @@ private:
     bool _stillGame;
     bool _await = false;
     int _crashed = 0;
+    int _numberOfPlayers = 0;
 
     QVector<QPoint> _fruits;
     QString _input;
@@ -81,6 +82,7 @@ private:
 
     void _drawSnake();
     void _step();
+    void _gameOver();
     void _noWinner();
     void _oneWinner(const QString&);
     void _startClient();
