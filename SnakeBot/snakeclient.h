@@ -55,7 +55,7 @@ private:
 
     QVector<QPoint> _homeDots;
     QMap<int, QVector<QPoint>> _enemiesDots;
-    QVector<QPoint> _enemyDots;
+    QMap<int, int> _enemiesCrashed;
 
     // The size of a field
     static const int _WIDTH = 25;  // The size of points
@@ -68,18 +68,21 @@ private:
     int _score = 0;
     bool _stillGame;
     bool _await = false;
+    int _crashed = 0;
 
     QVector<QPoint> _fruits;
     QString _input;
     QString _snakeName;
     QString _mode;
     int _type;
-    QVector<QPoint> _convertDots(const QStringList&);
+    QVector<QPoint> _convertFruits(const QStringList&);
+    QVector<QPoint> _convertHomeDots(const QStringList&);
     QVector<QPoint> _convertEnemyDots(const QStringList&);
 
     void _drawSnake();
     void _step();
-    void _gameOver();
+    void _noWinner();
+    void _oneWinner(const QString&);
     void _startClient();
     void _connectToServer();
     void _wrongServer();
@@ -103,7 +106,6 @@ private:
     };
 
     Directions _direction;
-    Directions _enemyDirection;
 
     enum Colours
     {

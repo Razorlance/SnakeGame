@@ -83,7 +83,8 @@ class SnakeClient : public QMainWindow
 
     void _drawSnake();
     void _step();
-    void _gameOver();
+    void _noWinner();
+    void _oneWinner(const QString&);
     void _startClient();
     void _connectToServer();
     void _wrongServer();

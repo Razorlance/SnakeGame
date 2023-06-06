@@ -139,55 +139,55 @@ void SnakeClient::_startClient()
 void SnakeClient::_validName(QLineEdit *name, QPushButton *button)
 {
     connect(name, &QLineEdit::textChanged, this, [this, name, button](const QString &text)
-            {
-                if (text.length() > 7 || text.count(" ") >= 1)
-                {
-                    // If the length of the text exceeds 7, set the text color to red
-                    name->setStyleSheet("QLineEdit { color: red; }");
-                    button->setEnabled(false);
-                }
+    {
+        if (text.length() > 7 || text.count(" ") >= 1)
+        {
+            // If the length of the text exceeds 7, set the text color to red
+            name->setStyleSheet("QLineEdit { color: red; }");
+            button->setEnabled(false);
+        }
 
-                else
-                {
-                    // If the length of the text is 7 or less, set the text color back to white
-                    name->setStyleSheet("QLineEdit { color: black; }");
-                    button->setEnabled(true);
-                }
-            });
+        else
+        {
+            // If the length of the text is 7 or less, set the text color back to white
+            name->setStyleSheet("QLineEdit { color: black; }");
+            button->setEnabled(true);
+        }
+    });
 }
 
 void SnakeClient::_validIP(QLineEdit *ip, QPushButton *button)
 {
     connect(ip, &QLineEdit::textChanged, this, [this, ip, button](const QString &text)
-            {
-                if (!_validIP(text))
-                {
-                    ip->setStyleSheet("QLineEdit { color: red; }");
-                    button->setEnabled(false);
-                }
-                else
-                {
-                    ip->setStyleSheet("QLineEdit { color: black; }");
-                    button->setEnabled(true);
-                }
-            });
+    {
+        if (!_validIP(text))
+        {
+            ip->setStyleSheet("QLineEdit { color: red; }");
+            button->setEnabled(false);
+        }
+        else
+        {
+            ip->setStyleSheet("QLineEdit { color: black; }");
+            button->setEnabled(true);
+        }
+    });
 }
 
 void SnakeClient::_validPort(QLineEdit *port, QPushButton *button)
 {
     connect(port, &QLineEdit::textChanged, this, [this, port, button](const QString &text)
-            {
-                if (!_validPort(text))
-                {
-                    port->setStyleSheet("QLineEdit { color: red; }");
-                    button->setEnabled(false);
-                }
-                else
-                {
-                    port->setStyleSheet("QLineEdit { color: black; }");
-                    button->setEnabled(true);
-                }
-            });
+    {
+        if (!_validPort(text))
+        {
+            port->setStyleSheet("QLineEdit { color: red; }");
+            button->setEnabled(false);
+        }
+        else
+        {
+            port->setStyleSheet("QLineEdit { color: black; }");
+            button->setEnabled(true);
+        }
+    });
 }
 
 bool SnakeClient::_validIP(const QString &ip)
@@ -293,6 +293,10 @@ void SnakeClient::slotReadyRead()
 
             in >> _input;
             _socket->waitForBytesWritten();
+
+            if (_input == "wrong")
+                _wrongServer();
+
             _nextBlockSize = 0;
             qDebug() << _input;
             QStringList commandList = _input.split(';');
@@ -301,15 +305,21 @@ void SnakeClient::slotReadyRead()
             {
                 QStringList l = c.split(' ');
 
-                if (l[0] == 'e')
-                    _gameOver();
+                if (l[0] == 'd')
+                {
+                    _noWinner();
+                    break;
+                }
 
-                if (l[0] == "wrong")
-                    _wrongServer();
+                if (l[0] == 'w')
+                {
+                    _oneWinner(l[1]);
+                    break;
+                }
 
                 if (l[0] == 'f')
                 {
-                    _fruits = _convertDots(l);
+                    _fruits = _convertFruits(l);
                 }
 
                 if (l[0] == 'c')
@@ -320,12 +330,20 @@ void SnakeClient::slotReadyRead()
 
                 if (l[0] == 'g')
                 {
-                    _enemiesDots[l[1].toInt()] = _convertEnemyDots(l);
+                    if (l[2] == '1')
+                        _enemiesCrashed[l[1].toInt()] = 1;
+
+                    if (!_enemiesCrashed[l[1].toInt()])
+                        _enemiesDots[l[1].toInt()] = _convertEnemyDots(l);
                 }
 
                 if (l[0] == 'h')
                 {
-                    _homeDots = _convertDots(l);
+                    if (l[1] == '1')
+                        _crashed = 1;
+
+                    if (!_crashed)
+                        _homeDots = _convertHomeDots(l);
                 }
 
                 if (l[0] == 'r')
@@ -344,6 +362,20 @@ void SnakeClient::slotReadyRead()
                         _ui->player2Label->setText(_snakeName);
                     }
 
+                    else if (l[1].toInt() == 3)
+                    {
+                        _direction = up;
+                        _colour = green;
+                        _ui->player3Label->setText(_snakeName);
+                    }
+
+                    else if (l[1].toInt() == 4)
+                    {
+                        _direction = down;
+                        _colour = magenta;
+                        _ui->player4Label->setText(_snakeName);
+                    }
+
                     _stillGame = l[1].toInt();
                 }
 
@@ -356,6 +388,12 @@ void SnakeClient::slotReadyRead()
 
                     else if (l[1].toInt() == 2)
                         _ui->player2Label->setText(l[2]);
+
+                    if (l[1].toInt() == 3)
+                        _ui->player3Label->setText(l[2]);
+
+                    else if (l[1].toInt() == 4)
+                        _ui->player4Label->setText(l[2]);
                 }
             }
             _step();
@@ -387,17 +425,20 @@ void SnakeClient::_drawSnake()
 
         else
         {
-            if (_colour == blue)
+            if (!_crashed && _colour == blue)
                 painter.setBrush(Qt::darkBlue);
 
-            else if (_colour == red)
+            else if (!_crashed && _colour == red)
                 painter.setBrush(Qt::darkRed);
 
-            else if (_colour == green)
+            else if (!_crashed && _colour == green)
                 painter.setBrush(Qt::darkGreen);
 
-            else if (_colour == magenta)
+            else if (!_crashed && _colour == magenta)
                 painter.setBrush(Qt::darkMagenta);
+
+            else
+                painter.setBrush(Qt::darkGray);
 
             painter.drawEllipse(_homeDots[i].x() * _WIDTH,
                                 _homeDots[i].y() * _HEIGHT, _WIDTH, _HEIGHT);
@@ -419,17 +460,20 @@ void SnakeClient::_drawSnake()
 
             else
             {
-                if (it.key() == 1)
+                if (it.key() == 1 && !_enemiesCrashed[it.key()])
                     painter.setBrush(Qt::darkBlue);
 
-                else if (it.key() == 2)
+                else if (it.key() == 2 && !_enemiesCrashed[it.key()])
                     painter.setBrush(Qt::darkRed);
 
-                else if (it.key() == 3)
+                else if (it.key() == 3 && !_enemiesCrashed[it.key()])
                     painter.setBrush(Qt::darkGreen);
 
-                else if (it.key() == 4)
+                else if (it.key() == 4 && !_enemiesCrashed[it.key()])
                     painter.setBrush(Qt::darkMagenta);
+
+                else
+                    painter.setBrush(Qt::darkGray);
 
                 painter.drawEllipse(it.value()[i].x() * _WIDTH,
                                     it.value()[i].y() * _HEIGHT, _WIDTH,
@@ -441,7 +485,6 @@ void SnakeClient::_drawSnake()
 
 void SnakeClient::_step()
 {
-    qDebug() << "Tick" << _enemyDirection;
     if (_stillGame & _await)
     {
         _await = false;
@@ -449,14 +492,21 @@ void SnakeClient::_step()
     }
 }
 
-void SnakeClient::_gameOver()
+void SnakeClient::_noWinner()
 {
     QMessageBox endOfGame;
-    endOfGame.setText("Game Over");
+    endOfGame.setText("The Game Ended With A Draw!");
     endOfGame.exec();
     this->close();
 }
 
+void SnakeClient::_oneWinner(const QString& winner)
+{
+    QMessageBox endOfGame;
+    endOfGame.setText("Game Over. The Winner Is " + winner + "!");
+    endOfGame.exec();
+    this->close();
+}
 void SnakeClient::_wrongServer()
 {
     QMessageBox endOfGame;
@@ -471,7 +521,7 @@ void SnakeClient::paintEvent(QPaintEvent* event)
     _drawSnake();
 }
 
-QVector<QPoint> SnakeClient::_convertDots(const QStringList& str)
+QVector<QPoint> SnakeClient::_convertFruits(const QStringList &str)
 {
     QVector<QPoint> dots;
     for (size_t i = 1; i < str.size(); i += 2)
@@ -479,10 +529,18 @@ QVector<QPoint> SnakeClient::_convertDots(const QStringList& str)
     return dots;
 }
 
-QVector<QPoint> SnakeClient::_convertEnemyDots(const QStringList& str)
+QVector<QPoint> SnakeClient::_convertHomeDots(const QStringList& str)
 {
     QVector<QPoint> dots;
     for (size_t i = 2; i < str.size(); i += 2)
+        dots.push_back(QPoint(str[i].toInt(), str[i + 1].toInt()));
+    return dots;
+}
+
+QVector<QPoint> SnakeClient::_convertEnemyDots(const QStringList& str)
+{
+    QVector<QPoint> dots;
+    for (size_t i = 3; i < str.size(); i += 2)
         dots.push_back(QPoint(str[i].toInt(), str[i + 1].toInt()));
     return dots;
 }

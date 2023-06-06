@@ -173,12 +173,12 @@ Server::Server()
 
 void Server::timerEvent(QTimerEvent *event)
 {
-    if (_crashed.size() < _PlayerList.size())
+    if (_crashed.size() < _PlayerList.size() - 1)
     {
         qDebug() << "Continue the game";
-        _checkBoundary();
         _eatFruit();
         _move();
+        _checkBoundary();
         _SendData();
         _count.clear();
     }
@@ -458,11 +458,7 @@ void Server::_initiateGame()
     QString fruitPosition = "f";
     qDebug() << "Sending fruits..";
     for (QPoint f : _fruits)
-    {
-        fruitPosition +=
-            " " + QString::number(f.rx()) + " " + QString::number(f.ry());
-        // Make id for each player which specifies direction and color
-    }
+        fruitPosition += " " + QString::number(f.rx()) + " " + QString::number(f.ry());
     qDebug() << fruitPosition;
     _SendData(fruitPosition + ";r");
 
@@ -471,7 +467,26 @@ void Server::_initiateGame()
 
 void Server::_endGame()
 {
-    _SendData("e");
+    if (_crashed.size() == _PlayerList.size())
+        _SendData("d");
+
+    else
+    {
+        QString dataToSend = "w ";
+
+        for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
+             it != _PlayerList.end(); it++)
+        {
+            if (!it.value()->_crashed)
+            {
+                dataToSend += it.value()->_snakeName;
+                break;
+            }
+        }
+
+        _SendData(dataToSend);
+    }
+
     killTimer(_timer);
 }
 

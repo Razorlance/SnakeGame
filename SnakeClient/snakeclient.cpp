@@ -350,8 +350,17 @@ void SnakeClient::slotReadyRead()
             {
                 QStringList l = c.split(' ');
 
-                if (l[0] == 'e')
-                    _gameOver();
+                if (l[0] == 'd')
+                {
+                    _noWinner();
+                    break;
+                }
+
+                if (l[0] == 'w')
+                {
+                    _oneWinner(l[1]);
+                    break;
+                }
 
                 if (l[0] == 'f')
                 {
@@ -371,7 +380,8 @@ void SnakeClient::slotReadyRead()
                         if (l[2] == '1')
                             _enemiesCrashed[l[1].toInt()] = 1;
 
-                        _enemiesDots[l[1].toInt()] = _convertEnemyDots(l);
+                        if (!_enemiesCrashed[l[1].toInt()])
+                            _enemiesDots[l[1].toInt()] = _convertEnemyDots(l);
                     }
 
                     if (l[0] == 'h')
@@ -379,7 +389,8 @@ void SnakeClient::slotReadyRead()
                         if (l[1] == '1')
                             _crashed = 1;
 
-                        _homeDots = _convertHomeDots(l);
+                        if (!_crashed)
+                            _homeDots = _convertHomeDots(l);
                     }
 
                     if (l[0] == 'r')
@@ -435,10 +446,9 @@ void SnakeClient::slotReadyRead()
 
                 else
                 {
-                    // Make for viewer
                     if (l[0] == 'n')
                     {
-                        // Fix enemy name splitted into spaces
+                        _enemiesCrashed[l[1].toInt()] = 0;
 
                         if (l[1].toInt() == 1)
                             _ui->player1Label->setText(l[2]);
@@ -455,7 +465,11 @@ void SnakeClient::slotReadyRead()
 
                     if (l[0] == 'g')
                     {
-                        _enemiesDots[l[1].toInt()] = _convertEnemyDots(l);
+                        if (l[2] == '1')
+                            _enemiesCrashed[l[1].toInt()] = 1;
+
+                        if (!_enemiesCrashed[l[1].toInt()])
+                            _enemiesDots[l[1].toInt()] = _convertEnemyDots(l);
                     }
                     // Fix _stillGame place in the code
                     _stillGame = true;
@@ -579,10 +593,18 @@ void SnakeClient::_step()
     }
 }
 
-void SnakeClient::_gameOver()
+void SnakeClient::_noWinner()
 {
     QMessageBox endOfGame;
-    endOfGame.setText("Game Over");
+    endOfGame.setText("The Game Ended With A Draw!");
+    endOfGame.exec();
+    this->close();
+}
+
+void SnakeClient::_oneWinner(const QString& winner)
+{
+    QMessageBox endOfGame;
+    endOfGame.setText("Game Over. The Winner Is " + winner + "!");
     endOfGame.exec();
     this->close();
 }
