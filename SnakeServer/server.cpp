@@ -173,14 +173,16 @@ Server::Server()
 
 void Server::timerEvent(QTimerEvent *event)
 {
-    _eatFruit();
-    _move();
-    if (_checkBoundary())
+    if (_crashed.size() < _PlayerList.size())
     {
         qDebug() << "Continue the game";
+        _checkBoundary();
+        _eatFruit();
+        _move();
         _SendData();
         _count.clear();
     }
+
     else
         _endGame();
 }
@@ -195,8 +197,8 @@ void Server::_SendData()
         _Data.clear();
         QDataStream out(&_Data, QIODevice::WriteOnly);
         out.setVersion(QDataStream::Qt_6_3);
-        QString homeCoordinates =
-            "h " + _convertToString(_PlayerList[it.key()]->_homeDots);
+        QString homeCoordinates = "h " + QString::number(_PlayerList[it.key()]->_crashed)
+                                  + " " + _convertToString(_PlayerList[it.key()]->_homeDots);
 
         QString dataToSend = "c 1;" + homeCoordinates + ";";
 
@@ -204,8 +206,13 @@ void Server::_SendData()
                  _PlayerList[it.key()]->_enemiesDots.begin();
              ed != _PlayerList[it.key()]->_enemiesDots.end(); ed++)
         {
-            dataToSend += "g " + QString::number(ed.key()) + " " +
-                          _convertToString(ed.value()) + ";";
+            dataToSend += "g " + QString::number(ed.key());
+
+            if (_crashed.contains(ed.key()))
+                dataToSend += " 1 " + _convertToString(ed.value()) + ";";
+
+            else
+                dataToSend += " 0 " + _convertToString(ed.value()) + ";";
         }
 
         qDebug() << dataToSend;
@@ -324,57 +331,64 @@ void Server::_SendClientBack(QTcpSocket *clientSocket)
     clientSocket->waitForBytesWritten();
 }
 
-bool Server::_checkBoundary()
+void Server::_checkBoundary()
 {
-    // Fix snake not running into itself
-
     for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
          it != _PlayerList.end(); it++)
     {
-        for (size_t i = 0; i < it.value()->_homeDots.size(); i++)
+        if (!_crashed.contains(it.value()->_id))
         {
-            for (QMap<int, QVector<QPoint>>::Iterator ed =
-                     it.value()->_enemiesDots.begin();
-                 ed != it.value()->_enemiesDots.end(); ed++)
+            for (size_t i = 0; i < it.value()->_homeDots.size(); i++)
             {
-                if (ed.value().contains(it.value()->_homeDots[i]))
-                    return false;
-            }
-        }
-
-        if (it.value()->_homeDots.size() > 4)
-        {
-            for (size_t i = 1; i < it.value()->_homeDots.size(); i++)
-            {
-                if (it.value()->_homeDots[0] == it.value()->_homeDots[i])
+                for (QMap<int, QVector<QPoint>>::Iterator ed =
+                         it.value()->_enemiesDots.begin();
+                     ed != it.value()->_enemiesDots.end(); ed++)
                 {
-                    return false;
+                    if (!_crashed.contains(ed.key()) && ed.value().contains(it.value()->_homeDots[i]))
+                    {
+                        _crashed.insert(it.value()->_id);
+                        it.value()->_crashed = 1;
+                    }
                 }
             }
-        }
 
-        if (it.value()->_homeDots[0].rx() < 0)
-        {
-            return false;
-        }
+            if (it.value()->_homeDots.size() > 4)
+            {
+                for (size_t i = 1; i < it.value()->_homeDots.size(); i++)
+                {
+                    if (it.value()->_homeDots[0] == it.value()->_homeDots[i])
+                    {
+                        _crashed.insert(it.value()->_id);
+                        it.value()->_crashed = 1;
+                    }
+                }
+            }
 
-        if (it.value()->_homeDots[0].rx() == _field_width)
-        {
-            return false;
-        }
+            if (it.value()->_homeDots[0].rx() < 0)
+            {
+                _crashed.insert(it.value()->_id);
+                it.value()->_crashed = 1;
+            }
 
-        if (it.value()->_homeDots[0].ry() < 0)
-        {
-            return false;
-        }
+            if (it.value()->_homeDots[0].rx() == _field_width)
+            {
+                _crashed.insert(it.value()->_id);
+                it.value()->_crashed = 1;
+            }
 
-        if (it.value()->_homeDots[0].ry() == _field_height)
-        {
-            return false;
+            if (it.value()->_homeDots[0].ry() < 0)
+            {
+                _crashed.insert(it.value()->_id);
+                it.value()->_crashed = 1;
+            }
+
+            if (it.value()->_homeDots[0].ry() == _field_height)
+            {
+                _crashed.insert(it.value()->_id);
+                it.value()->_crashed = 1;
+            }
         }
     }
-
-    return true;
 }
 
 void Server::_locateFruit(int n)
@@ -463,39 +477,40 @@ void Server::_endGame()
 
 void Server::_move()
 {
-    // Fix for() loop
-
     for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
          it != _PlayerList.end(); it++)
     {
-        for (size_t i = it.value()->_homeDots.size() - 1; i > 0; i--)
+        if (!_crashed.contains(it.value()->_id))
         {
-            it.value()->_homeDots[i] = it.value()->_homeDots[i - 1];
-        }
+            for (size_t i = it.value()->_homeDots.size() - 1; i > 0; i--)
+            {
+                it.value()->_homeDots[i] = it.value()->_homeDots[i - 1];
+            }
 
-        switch (it.value()->direction)
-        {
-            case left:
-                it.value()->_homeDots[0].rx()--;
-                break;
-            case right:
-                it.value()->_homeDots[0].rx()++;
-                break;
-            case up:
-                it.value()->_homeDots[0].ry()--;
-                break;
-            case down:
-                it.value()->_homeDots[0].ry()++;
-                break;
-        }
+            switch (it.value()->direction)
+            {
+                case left:
+                    it.value()->_homeDots[0].rx()--;
+                    break;
+                case right:
+                    it.value()->_homeDots[0].rx()++;
+                    break;
+                case up:
+                    it.value()->_homeDots[0].ry()--;
+                    break;
+                case down:
+                    it.value()->_homeDots[0].ry()++;
+                    break;
+            }
 
-        for (QMap<qintptr, Snake *>::Iterator es = _PlayerList.begin();
-             es != _PlayerList.end(); es++)
-        {
-            if (it.key() == es.key())
-                continue;
+            for (QMap<qintptr, Snake *>::Iterator es = _PlayerList.begin();
+                 es != _PlayerList.end(); es++)
+            {
+                if (it.key() == es.key())
+                    continue;
 
-            es.value()->_enemiesDots[it.value()->_id] = it.value()->_homeDots;
+                es.value()->_enemiesDots[it.value()->_id] = it.value()->_homeDots;
+            }
         }
     }
 

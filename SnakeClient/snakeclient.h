@@ -56,7 +56,7 @@ class SnakeClient : public QMainWindow
 
     QVector<QPoint> _homeDots;
     QMap<int, QVector<QPoint>> _enemiesDots;
-    QVector<QPoint> _enemyDots;
+    QMap<int, int> _enemiesCrashed;
 
     // The size of a field
     static const int _WIDTH = 25;  // The size of points
@@ -69,6 +69,7 @@ class SnakeClient : public QMainWindow
     int _score = 0;
     bool _stillGame;
     bool _await = false;
+    int _crashed = 0;
     int _viewer = 0;
 
     QVector<QPoint> _fruits;
@@ -76,7 +77,8 @@ class SnakeClient : public QMainWindow
     QString _snakeName;
     QString _mode;
     int _type;
-    QVector<QPoint> _convertDots(const QStringList&);
+    QVector<QPoint> _convertFruits(const QStringList&);
+    QVector<QPoint> _convertHomeDots(const QStringList&);
     QVector<QPoint> _convertEnemyDots(const QStringList&);
 
     void _drawSnake();

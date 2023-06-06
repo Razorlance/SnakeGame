@@ -355,7 +355,7 @@ void SnakeClient::slotReadyRead()
 
                 if (l[0] == 'f')
                 {
-                    _fruits = _convertDots(l);
+                    _fruits = _convertFruits(l);
                 }
 
                 if (l[0] == 'c')
@@ -368,12 +368,18 @@ void SnakeClient::slotReadyRead()
                 {
                     if (l[0] == 'g')
                     {
+                        if (l[2] == '1')
+                            _enemiesCrashed[l[1].toInt()] = 1;
+
                         _enemiesDots[l[1].toInt()] = _convertEnemyDots(l);
                     }
 
                     if (l[0] == 'h')
                     {
-                        _homeDots = _convertDots(l);
+                        if (l[1] == '1')
+                            _crashed = 1;
+
+                        _homeDots = _convertHomeDots(l);
                     }
 
                     if (l[0] == 'r')
@@ -411,7 +417,7 @@ void SnakeClient::slotReadyRead()
 
                     if (l[0] == 'n')
                     {
-                        // Fix enemy name splitted into spaces
+                        _enemiesCrashed[l[1].toInt()] = 0;
 
                         if (l[1].toInt() == 1)
                             _ui->player1Label->setText(l[2]);
@@ -429,6 +435,7 @@ void SnakeClient::slotReadyRead()
 
                 else
                 {
+                    // Make for viewer
                     if (l[0] == 'n')
                     {
                         // Fix enemy name splitted into spaces
@@ -464,7 +471,7 @@ void SnakeClient::slotReadyRead()
 
 void SnakeClient::keyPressEvent(QKeyEvent* event)
 {
-    if (!_viewer)
+    if (!_viewer && !_crashed)
     {
         int key = event->key();
 
@@ -505,17 +512,20 @@ void SnakeClient::_drawSnake()
 
         else
         {
-            if (_colour == blue)
+            if (!_crashed && _colour == blue)
                 painter.setBrush(Qt::darkBlue);
 
-            else if (_colour == red)
+            else if (!_crashed && _colour == red)
                 painter.setBrush(Qt::darkRed);
 
-            else if (_colour == green)
+            else if (!_crashed && _colour == green)
                 painter.setBrush(Qt::darkGreen);
 
-            else if (_colour == magenta)
+            else if (!_crashed && _colour == magenta)
                 painter.setBrush(Qt::darkMagenta);
+
+            else
+                painter.setBrush(Qt::darkGray);
 
             painter.drawEllipse(_homeDots[i].x() * _WIDTH,
                                 _homeDots[i].y() * _HEIGHT, _WIDTH, _HEIGHT);
@@ -537,17 +547,20 @@ void SnakeClient::_drawSnake()
 
             else
             {
-                if (it.key() == 1)
+                if (it.key() == 1 && !_enemiesCrashed[it.key()])
                     painter.setBrush(Qt::darkBlue);
 
-                else if (it.key() == 2)
+                else if (it.key() == 2 && !_enemiesCrashed[it.key()])
                     painter.setBrush(Qt::darkRed);
 
-                else if (it.key() == 3)
+                else if (it.key() == 3 && !_enemiesCrashed[it.key()])
                     painter.setBrush(Qt::darkGreen);
 
-                else if (it.key() == 4)
+                else if (it.key() == 4 && !_enemiesCrashed[it.key()])
                     painter.setBrush(Qt::darkMagenta);
+
+                else
+                    painter.setBrush(Qt::darkGray);
 
                 painter.drawEllipse(it.value()[i].x() * _WIDTH,
                                     it.value()[i].y() * _HEIGHT, _WIDTH,
@@ -589,7 +602,7 @@ void SnakeClient::paintEvent(QPaintEvent* event)
     _drawSnake();
 }
 
-QVector<QPoint> SnakeClient::_convertDots(const QStringList& str)
+QVector<QPoint> SnakeClient::_convertFruits(const QStringList &str)
 {
     QVector<QPoint> dots;
     for (size_t i = 1; i < str.size(); i += 2)
@@ -597,10 +610,18 @@ QVector<QPoint> SnakeClient::_convertDots(const QStringList& str)
     return dots;
 }
 
-QVector<QPoint> SnakeClient::_convertEnemyDots(const QStringList& str)
+QVector<QPoint> SnakeClient::_convertHomeDots(const QStringList& str)
 {
     QVector<QPoint> dots;
     for (size_t i = 2; i < str.size(); i += 2)
+        dots.push_back(QPoint(str[i].toInt(), str[i + 1].toInt()));
+    return dots;
+}
+
+QVector<QPoint> SnakeClient::_convertEnemyDots(const QStringList& str)
+{
+    QVector<QPoint> dots;
+    for (size_t i = 3; i < str.size(); i += 2)
         dots.push_back(QPoint(str[i].toInt(), str[i + 1].toInt()));
     return dots;
 }

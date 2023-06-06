@@ -36,6 +36,7 @@ public slots:
     QString _snakeName;
     int _port;
     int _id;
+    int _crashed = 0;
 
     // The size of a field
     static const int _WIDTH = 25;  // The size of points

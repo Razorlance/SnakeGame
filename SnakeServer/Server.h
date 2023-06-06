@@ -40,6 +40,7 @@ class Server : public QTcpServer
     QSet<qintptr> _count;
     QPoint _fruitPos;
     QVector<QPoint> _fruits;
+    QSet<int> _crashed;
 
     QTimer *_gameTimer;
     int _timer;
@@ -70,7 +71,7 @@ class Server : public QTcpServer
     void _SendData();
     void _SendData(QString str);
     void _SendClientBack(QTcpSocket *clientSocket);
-    bool _checkBoundary();
+    void _checkBoundary();
     void _locateFruit(int);
     void _initiateGame();
     void _eatFruit();
