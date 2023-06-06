@@ -399,28 +399,35 @@ void SnakeClient::slotReadyRead()
                         {
                             _direction = right;
                             _colour = blue;
-                            _ui->player1Label->setText(_snakeName);
+                            _ui->player1Label->setText(_snakeName + ": 0");
                         }
 
                         else if (l[1].toInt() == 2)
                         {
                             _direction = left;
                             _colour = red;
-                            _ui->player2Label->setText(_snakeName);
+                            _ui->player2Label->setText(_snakeName + ": 0");
                         }
 
                         else if (l[1].toInt() == 3)
                         {
                             _direction = up;
                             _colour = green;
-                            _ui->player3Label->setText(_snakeName);
+                            _ui->player3Label->setText(_snakeName + ": 0");
                         }
 
                         else if (l[1].toInt() == 4)
                         {
                             _direction = down;
                             _colour = magenta;
-                            _ui->player4Label->setText(_snakeName);
+                            _ui->player4Label->setText(_snakeName + ": 0");
+                        }
+
+                        if (l[1].toInt() == 1)
+                        {
+                            _direction = right;
+                            _colour = blue;
+                            _ui->player1Label->setText(_snakeName);
                         }
 
                         _stillGame = l[1].toInt();

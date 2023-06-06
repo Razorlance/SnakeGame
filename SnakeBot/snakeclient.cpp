@@ -334,7 +334,9 @@ void SnakeClient::slotReadyRead()
                         _enemiesCrashed[l[1].toInt()] = 1;
 
                     if (!_enemiesCrashed[l[1].toInt()])
+                    {
                         _enemiesDots[l[1].toInt()] = _convertEnemyDots(l);
+                    }
                 }
 
                 if (l[0] == 'h')
@@ -352,28 +354,28 @@ void SnakeClient::slotReadyRead()
                     {
                         _direction = right;
                         _colour = blue;
-                        _ui->player1Label->setText(_snakeName);
+                        _ui->player1Label->setText(_snakeName + ": 0");
                     }
 
                     else if (l[1].toInt() == 2)
                     {
                         _direction = left;
                         _colour = red;
-                        _ui->player2Label->setText(_snakeName);
+                        _ui->player2Label->setText(_snakeName + ": 0");
                     }
 
                     else if (l[1].toInt() == 3)
                     {
                         _direction = up;
                         _colour = green;
-                        _ui->player3Label->setText(_snakeName);
+                        _ui->player3Label->setText(_snakeName + ": 0");
                     }
 
                     else if (l[1].toInt() == 4)
                     {
                         _direction = down;
                         _colour = magenta;
-                        _ui->player4Label->setText(_snakeName);
+                        _ui->player4Label->setText(_snakeName + ": 0");
                     }
 
                     _stillGame = l[1].toInt();
@@ -384,16 +386,16 @@ void SnakeClient::slotReadyRead()
                     // Fix enemy name splitted into spaces
 
                     if (l[1].toInt() == 1)
-                        _ui->player1Label->setText(l[2]);
+                        _ui->player1Label->setText(l[2] + ": 0");
 
                     else if (l[1].toInt() == 2)
-                        _ui->player2Label->setText(l[2]);
+                        _ui->player2Label->setText(l[2] + ": 0");
 
                     if (l[1].toInt() == 3)
-                        _ui->player3Label->setText(l[2]);
+                        _ui->player3Label->setText(l[2] + ": 0");
 
                     else if (l[1].toInt() == 4)
-                        _ui->player4Label->setText(l[2]);
+                        _ui->player4Label->setText(l[2] + ": 0");
                 }
             }
             _step();

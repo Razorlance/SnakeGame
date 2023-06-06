@@ -173,18 +173,12 @@ Server::Server()
 
 void Server::timerEvent(QTimerEvent *event)
 {
-    if (_crashed.size() < _PlayerList.size() - 1)
-    {
-        qDebug() << "Continue the game";
-        _eatFruit();
-        _move();
-        _checkBoundary();
-        _SendData();
-        _count.clear();
-    }
-
-    else
-        _endGame();
+    qDebug() << "Continue the game";
+    _eatFruit();
+    _move();
+    _checkBoundary();
+    _SendData();
+    _count.clear();
 }
 
 void Server::_SendData()
@@ -389,6 +383,9 @@ void Server::_checkBoundary()
             }
         }
     }
+
+    if (_crashed.size() >= _PlayerList.size() - 1)
+        _endGame();
 }
 
 void Server::_locateFruit(int n)
