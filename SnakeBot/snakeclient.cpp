@@ -28,6 +28,7 @@ SnakeClient::SnakeClient(QWidget* parent)
     this->resize(_WIDTH * _FIELD_WIDTH, _HEIGHT * _FIELD_HEIGHT);
     this->setWindowTitle("Snake Game");
     _startClient();
+    _isDown = !(_FIELD_WIDTH % 2);
 }
 
 void SnakeClient::_startClient()
@@ -232,10 +233,102 @@ bool SnakeClient::_isNumber(const QString &str)
     return true;
 }
 
+bool SnakeClient::_checkMove(Directions tmp)
+{
+    if (tmp == up && _homeDots[0].y() == 0)
+        return false;
+    if (tmp == down && _homeDots[0].y() == _FIELD_HEIGHT - 1)
+        return false;
+    if (tmp == left && _homeDots[0].x() == 0)
+        return false;
+    if (tmp == right && _homeDots[0].x() == _FIELD_WIDTH - 1)
+        return false;
+    if (tmp == right)
+    {
+        QPoint p(_homeDots[0].x() + 1, _homeDots[0].y());
+        for (size_t i = 1; i < _homeDots.size(); i++)
+            if (p == _homeDots[i])
+                return false;
+    }
+    if (tmp == left)
+    {
+        QPoint p(_homeDots[0].x() - 1, _homeDots[0].y());
+        for (size_t i = 1; i < _homeDots.size(); i++)
+            if (p == _homeDots[i])
+                return false;
+    }
+    if (tmp == up)
+    {
+        QPoint p(_homeDots[0].x(), _homeDots[0].y() - 1);
+        for (size_t i = 1; i < _homeDots.size(); i++)
+            if (p == _homeDots[i])
+                return false;
+    }
+    if (tmp == down)
+    {
+        QPoint p(_homeDots[0].x(), _homeDots[0].y() + 1);
+        for (size_t i = 1; i < _homeDots.size(); i++)
+            if (p == _homeDots[i])
+                return false;
+    }
+    return true;
+}
+
 bool SnakeClient::_bot()
 {
     Directions dir;
-    if (dir != _direction){
+    size_t length = abs(_homeDots[0].x() - _fruits[0].x()) + abs(_homeDots[0].y() - _fruits[0].y());
+    QPoint goal = _fruits[0];
+    for (size_t i = 1; i < _fruits.size(); i++)
+    {
+        if (length > abs(_homeDots[0].x() - _fruits[i].x()) + abs(_homeDots[0].y() - _fruits[i].y()))
+        {
+            goal = _fruits[i];
+            length = abs(_homeDots[0].x() - _fruits[i].x()) + abs(_homeDots[0].y() - _fruits[i].y());
+        }
+    }
+    if (_homeDots[0].x() == goal.x())
+    {
+        dir = _homeDots[0].y() > goal.y() ? up : down;
+        if (!_checkMove(dir))
+            dir = _homeDots[0].y() > goal.y() ? down : up;
+    }
+    else if (_homeDots[0].y() == goal.y())
+    {
+        dir = _homeDots[0].x() > goal.x() ? left : right;
+        if (!_checkMove(dir))
+        {
+            if (_checkMove(up))
+                dir = up;
+            else if (_checkMove(down))
+                dir = down;
+            else if (_checkMove(dir == left ? right : left))
+                dir = dir == left ? right : left;
+        }
+    }
+    else if (abs(_homeDots[0].x() - goal.x()) < abs(_homeDots[0].y() - goal.y()))
+    {
+        dir = _homeDots[0].x() > goal.x() ? left : right;
+        if (!_checkMove(dir))
+        {
+            if (_checkMove(left))
+                dir = left;
+            else if (_checkMove(right))
+                dir = right;
+            else if (_checkMove(dir == up ? down : up))
+                dir = dir == up ? down : up;
+        }
+    }
+    else
+    {
+        dir = _homeDots[0].y() > goal.y() ? up : down;
+        if (!_checkMove(dir))
+            dir = _homeDots[0].x() > goal.x() ? left : right;
+    }
+    if (!_checkMove(dir))
+        return false;
+    else if (dir != _direction)
+    {
         _direction = dir;
         return true;
     }

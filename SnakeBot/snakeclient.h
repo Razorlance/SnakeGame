@@ -93,8 +93,6 @@ private:
     bool _validIP(const QString&);
     bool _validPort(const QString&);
     bool _isNumber(const QString&);
-    bool _bot();
-
 
     enum Directions
     {
@@ -103,6 +101,10 @@ private:
         up = 2,
         down = 3
     };
+
+    bool _bot();
+    bool _isDown;
+    bool _checkMove(Directions tmp);
 
     Directions _direction;
     Directions _enemyDirection;
