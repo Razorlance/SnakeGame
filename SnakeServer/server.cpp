@@ -157,9 +157,15 @@ Server::Server()
                                      {_Player2._id, _Player2._homeDots},
                                      {_Player3._id, _Player3._homeDots}};
         }
+        if (gameTime->currentText() == "1")
+            _seconds = 60;
+        else if (gameTime->currentText() == "2")
+            _seconds = 120;
+        else
+            _seconds = 300;
     }
-    // _gameTimer = new QTimer(this);
-    // connect(_gameTimer, SIGNAL(timeout()), this, SLOT(timer_function()));
+    _gameTimer = new QTimer(this);
+    connect(_gameTimer, SIGNAL(timeout()), this, SLOT(timer_function()));
 
     if (this->listen(QHostAddress::Any, _port))
         qDebug() << "Started";
@@ -452,12 +458,13 @@ void Server::_initiateGame()
     qDebug() << fruitPosition;
     _SendData(fruitPosition + ";r");
 
-    // _gameTimer->start(1000);
+    _gameTimer->start(1000);
 }
 
 void Server::_endGame()
 {
     _SendData("e");
+    _gameTimer->stop();
     killTimer(_timer);
 }
 
@@ -621,8 +628,8 @@ void Server::slotReadyRead()
         qDebug() << "Error";
 }
 
-//void Server::timer_function()
-//{
-//    _gameTimer--;
-//    qDebug() << _gameTimer;
-//}
+void Server::timer_function()
+{
+    _seconds--;
+    qDebug() << _seconds << "Tik Tok";
+}

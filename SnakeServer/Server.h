@@ -1,21 +1,21 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <QGuiApplication>
 #include <QApplication>
-#include <QFormLayout>
-#include <QPushButton>
-#include <QTcpServer>
-#include <QTcpSocket>
-#include <QLineEdit>
 #include <QComboBox>
 #include <QDialog>
+#include <QFormLayout>
+#include <QGuiApplication>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QQueue>
 #include <QScreen>
+#include <QTcpServer>
+#include <QTcpSocket>
+#include <QTime>
+#include <QTimer>
 #include <QVector>
 #include <QWidget>
-#include <QQueue>
-#include <QTimer>
-#include <QTime>
 
 #include "snake.h"
 
@@ -50,6 +50,7 @@ class Server : public QTcpServer
     int _botCount = 0;
     int _viewerCount = 0;  // ?
     int _totalCount;
+    int _seconds = 60;
     static const int _delay = 500;
     static const int _width = 25;  // The size of points
     static const int _height = 25;
@@ -80,8 +81,7 @@ class Server : public QTcpServer
    public slots:
     void incomingConnection(qintptr SocketDescriptor) override;
     void slotReadyRead();
-//   private slots:
-//    void timer_function();
+    void timer_function();
 };
 
 #endif  // SERVER_H
