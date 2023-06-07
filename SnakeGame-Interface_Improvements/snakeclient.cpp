@@ -334,7 +334,6 @@ void SnakeClient::modeOption(QComboBox *mode, QLineEdit *name, QLabel *nameLabel
         nameLabel->setStyleSheet("QLabel { color : white; }");
         type->show();
         typeLabel->setStyleSheet("QLabel { color : white; }");
-        name->show();
     }
     else
     {
@@ -342,7 +341,6 @@ void SnakeClient::modeOption(QComboBox *mode, QLineEdit *name, QLabel *nameLabel
         nameLabel->setStyleSheet("QLabel { color : grey; }");
         type->hide();
         typeLabel->setStyleSheet("QLabel { color : grey; }");
-        //name->setEnabled(false);
     }
     });
 }
