@@ -249,6 +249,10 @@ bool SnakeClient::_checkMove(Directions tmp)
         for (size_t i = 1; i < _homeDots.size(); i++)
             if (p == _homeDots[i])
                 return false;
+        for (auto snake : _enemiesDots)
+            for (size_t i = 0; i < snake.size(); i++)
+                if (p == snake[i])
+                    return false;
     }
     if (tmp == left)
     {
@@ -256,6 +260,10 @@ bool SnakeClient::_checkMove(Directions tmp)
         for (size_t i = 1; i < _homeDots.size(); i++)
             if (p == _homeDots[i])
                 return false;
+        for (auto snake : _enemiesDots)
+            for (size_t i = 0; i < snake.size(); i++)
+                if (p == snake[i])
+                    return false;
     }
     if (tmp == up)
     {
@@ -263,6 +271,10 @@ bool SnakeClient::_checkMove(Directions tmp)
         for (size_t i = 1; i < _homeDots.size(); i++)
             if (p == _homeDots[i])
                 return false;
+        for (auto snake : _enemiesDots)
+            for (size_t i = 0; i < snake.size(); i++)
+                if (p == snake[i])
+                    return false;
     }
     if (tmp == down)
     {
@@ -270,6 +282,10 @@ bool SnakeClient::_checkMove(Directions tmp)
         for (size_t i = 1; i < _homeDots.size(); i++)
             if (p == _homeDots[i])
                 return false;
+        for (auto snake : _enemiesDots)
+            for (size_t i = 0; i < snake.size(); i++)
+                if (p == snake[i])
+                    return false;
     }
     return true;
 }
@@ -291,7 +307,14 @@ bool SnakeClient::_bot()
     {
         dir = _homeDots[0].y() > goal.y() ? up : down;
         if (!_checkMove(dir))
-            dir = _homeDots[0].y() > goal.y() ? down : up;
+        {
+            if (_checkMove(left))
+                dir = left;
+            else if (_checkMove(right))
+                dir = right;
+            else if (_checkMove(dir == down ? up : down))
+                dir = dir == down ? up : down;
+        }
     }
     else if (_homeDots[0].y() == goal.y())
     {
@@ -311,19 +334,28 @@ bool SnakeClient::_bot()
         dir = _homeDots[0].x() > goal.x() ? left : right;
         if (!_checkMove(dir))
         {
-            if (_checkMove(left))
-                dir = left;
-            else if (_checkMove(right))
-                dir = right;
-            else if (_checkMove(dir == up ? down : up))
-                dir = dir == up ? down : up;
+            Directions tmp = _homeDots[0].y() > goal.y() ? up : down;
+            if (_checkMove(tmp))
+                dir = tmp;
+            else if (_checkMove(tmp == up ? down : up))
+                dir = tmp == up ? down : up;
+            else if (_checkMove(dir == left ? right : left))
+                dir = dir == left ? right : left;
         }
     }
     else
     {
         dir = _homeDots[0].y() > goal.y() ? up : down;
         if (!_checkMove(dir))
-            dir = _homeDots[0].x() > goal.x() ? left : right;
+        {
+            Directions tmp = _homeDots[0].x() > goal.x() ? left : right;
+            if (_checkMove(tmp))
+                dir = tmp;
+            else if (_checkMove(tmp == left ? right : left))
+                dir = tmp == left ? right : left;
+            else if (_checkMove(dir == up ? down : up))
+                dir = dir == up ? down : up;
+        }
     }
     if (!_checkMove(dir))
         return false;
