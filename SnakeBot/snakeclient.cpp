@@ -21,6 +21,7 @@ SnakeClient::SnakeClient(QWidget* parent)
     : QMainWindow(parent), _ui(new Ui::SnakeClient)
 {
     _ui->setupUi(this);
+    setFixedSize(625, 625);
     _socket = new QTcpSocket(this);
     connect(_socket, &QTcpSocket::readyRead, this, &SnakeClient::slotReadyRead);
     connect(_socket, &QTcpSocket::disconnected, _socket,

@@ -486,6 +486,7 @@ void SnakeClient::slotReadyRead()
             break;
         }
     }
+
     else
         qDebug() << "Error";
 }

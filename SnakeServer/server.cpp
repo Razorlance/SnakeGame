@@ -158,8 +158,6 @@ Server::Server()
                                      {_Player3._id, _Player3._homeDots}};
         }
     }
-    // _gameTimer = new QTimer(this);
-    // connect(_gameTimer, SIGNAL(timeout()), this, SLOT(timer_function()));
 
     if (this->listen(QHostAddress::Any, _port))
         qDebug() << "Started";
@@ -173,15 +171,19 @@ Server::Server()
 
 void Server::timerEvent(QTimerEvent *event)
 {
-    if (_crashed.size() > 0 && _crashed.size() >= _PlayerList.size() - 1)
-        _endGame();
-
     qDebug() << "Continue the game";
     _eatFruit();
     _move();
     _checkBoundary();
-    _SendData();
-    _count.clear();
+
+    if (_crashed.size() > 0 && _crashed.size() >= _PlayerList.size() - 1)
+        _endGame();
+
+    else
+    {
+        _SendData();
+        _count.clear();
+    }
 }
 
 void Server::_SendData()
@@ -231,8 +233,13 @@ void Server::_SendData()
         for (QMap<qintptr, Snake *>::Iterator it1 = _PlayerList.begin();
              it1 != _PlayerList.end(); it1++)
         {
-            dataToSend += "g " + QString::number(it1.value()->_id) + " " +
-                          _convertToString(it1.value()->_homeDots) + ";";
+            dataToSend += "g " + QString::number(it1.value()->_id);
+
+            if (_crashed.contains(it1.value()->_id))
+                dataToSend += " 1 " + _convertToString(it1.value()->_homeDots) + ";";
+
+            else
+                dataToSend += " 0 " + _convertToString(it1.value()->_homeDots) + ";";
         }
 
         qDebug() << dataToSend;
