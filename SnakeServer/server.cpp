@@ -337,6 +337,8 @@ void Server::_SendClientBack(QTcpSocket *clientSocket)
 
 void Server::_checkBoundary()
 {
+    QSet<int> newCrashes = _crashed;
+
     for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
          it != _PlayerList.end(); it++)
     {
@@ -350,7 +352,7 @@ void Server::_checkBoundary()
                 {
                     if (!_crashed.contains(ed.key()) && ed.value().contains(it.value()->_homeDots[i]))
                     {
-                        _crashed.insert(it.value()->_id);
+                        newCrashes.insert(it.value()->_id);
                         it.value()->_crashed = 1;
                     }
                 }
@@ -362,7 +364,7 @@ void Server::_checkBoundary()
                 {
                     if (it.value()->_homeDots[0] == it.value()->_homeDots[i])
                     {
-                        _crashed.insert(it.value()->_id);
+                        newCrashes.insert(it.value()->_id);
                         it.value()->_crashed = 1;
                     }
                 }
@@ -370,29 +372,31 @@ void Server::_checkBoundary()
 
             if (it.value()->_homeDots[0].rx() < 0)
             {
-                _crashed.insert(it.value()->_id);
+                newCrashes.insert(it.value()->_id);
                 it.value()->_crashed = 1;
             }
 
             if (it.value()->_homeDots[0].rx() == _field_width)
             {
-                _crashed.insert(it.value()->_id);
+                newCrashes.insert(it.value()->_id);
                 it.value()->_crashed = 1;
             }
 
             if (it.value()->_homeDots[0].ry() < 0)
             {
-                _crashed.insert(it.value()->_id);
+                newCrashes.insert(it.value()->_id);
                 it.value()->_crashed = 1;
             }
 
             if (it.value()->_homeDots[0].ry() == _field_height)
             {
-                _crashed.insert(it.value()->_id);
+                newCrashes.insert(it.value()->_id);
                 it.value()->_crashed = 1;
             }
         }
     }
+
+    _crashed = newCrashes;
 }
 
 void Server::_locateFruit(int n)

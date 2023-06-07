@@ -350,6 +350,12 @@ void SnakeClient::slotReadyRead()
             {
                 QStringList l = c.split(' ');
 
+                if (l[0] == 'e')
+                {
+                    _gameOver();
+                    break;
+                }
+
                 if (l[0] == 'd')
                 {
                     _noWinner();
@@ -599,6 +605,14 @@ void SnakeClient::_step()
         _await = false;
         this->repaint();
     }
+}
+
+void SnakeClient::_gameOver()
+{
+    QMessageBox endOfGame;
+    endOfGame.setText("Game Over!");
+    endOfGame.exec();
+    this->close();
 }
 
 void SnakeClient::_noWinner()
