@@ -609,6 +609,7 @@ void SnakeClient::_step()
 
 void SnakeClient::_gameOver()
 {
+    this->repaint();
     QMessageBox endOfGame;
     endOfGame.setText("Game Over!");
     endOfGame.exec();
@@ -617,6 +618,7 @@ void SnakeClient::_gameOver()
 
 void SnakeClient::_noWinner()
 {
+    this->repaint();
     QMessageBox endOfGame;
     endOfGame.setText("The Game Ended With A Draw!");
     endOfGame.exec();
@@ -625,6 +627,7 @@ void SnakeClient::_noWinner()
 
 void SnakeClient::_oneWinner(const QString& winner)
 {
+    this->repaint();
     QMessageBox endOfGame;
     endOfGame.setText("Game Over. The Winner Is " + winner + "!");
     endOfGame.exec();

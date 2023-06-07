@@ -49,8 +49,8 @@ class Server : public QTcpServer
     int _port;
     int _playerCount = 0;
     int _botCount = 0;
-    int _viewerCount = 0;  // ?
     int _totalCount;
+    bool _started = false;
     static const int _delay = 500;
     static const int _width = 25;  // The size of points
     static const int _height = 25;

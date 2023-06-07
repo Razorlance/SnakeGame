@@ -469,33 +469,90 @@ void Server::_initiateGame()
         fruitPosition += " " + QString::number(f.rx()) + " " + QString::number(f.ry());
     qDebug() << fruitPosition;
     _SendData(fruitPosition + ";r");
-
-    // _gameTimer->start(1000);
 }
 
 void Server::_endGame()
 {
-    if (_type == 0)
-        _SendData("e");
-
-    else if (_crashed.size() == _PlayerList.size())
-        _SendData("d");
-
-    else
+    for (QMap<qintptr, QTcpSocket *>::Iterator it = _Sockets.begin();
+         it != _Sockets.end(); it++)
     {
-        QString dataToSend = "w ";
+        _Data.clear();
+        QDataStream out(&_Data, QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_6_3);
+        QString winner;
+        QString dataToSend = "h " + QString::number(_PlayerList[it.key()]->_crashed)
+                             + " " + _convertToString(_PlayerList[it.key()]->_homeDots) + ";";
 
-        for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
-             it != _PlayerList.end(); it++)
+        if (!_PlayerList[it.key()]->_crashed)
+            winner = _PlayerList[it.key()]->_snakeName;
+
+        for (QMap<qintptr, Snake *>::Iterator it1 = _PlayerList.begin();
+             it1 != _PlayerList.end(); it1++)
         {
-            if (!it.value()->_crashed)
-            {
-                dataToSend += it.value()->_snakeName;
-                break;
-            }
+            if (it.key() == it1.key())
+                continue;
+
+            dataToSend += "g " + QString::number(it1.value()->_id)
+                          + " " + QString::number(it1.value()->_crashed) + " "
+                          + _convertToString(it1.value()->_homeDots) + ";";
+
+            if (!it1.value()->_crashed)
+                winner = it1.value()->_snakeName;
         }
 
-        _SendData(dataToSend);
+
+        if (_type == 0)
+            dataToSend += "e";
+
+        else if (_crashed.size() == _PlayerList.size())
+            dataToSend += "d";
+
+        else
+            dataToSend += "w " + winner;
+
+        qDebug() << dataToSend;
+        out << quint16(0) << dataToSend;
+        out.device()->seek(0);
+        out << quint16(_Data.size() - sizeof(quint16));
+        it.value()->write(_Data);
+        it.value()->waitForBytesWritten();
+    }
+
+    for (QMap<qintptr, QTcpSocket *>::Iterator it = _ViewerList.begin();
+         it != _ViewerList.end(); it++)
+    {
+        _Data.clear();
+        QDataStream out(&_Data, QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_6_3);
+        QString dataToSend = "";
+        QString winner;
+
+        for (QMap<qintptr, Snake *>::Iterator it1 = _PlayerList.begin();
+             it1 != _PlayerList.end(); it1++)
+        {
+            dataToSend += "g " + QString::number(it1.value()->_id)
+                          + " " + QString::number(it1.value()->_crashed) + " "
+                          + _convertToString(it1.value()->_homeDots) + ";";
+
+            if (!it1.value()->_crashed)
+                winner = it1.value()->_snakeName;
+        }
+
+        if (_type == 0)
+            dataToSend += "e";
+
+        else if (_crashed.size() == _PlayerList.size())
+            dataToSend += "d";
+
+        else
+            dataToSend += "w " + winner;
+
+        qDebug() << dataToSend;
+        out << quint16(0) << dataToSend;
+        out.device()->seek(0);
+        out << quint16(_Data.size() - sizeof(quint16));
+        it.value()->write(_Data);
+        it.value()->waitForBytesWritten();
     }
 
     killTimer(_timer);
@@ -643,8 +700,11 @@ void Server::slotReadyRead()
                         this->nextPendingConnection();
                     }
 
-                    if (_Sockets.size() == _totalCount)
+                    if (_Sockets.size() == _totalCount && !_started)
+                    {
+                        _started = true;
                         _initiateGame();
+                    }
                 }
 
                 if (l[0] == 'd')
@@ -661,9 +721,3 @@ void Server::slotReadyRead()
     else
         qDebug() << "Error";
 }
-
-//void Server::timer_function()
-//{
-//    _gameTimer--;
-//    qDebug() << _gameTimer;
-//}
