@@ -110,7 +110,8 @@ void SnakeClient::_startClient()
 
     if (startWindow->exec() == QDialog::Rejected)
     {
-        QApplication::quit();
+        qDebug() << "Must be stopped";
+        stop = true;
         return;
     }
 

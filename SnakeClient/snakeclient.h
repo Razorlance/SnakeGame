@@ -39,6 +39,8 @@ public:
     SnakeClient(QWidget* parent = nullptr);
     ~SnakeClient();
 
+    bool stop = false;
+
 public slots:
     void slotReadyRead();
 

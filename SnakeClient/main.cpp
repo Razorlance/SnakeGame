@@ -6,6 +6,9 @@ int main(int argc, char* argv[])
 {
     QApplication a(argc, argv);
     SnakeClient client;
-    client.show();
+
+    if (!client.stop)
+        client.show();
+
     return a.exec();
 }

@@ -105,7 +105,8 @@ void SnakeClient::_startClient()
 
     if (startWindow->exec() == QDialog::Rejected)
     {
-        QApplication::quit();
+        qDebug() << "Must be stopped";
+        stop = true;
         return;
     }
 
@@ -572,7 +573,7 @@ void SnakeClient::_drawSnake()
 
 void SnakeClient::_step()
 {
-    if (_stillGame & _await)
+    if (_stillGame && _await)
     {
         _await = false;
         this->repaint();
