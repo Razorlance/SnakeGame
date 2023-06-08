@@ -49,7 +49,7 @@ private:
     int _seconds;
     bool _started = false;
     static const int _delay = 500;
-    static const int _field_width = 22;  // The number of points
+    static const int _field_width = 20;  // The number of points
     static const int _field_height = 25;
 
     Snake _Player1;
