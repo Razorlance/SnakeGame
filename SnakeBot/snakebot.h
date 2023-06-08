@@ -64,11 +64,8 @@ private:
     static const int _HEIGHT = 25;
     static const int _FIELD_WIDTH = 25;  // The number of points
     static const int _FIELD_HEIGHT = 25;
-    static const int _DELAY = 500;
 
-    int _timer;
-    int _score = 0;
-    bool _stillGame;
+    bool _stillGame = false;
     bool _await = false;
     int _crashed = 0;
     int _id;

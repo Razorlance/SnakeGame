@@ -2,21 +2,6 @@
 
 #include "./ui_snakeclient.h"
 
-/*
- * TODO:
- * 1. Think about the boundaries of the window. Disallow the change of size of
- * the window maybe?
- * 2. Read about endPaint().
- * 3. Close endOfGame with MainWindow.
- * 4. Make so that fruits do not spawn under the snake.
- * 5. Make the win situation.
- * 6. Improve label position.
- * 7. Update score on the label.
- * 8. Improve move. Do not allow it to go up-down or left-right when it's going
- * down-up or right-left.
- * 9. Remove all setLabel, setWindow etc. from constructor
- */
-
 SnakeClient::SnakeClient(QWidget* parent)
     : QMainWindow(parent), _ui(new Ui::SnakeClient)
 {
@@ -101,8 +86,6 @@ void SnakeClient::_startClient()
     form->addRow(typeLabel, type);
     form->addWidget(button);
 
-    // Doesn't stop after closing
-
     _validName(name, button);
     _modeOption(mode, name, nameLabel, type, typeLabel);
     _validIP(ip, button);
@@ -157,8 +140,6 @@ void SnakeClient::_modeOption(QComboBox *mode, QLineEdit *name, QLabel *nameLabe
     connect(mode, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, [this, mode, name, nameLabel, type, typeLabel](int index)
             {
-                // If the selected item is "Player", show the player options combo box. Otherwise, hide it.
-
                 if (mode->currentText() == "Player")
                 {
                     name->show();
@@ -593,7 +574,6 @@ void SnakeClient::slotReadyRead()
                             _enemiesDots[l[1].toInt()] = newDots;
                         }
                     }
-
                     _stillGame = true;
                 }
             }
@@ -644,7 +624,8 @@ void SnakeClient::_drawSnake()
         {
             painter.setBrush(Qt::lightGray);
             painter.drawEllipse(_homeDots[i].x() * _WIDTH,
-                                _homeDots[i].y() * _HEIGHT, _WIDTH, _HEIGHT);
+                                _homeDots[i].y() * _HEIGHT,
+                                _WIDTH, _HEIGHT);
         }
 
         else
@@ -665,7 +646,8 @@ void SnakeClient::_drawSnake()
                 painter.setBrush(Qt::darkGray);
 
             painter.drawEllipse(_homeDots[i].x() * _WIDTH,
-                                _homeDots[i].y() * _HEIGHT, _WIDTH, _HEIGHT);
+                                _homeDots[i].y() * _HEIGHT,
+                                _WIDTH, _HEIGHT);
         }
     }
 
@@ -678,8 +660,8 @@ void SnakeClient::_drawSnake()
             {
                 painter.setBrush(Qt::white);
                 painter.drawEllipse(it.value()[i].x() * _WIDTH,
-                                    it.value()[i].y() * _HEIGHT, _WIDTH,
-                                    _HEIGHT);
+                                    it.value()[i].y() * _HEIGHT,
+                                    _WIDTH, _HEIGHT);
             }
 
             else
@@ -700,8 +682,8 @@ void SnakeClient::_drawSnake()
                     painter.setBrush(Qt::darkGray);
 
                 painter.drawEllipse(it.value()[i].x() * _WIDTH,
-                                    it.value()[i].y() * _HEIGHT, _WIDTH,
-                                    _HEIGHT);
+                                    it.value()[i].y() * _HEIGHT,
+                                    _WIDTH, _HEIGHT);
             }
         }
     }

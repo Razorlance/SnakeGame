@@ -2,21 +2,6 @@
 
 #include "./ui_snakebot.h"
 
-/*
- * TODO:
- * 1. Think about the boundaries of the window. Disallow the change of size of
- * the window maybe?
- * 2. Read about endPaint().
- * 3. Close endOfGame with MainWindow.
- * 4. Make so that fruits do not spawn under the snake.
- * 5. Make the win situation.
- * 6. Improve label position.
- * 7. Update score on the label.
- * 8. Improve move. Do not allow it to go up-down or left-right when it's going
- * down-up or right-left.
- * 9. Remove all setLabel, setWindow etc. from constructor
- */
-
 SnakeBot::SnakeBot(QWidget *parent) : QMainWindow(parent), _ui(new Ui::SnakeBot)
 {
     _ui->setupUi(this);
@@ -98,8 +83,6 @@ void SnakeBot::_startClient()
     form->addRow(typeLabel, type);
     form->addWidget(button);
 
-    // Doesn't stop after closing
-
     _validName(name, button);
     _validIP(ip, button);
     _validPort(port, button);
@@ -142,41 +125,41 @@ void SnakeBot::_startClient()
 
 void SnakeBot::_validName(QLineEdit *name, QPushButton *button)
 {
-    connect(name, &QLineEdit::textChanged, this,
-            [this, name, button](const QString &text) {
-                if (text.length() > 7 || text.count(" ") >= 1)
-                {
-                    // If the length of the text exceeds 7, set the text color
-                    // to red
-                    name->setStyleSheet("QLineEdit { color: red; }");
-                    button->setEnabled(false);
-                }
+    connect(name, &QLineEdit::textChanged, this, [this, name, button](const QString &text)
+    {
+        if (text.length() > 7 || text.count(" ") >= 1)
+        {
+            // If the length of the text exceeds 7, set the text color
+            // to red
+            name->setStyleSheet("QLineEdit { color: red; }");
+            button->setEnabled(false);
+        }
 
-                else
-                {
-                    // If the length of the text is 7 or less, set the text
-                    // color back to white
-                    name->setStyleSheet("QLineEdit { color: black; }");
-                    button->setEnabled(true);
-                }
-            });
+        else
+        {
+            // If the length of the text is 7 or less, set the text
+            // color back to white
+            name->setStyleSheet("QLineEdit { color: black; }");
+            button->setEnabled(true);
+        }
+    });
 }
 
 void SnakeBot::_validIP(QLineEdit *ip, QPushButton *button)
 {
-    connect(ip, &QLineEdit::textChanged, this,
-            [this, ip, button](const QString &text) {
-                if (!_validIP(text))
-                {
-                    ip->setStyleSheet("QLineEdit { color: red; }");
-                    button->setEnabled(false);
-                }
-                else
-                {
-                    ip->setStyleSheet("QLineEdit { color: black; }");
-                    button->setEnabled(true);
-                }
-            });
+    connect(ip, &QLineEdit::textChanged, this, [this, ip, button](const QString &text)
+    {
+        if (!_validIP(text))
+        {
+            ip->setStyleSheet("QLineEdit { color: red; }");
+            button->setEnabled(false);
+        }
+        else
+        {
+            ip->setStyleSheet("QLineEdit { color: black; }");
+            button->setEnabled(true);
+        }
+    });
 }
 
 void SnakeBot::_validPort(QLineEdit *port, QPushButton *button)

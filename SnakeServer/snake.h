@@ -22,28 +22,14 @@ class Snake
 {
 public:
     Snake();
-    Snake(const Snake& other) { direction = other.direction; }
     ~Snake();
     Directions direction;
     QTcpSocket* socket;
 
 public slots:
-    void slotReadyRead();
-    QVector<QPoint> getMap();
-
-    QByteArray _data;
-    QString _ip;
     QString _snakeName;
-    int _port;
     int _id;
     int _crashed = 0;
-
-    // The size of a field
-    static const int _WIDTH = 25;  // The size of points
-    static const int _HEIGHT = 24;
-    static const int _FIELD_WIDTH = 25;  // The number of points
-    static const int _FIELD_HEIGHT = 25;
-
     QVector<QPoint> _homeDots;
     QMap<int, QVector<QPoint>> _enemiesDots;
 };

@@ -54,8 +54,6 @@ Server::Server()
 
     if (startWindow->exec() == QDialog::Accepted)
     {
-        _gameTime = gameTime->currentText().toInt() * 60 * 1000;
-
         _port = port->text().toInt();
 
         if (type->currentText() == "Test Bot")
@@ -197,7 +195,6 @@ void Server::timerEvent(QTimerEvent *event)
         else
         {
             _SendData();
-            _count.clear();
         }
     }
 }
@@ -219,7 +216,7 @@ void Server::_SendData()
         QString dataToSend = "c 1;" + homeCoordinates + ";";
 
         for (QMap<int, QVector<QPoint>>::Iterator ed =
-                 _PlayerList[it.key()]->_enemiesDots.begin();
+             _PlayerList[it.key()]->_enemiesDots.begin();
              ed != _PlayerList[it.key()]->_enemiesDots.end(); ed++)
         {
             dataToSend += "g " + QString::number(ed.key());
@@ -347,10 +344,7 @@ void Server::_SendData(QString str)
 
 void Server::_SendClientBack(QTcpSocket *clientSocket)
 {
-    // Maybe change this function
-
     qDebug() << "Sending client back...";
-
     _Data.clear();
     QDataStream out(&_Data, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_6_3);
@@ -374,7 +368,7 @@ void Server::_checkBoundary()
             for (size_t i = 0; i < it.value()->_homeDots.size(); i++)
             {
                 for (QMap<int, QVector<QPoint>>::Iterator ed =
-                         it.value()->_enemiesDots.begin();
+                     it.value()->_enemiesDots.begin();
                      ed != it.value()->_enemiesDots.end(); ed++)
                 {
                     if (!_crashed.contains(ed.key()) &&
@@ -698,18 +692,18 @@ void Server::_move()
 
             switch (it.value()->direction)
             {
-                case left:
-                    it.value()->_homeDots[0].rx()--;
-                    break;
-                case right:
-                    it.value()->_homeDots[0].rx()++;
-                    break;
-                case up:
-                    it.value()->_homeDots[0].ry()--;
-                    break;
-                case down:
-                    it.value()->_homeDots[0].ry()++;
-                    break;
+            case left:
+                it.value()->_homeDots[0].rx()--;
+                break;
+            case right:
+                it.value()->_homeDots[0].rx()++;
+                break;
+            case up:
+                it.value()->_homeDots[0].ry()--;
+                break;
+            case down:
+                it.value()->_homeDots[0].ry()++;
+                break;
             }
 
             for (QMap<qintptr, Snake *>::Iterator es = _PlayerList.begin();
@@ -838,7 +832,6 @@ void Server::slotReadyRead()
                 {
                     _PlayerList[socket->socketDescriptor()]->direction =
                         Directions(l[1].toInt());
-                    _count.insert(socket->socketDescriptor());
                 }
             }
 

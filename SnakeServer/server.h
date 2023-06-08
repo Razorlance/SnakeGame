@@ -22,29 +22,25 @@
 class Server : public QTcpServer
 {
     Q_OBJECT
-   public:
+public:
     Server();
     // Write a destructor for a server
     //    ~Server();
 
     QTcpSocket *socket;
 
-   protected:
+protected:
     void timerEvent(QTimerEvent *event) override;
 
-   private:
+private:
     QMap<qintptr, QTcpSocket *> _Sockets;
-    QMap<qintptr, QVector<QPoint>> _Dots;
     QMap<qintptr, Snake *> _PlayerList;
     QMap<qintptr, QTcpSocket *> _ViewerList;
-    QSet<qintptr> _count;
-    QPoint _fruitPos;
     QVector<QPoint> _fruits;
     QSet<int> _crashed;
 
     QTimer *_gameTimer;
     int _timer;
-    int _gameTime;
     int _type;
     int _port;
     int _playerCount = 0;
@@ -53,8 +49,6 @@ class Server : public QTcpServer
     int _seconds;
     bool _started = false;
     static const int _delay = 500;
-    static const int _width = 25;  // The size of points
-    static const int _height = 25;
     static const int _field_width = 22;  // The number of points
     static const int _field_height = 25;
 
@@ -80,7 +74,7 @@ class Server : public QTcpServer
     void _endGame();
     void _move();
 
-   public slots:
+public slots:
     void incomingConnection(qintptr SocketDescriptor) override;
     void slotReadyRead();
     void timer_function();
