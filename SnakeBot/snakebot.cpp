@@ -593,6 +593,7 @@ bool SnakeBot::_checkMove(Directions tmp)
         for (size_t i = 1; i < _homeDots.size(); i++)
             if (p == _homeDots[i])
                 return false;
+
         for (auto snake : _enemiesDots)
             for (size_t i = 0; i < snake.size(); i++)
                 if (p == snake[i])
@@ -605,6 +606,7 @@ bool SnakeBot::_checkMove(Directions tmp)
         for (size_t i = 1; i < _homeDots.size(); i++)
             if (p == _homeDots[i])
                 return false;
+
         for (auto snake : _enemiesDots)
             for (size_t i = 0; i < snake.size(); i++)
                 if (p == snake[i])
@@ -617,6 +619,7 @@ bool SnakeBot::_checkMove(Directions tmp)
         for (size_t i = 1; i < _homeDots.size(); i++)
             if (p == _homeDots[i])
                 return false;
+
         for (auto snake : _enemiesDots)
             for (size_t i = 0; i < snake.size(); i++)
                 if (p == snake[i])
@@ -629,6 +632,7 @@ bool SnakeBot::_checkMove(Directions tmp)
         for (size_t i = 1; i < _homeDots.size(); i++)
             if (p == _homeDots[i])
                 return false;
+
         for (auto snake : _enemiesDots)
             for (size_t i = 0; i < snake.size(); i++)
                 if (p == snake[i])
@@ -663,8 +667,10 @@ bool SnakeBot::_bot()
         {
             if (_checkMove(left))
                 dir = left;
+
             else if (_checkMove(dir == down ? up : down))
                 dir = (dir == down ? up : down);
+
             else if (_checkMove(right))
                 dir = right;
         }
@@ -677,8 +683,10 @@ bool SnakeBot::_bot()
         {
             if (_checkMove(up))
                 dir = up;
+
             else if (_checkMove(dir == left ? right : left))
                 dir = (dir == left ? right : left);
+
             else if (_checkMove(down))
                 dir = down;
         }
@@ -690,10 +698,13 @@ bool SnakeBot::_bot()
         if (!_checkMove(dir))
         {
             Directions tmp = _homeDots[0].y() > goal.y() ? up : down;
+
             if (_checkMove(tmp))
                 dir = tmp;
+
             else if (_checkMove(tmp == up ? down : up))
                 dir = (tmp == up ? down : up);
+
             else if (_checkMove(dir == left ? right : left))
                 dir = (dir == left ? right : left);
         }
