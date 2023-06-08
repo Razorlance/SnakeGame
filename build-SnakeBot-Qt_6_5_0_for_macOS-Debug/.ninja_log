@@ -1,9 +1,0 @@
-# ninja log v5
-0	1380	1686233805816475725	SnakeBot_autogen/timestamp	62351507019db716
-0	1380	1686233805816475725	SnakeBot_autogen/mocs_compilation.cpp	62351507019db716
-0	1380	1686233805816475725	/Users/RomanGorelsky/Documents/GitHub/SnakeGame/build-SnakeBot-Qt_6_5_0_for_macOS-Debug/SnakeBot_autogen/timestamp	62351507019db716
-0	1380	1686233805816475725	/Users/RomanGorelsky/Documents/GitHub/SnakeGame/build-SnakeBot-Qt_6_5_0_for_macOS-Debug/SnakeBot_autogen/mocs_compilation.cpp	62351507019db716
-1381	5546	1686233810015970533	CMakeFiles/SnakeBot.dir/main.cpp.o	a6c7389348102367
-1381	5553	1686233810017520615	CMakeFiles/SnakeBot.dir/SnakeBot_autogen/mocs_compilation.cpp.o	50c1a7cf5952e306
-1382	6213	1686233810680004366	CMakeFiles/SnakeBot.dir/snakebot.cpp.o	fa9d13315719ab47
-6214	6677	1686233811155542045	SnakeBot.app/Contents/MacOS/SnakeBot	e72f0bce6b157a89
