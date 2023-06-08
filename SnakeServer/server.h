@@ -9,6 +9,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QQueue>
+#include <QRandomGenerator>
 #include <QScreen>
 #include <QTcpServer>
 #include <QTcpSocket>
@@ -22,17 +23,17 @@
 class Server : public QTcpServer
 {
     Q_OBJECT
-public:
+   public:
     Server();
     // Write a destructor for a server
-    //    ~Server();
+    ~Server();
 
     QTcpSocket *socket;
 
-protected:
+   protected:
     void timerEvent(QTimerEvent *event) override;
 
-private:
+   private:
     QMap<qintptr, QTcpSocket *> _Sockets;
     QMap<qintptr, Snake *> _PlayerList;
     QMap<qintptr, QTcpSocket *> _ViewerList;
@@ -74,7 +75,7 @@ private:
     void _endGame();
     void _move();
 
-public slots:
+   public slots:
     void incomingConnection(qintptr SocketDescriptor) override;
     void slotReadyRead();
     void timer_function();

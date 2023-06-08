@@ -177,6 +177,21 @@ Server::Server()
     _totalCount = _playerCount + _botCount;
 }
 
+Server::~Server()
+{
+    for (auto it = _Sockets.begin(); it != _Sockets.end(); ++it)
+        delete it.value();
+
+    for (auto it = _PlayerList.begin(); it != _PlayerList.end(); ++it)
+        delete it.value();
+
+    for (auto it = _ViewerList.begin(); it != _ViewerList.end(); ++it)
+        delete it.value();
+
+    if (_gameTimer)
+        delete _gameTimer;
+}
+
 void Server::timerEvent(QTimerEvent *event)
 {
     if (_seconds == 0)
@@ -216,7 +231,7 @@ void Server::_SendData()
         QString dataToSend = "c 1;" + homeCoordinates + ";";
 
         for (QMap<int, QVector<QPoint>>::Iterator ed =
-             _PlayerList[it.key()]->_enemiesDots.begin();
+                 _PlayerList[it.key()]->_enemiesDots.begin();
              ed != _PlayerList[it.key()]->_enemiesDots.end(); ed++)
         {
             dataToSend += "g " + QString::number(ed.key());
@@ -230,7 +245,8 @@ void Server::_SendData()
 
         int currentMinutes = _seconds / 60;
         int currentSeconds = _seconds % 60;
-        dataToSend += "s " + QString::number(currentMinutes) + ":" + QString::number(currentSeconds) + ";";
+        dataToSend += "s " + QString::number(currentMinutes) + ":" +
+                      QString::number(currentSeconds) + ";";
 
         qDebug() << dataToSend;
         out << quint16(0) << dataToSend;
@@ -264,7 +280,8 @@ void Server::_SendData()
 
         int currentMinutes = _seconds / 60;
         int currentSeconds = _seconds % 60;
-        dataToSend += "s " + QString::number(currentMinutes) + ":" + QString::number(currentSeconds) + ";";
+        dataToSend += "s " + QString::number(currentMinutes) + ":" +
+                      QString::number(currentSeconds) + ";";
 
         qDebug() << dataToSend;
         out << quint16(0) << dataToSend;
@@ -368,7 +385,7 @@ void Server::_checkBoundary()
             for (size_t i = 0; i < it.value()->_homeDots.size(); i++)
             {
                 for (QMap<int, QVector<QPoint>>::Iterator ed =
-                     it.value()->_enemiesDots.begin();
+                         it.value()->_enemiesDots.begin();
                      ed != it.value()->_enemiesDots.end(); ed++)
                 {
                     if (!_crashed.contains(ed.key()) &&
@@ -425,25 +442,35 @@ void Server::_locateFruit(int n)
 {
     for (size_t i = 0; i < n; i++)
     {
-        QPoint fruit;
-        QTime time = QTime::currentTime();
-        srand((uint)time.msec());
+        bool fruitLocated = false;
 
-        fruit.rx() = rand() % _field_width;
-        fruit.ry() = rand() % _field_height;
-
-        for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
-             it != _PlayerList.end(); it++)
+        while (!fruitLocated)
         {
-            if (it.value()->_homeDots.contains(fruit) ||
-                _fruits.contains(fruit))
+            QPoint fruit;
+            QRandomGenerator gen(QTime::currentTime().msec());
+
+            fruit.rx() = gen.bounded(_field_width);
+            fruit.ry() = gen.bounded(_field_height);
+
+            bool conflict = false;
+            for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
+                 it != _PlayerList.end(); it++)
             {
-                _locateFruit(1);
-                return;
+                if (it.value()->_homeDots.contains(fruit) ||
+                    _fruits.contains(fruit))
+                {
+                    conflict = true;
+                    break;
+                }
+            }
+
+            if (!conflict)
+            {
+                _fruits.append(fruit);
+                qDebug() << _fruits << "- fruits";
+                fruitLocated = true;
             }
         }
-
-        _fruits.append(fruit);
     }
 }
 
@@ -479,7 +506,7 @@ void Server::_initiateGame()
     qDebug() << "Creating a timer...";
     _timer = startTimer(_delay);
     qDebug() << "Locating fruit...";
-    _locateFruit(2);
+    _locateFruit(4);
     QString fruitPosition = "f";
     qDebug() << "Sending fruits..";
     for (QPoint f : _fruits)
@@ -692,18 +719,18 @@ void Server::_move()
 
             switch (it.value()->direction)
             {
-            case left:
-                it.value()->_homeDots[0].rx()--;
-                break;
-            case right:
-                it.value()->_homeDots[0].rx()++;
-                break;
-            case up:
-                it.value()->_homeDots[0].ry()--;
-                break;
-            case down:
-                it.value()->_homeDots[0].ry()++;
-                break;
+                case left:
+                    it.value()->_homeDots[0].rx()--;
+                    break;
+                case right:
+                    it.value()->_homeDots[0].rx()++;
+                    break;
+                case up:
+                    it.value()->_homeDots[0].ry()--;
+                    break;
+                case down:
+                    it.value()->_homeDots[0].ry()++;
+                    break;
             }
 
             for (QMap<qintptr, Snake *>::Iterator es = _PlayerList.begin();
