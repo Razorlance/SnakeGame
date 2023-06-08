@@ -8,7 +8,10 @@ int main(int argc, char* argv[])
     SnakeClient client;
 
     if (!client.stop)
+    {
         client.show();
+        return a.exec();
+    }
 
-    return a.exec();
+    return 0;
 }
