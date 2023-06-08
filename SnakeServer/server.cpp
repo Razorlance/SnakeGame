@@ -195,7 +195,10 @@ Server::~Server()
 void Server::timerEvent(QTimerEvent *event)
 {
     if (_seconds == 0)
+    {
         _timesUp();
+        killTimer(_timer);
+    }
 
     else
     {
@@ -205,8 +208,10 @@ void Server::timerEvent(QTimerEvent *event)
         _checkBoundary();
 
         if (_crashed.size() > 0 && _crashed.size() >= _PlayerList.size() - 1)
+        {
             _endGame();
-
+            killTimer(_timer);
+        }
         else
         {
             _SendData();
@@ -519,6 +524,8 @@ void Server::_initiateGame()
 
 void Server::_timesUp()
 {
+    _gameTimer->stop();
+
     for (QMap<qintptr, QTcpSocket *>::Iterator it = _Sockets.begin();
          it != _Sockets.end(); it++)
     {
@@ -554,10 +561,10 @@ void Server::_timesUp()
         }
 
         if (_type == 0)
-            dataToSend += "e";
+            dataToSend += "e;";
 
         else if (countWinners > 1)
-            dataToSend += "d";
+            dataToSend += "d;";
 
         else
             dataToSend += "w " + winner;
@@ -567,7 +574,7 @@ void Server::_timesUp()
         out.device()->seek(0);
         out << quint16(_Data.size() - sizeof(quint16));
         it.value()->write(_Data);
-        it.value()->waitForBytesWritten();
+        //        it.value()->waitForBytesWritten();
     }
 
     for (QMap<qintptr, QTcpSocket *>::Iterator it = _ViewerList.begin();
@@ -597,10 +604,10 @@ void Server::_timesUp()
         }
 
         if (_type == 0)
-            dataToSend += "e";
+            dataToSend += "e;";
 
         else if (countWinners > 1)
-            dataToSend += "d";
+            dataToSend += "d;";
 
         else
             dataToSend += "w " + winner;
@@ -610,15 +617,13 @@ void Server::_timesUp()
         out.device()->seek(0);
         out << quint16(_Data.size() - sizeof(quint16));
         it.value()->write(_Data);
-        it.value()->waitForBytesWritten();
+        //        it.value()->waitForBytesWritten();
     }
-
-    _gameTimer->stop();
-    killTimer(_timer);
 }
 
 void Server::_endGame()
 {
+    _gameTimer->stop();
     for (QMap<qintptr, QTcpSocket *>::Iterator it = _Sockets.begin();
          it != _Sockets.end(); it++)
     {
@@ -648,10 +653,10 @@ void Server::_endGame()
         }
 
         if (_type == 0)
-            dataToSend += "e";
+            dataToSend += "e;";
 
         else if (_crashed.size() == _PlayerList.size())
-            dataToSend += "d";
+            dataToSend += "d;";
 
         else
             dataToSend += "w " + winner;
@@ -661,7 +666,7 @@ void Server::_endGame()
         out.device()->seek(0);
         out << quint16(_Data.size() - sizeof(quint16));
         it.value()->write(_Data);
-        it.value()->waitForBytesWritten();
+        //        it.value()->waitForBytesWritten();
     }
 
     for (QMap<qintptr, QTcpSocket *>::Iterator it = _ViewerList.begin();
@@ -698,11 +703,8 @@ void Server::_endGame()
         out.device()->seek(0);
         out << quint16(_Data.size() - sizeof(quint16));
         it.value()->write(_Data);
-        it.value()->waitForBytesWritten();
+        //        it.value()->waitForBytesWritten();
     }
-
-    _gameTimer->stop();
-    killTimer(_timer);
 }
 
 void Server::_move()
