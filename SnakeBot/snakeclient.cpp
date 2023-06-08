@@ -305,56 +305,42 @@ bool SnakeClient::_bot()
     }
     if (_homeDots[0].x() == goal.x())
     {
-        dir = _homeDots[0].y() > goal.y() ? up : down;
+        dir = (_homeDots[0].y() > goal.y() ? up : down);
         if (!_checkMove(dir))
         {
             if (_checkMove(left))
                 dir = left;
+            else if (_checkMove(dir == down ? up : down))
+                dir = (dir == down ? up : down);
             else if (_checkMove(right))
                 dir = right;
-            else if (_checkMove(dir == down ? up : down))
-                dir = dir == down ? up : down;
         }
     }
     else if (_homeDots[0].y() == goal.y())
     {
-        dir = _homeDots[0].x() > goal.x() ? left : right;
+        dir = (_homeDots[0].x() > goal.x() ? left : right);
         if (!_checkMove(dir))
         {
             if (_checkMove(up))
                 dir = up;
+            else if (_checkMove(dir == left ? right : left))
+                dir = (dir == left ? right : left);
             else if (_checkMove(down))
                 dir = down;
-            else if (_checkMove(dir == left ? right : left))
-                dir = dir == left ? right : left;
         }
     }
-    else if (abs(_homeDots[0].x() - goal.x()) < abs(_homeDots[0].y() - goal.y()))
+    else
     {
-        dir = _homeDots[0].x() > goal.x() ? left : right;
+        dir = (_homeDots[0].x() > goal.x() ? left : right);
         if (!_checkMove(dir))
         {
             Directions tmp = _homeDots[0].y() > goal.y() ? up : down;
             if (_checkMove(tmp))
                 dir = tmp;
             else if (_checkMove(tmp == up ? down : up))
-                dir = tmp == up ? down : up;
+                dir = (tmp == up ? down : up);
             else if (_checkMove(dir == left ? right : left))
-                dir = dir == left ? right : left;
-        }
-    }
-    else
-    {
-        dir = _homeDots[0].y() > goal.y() ? up : down;
-        if (!_checkMove(dir))
-        {
-            Directions tmp = _homeDots[0].x() > goal.x() ? left : right;
-            if (_checkMove(tmp))
-                dir = tmp;
-            else if (_checkMove(tmp == left ? right : left))
-                dir = tmp == left ? right : left;
-            else if (_checkMove(dir == up ? down : up))
-                dir = dir == up ? down : up;
+                dir = (dir == left ? right : left);
         }
     }
     if (!_checkMove(dir))
