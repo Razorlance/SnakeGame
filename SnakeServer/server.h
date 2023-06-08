@@ -25,8 +25,9 @@ class Server : public QTcpServer
     Q_OBJECT
    public:
     Server();
-    // Write a destructor for a server
     ~Server();
+
+    bool stop;
 
     QTcpSocket *socket;
 

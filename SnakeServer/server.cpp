@@ -52,118 +52,123 @@ Server::Server()
                      &QDialog::accept);
     form->addWidget(button);
 
-    if (startWindow->exec() == QDialog::Accepted)
+    if (startWindow->exec() == QDialog::Rejected)
     {
-        _port = port->text().toInt();
-
-        if (type->currentText() == "Test Bot")
-        {
-            _type = 0;
-            _botCount = 1;
-            _Players.enqueue(&_Player1);
-        }
-
-        else if (type->currentText() == "1:1")
-        {
-            _type = 1;
-            _playerCount = 2;
-
-            _Players.enqueue(&_Player1);
-            _Players.enqueue(&_Player2);
-
-            _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots}};
-
-            _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots}};
-        }
-
-        else if (type->currentText() == "1:3")
-        {
-            _type = 2;
-            _playerCount = 4;
-
-            _Players.enqueue(&_Player1);
-            _Players.enqueue(&_Player2);
-            _Players.enqueue(&_Player3);
-            _Players.enqueue(&_Player4);
-
-            _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots},
-                                     {_Player3._id, _Player3._homeDots},
-                                     {_Player4._id, _Player4._homeDots}};
-
-            _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots},
-                                     {_Player3._id, _Player3._homeDots},
-                                     {_Player4._id, _Player4._homeDots}};
-
-            _Player3._enemiesDots = {{_Player1._id, _Player1._homeDots},
-                                     {_Player2._id, _Player2._homeDots},
-                                     {_Player4._id, _Player4._homeDots}};
-
-            _Player4._enemiesDots = {{_Player1._id, _Player1._homeDots},
-                                     {_Player2._id, _Player2._homeDots},
-                                     {_Player3._id, _Player3._homeDots}};
-        }
-
-        else if (type->currentText() == "1:Bot")
-        {
-            _type = 3;
-            _playerCount = 1;
-            _botCount = 1;
-
-            _Players.enqueue(&_Player1);
-            _Players.enqueue(&_Player2);
-
-            _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots}};
-            _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots}};
-        }
-
-        else if (type->currentText() == "Bot:Bot")
-        {
-            _type = 4;
-            _botCount = 2;
-
-            _Players.enqueue(&_Player1);
-            _Players.enqueue(&_Player2);
-
-            _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots}};
-            _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots}};
-        }
-
-        else if (type->currentText() == "Bot:3 Bots")
-        {
-            _type = 5;
-            _botCount = 4;
-
-            _Players.enqueue(&_Player1);
-            _Players.enqueue(&_Player2);
-            _Players.enqueue(&_Player3);
-            _Players.enqueue(&_Player4);
-
-            _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots},
-                                     {_Player3._id, _Player3._homeDots},
-                                     {_Player4._id, _Player4._homeDots}};
-
-            _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots},
-                                     {_Player3._id, _Player3._homeDots},
-                                     {_Player4._id, _Player4._homeDots}};
-
-            _Player3._enemiesDots = {{_Player1._id, _Player1._homeDots},
-                                     {_Player2._id, _Player2._homeDots},
-                                     {_Player4._id, _Player4._homeDots}};
-
-            _Player4._enemiesDots = {{_Player1._id, _Player1._homeDots},
-                                     {_Player2._id, _Player2._homeDots},
-                                     {_Player3._id, _Player3._homeDots}};
-        }
-
-        if (gameTime->currentText() == "1")
-            _seconds = 60;
-
-        else if (gameTime->currentText() == "2")
-            _seconds = 120;
-
-        else
-            _seconds = 300;
+        qDebug() << "Must be stopped";
+        stop = true;
+        return;
     }
+
+    _port = port->text().toInt();
+
+    if (type->currentText() == "Test Bot")
+    {
+        _type = 0;
+        _botCount = 1;
+        _Players.enqueue(&_Player1);
+    }
+
+    else if (type->currentText() == "1:1")
+    {
+        _type = 1;
+        _playerCount = 2;
+
+        _Players.enqueue(&_Player1);
+        _Players.enqueue(&_Player2);
+
+        _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots}};
+
+        _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots}};
+    }
+
+    else if (type->currentText() == "1:3")
+    {
+        _type = 2;
+        _playerCount = 4;
+
+        _Players.enqueue(&_Player1);
+        _Players.enqueue(&_Player2);
+        _Players.enqueue(&_Player3);
+        _Players.enqueue(&_Player4);
+
+        _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots},
+                                 {_Player3._id, _Player3._homeDots},
+                                 {_Player4._id, _Player4._homeDots}};
+
+        _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                                 {_Player3._id, _Player3._homeDots},
+                                 {_Player4._id, _Player4._homeDots}};
+
+        _Player3._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                                 {_Player2._id, _Player2._homeDots},
+                                 {_Player4._id, _Player4._homeDots}};
+
+        _Player4._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                                 {_Player2._id, _Player2._homeDots},
+                                 {_Player3._id, _Player3._homeDots}};
+    }
+
+    else if (type->currentText() == "1:Bot")
+    {
+        _type = 3;
+        _playerCount = 1;
+        _botCount = 1;
+
+        _Players.enqueue(&_Player1);
+        _Players.enqueue(&_Player2);
+
+        _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots}};
+        _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots}};
+    }
+
+    else if (type->currentText() == "Bot:Bot")
+    {
+        _type = 4;
+        _botCount = 2;
+
+        _Players.enqueue(&_Player1);
+        _Players.enqueue(&_Player2);
+
+        _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots}};
+        _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots}};
+    }
+
+    else if (type->currentText() == "Bot:3 Bots")
+    {
+        _type = 5;
+        _botCount = 4;
+
+        _Players.enqueue(&_Player1);
+        _Players.enqueue(&_Player2);
+        _Players.enqueue(&_Player3);
+        _Players.enqueue(&_Player4);
+
+        _Player1._enemiesDots = {{_Player2._id, _Player2._homeDots},
+                                 {_Player3._id, _Player3._homeDots},
+                                 {_Player4._id, _Player4._homeDots}};
+
+        _Player2._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                                 {_Player3._id, _Player3._homeDots},
+                                 {_Player4._id, _Player4._homeDots}};
+
+        _Player3._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                                 {_Player2._id, _Player2._homeDots},
+                                 {_Player4._id, _Player4._homeDots}};
+
+        _Player4._enemiesDots = {{_Player1._id, _Player1._homeDots},
+                                 {_Player2._id, _Player2._homeDots},
+                                 {_Player3._id, _Player3._homeDots}};
+    }
+
+    if (gameTime->currentText() == "1")
+        _seconds = 60;
+
+    else if (gameTime->currentText() == "2")
+        _seconds = 120;
+
+    else
+        _seconds = 300;
+
     _gameTimer = new QTimer(this);
     connect(_gameTimer, SIGNAL(timeout()), this, SLOT(timer_function()));
 
