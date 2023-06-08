@@ -60,7 +60,7 @@
         <property name="font">
          <font>
           <family>Copperplate</family>
-          <pointsize>15</pointsize>
+          <pointsize>21</pointsize>
          </font>
         </property>
         <property name="text">
