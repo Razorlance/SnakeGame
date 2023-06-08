@@ -66,6 +66,9 @@
         <property name="text">
          <string/>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
        </widget>
       </item>
       <item>
@@ -130,7 +133,7 @@
      <x>0</x>
      <y>0</y>
      <width>630</width>
-     <height>24</height>
+     <height>17</height>
     </rect>
    </property>
   </widget>

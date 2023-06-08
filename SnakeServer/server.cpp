@@ -250,8 +250,14 @@ void Server::_SendData()
 
         int currentMinutes = _seconds / 60;
         int currentSeconds = _seconds % 60;
-        dataToSend += "s " + QString::number(currentMinutes) + ":" +
-                      QString::number(currentSeconds) + ";";
+
+        if (currentSeconds >= 10)
+            dataToSend += "s " + QString::number(currentMinutes) + ":" +
+                          QString::number(currentSeconds) + ";";
+
+        else
+            dataToSend += "s " + QString::number(currentMinutes) + ":0" +
+                          QString::number(currentSeconds) + ";";
 
         qDebug() << dataToSend;
         out << quint16(0) << dataToSend;
@@ -285,8 +291,14 @@ void Server::_SendData()
 
         int currentMinutes = _seconds / 60;
         int currentSeconds = _seconds % 60;
-        dataToSend += "s " + QString::number(currentMinutes) + ":" +
-                      QString::number(currentSeconds) + ";";
+
+        if (currentSeconds >= 10)
+            dataToSend += "s " + QString::number(currentMinutes) + ":" +
+                          QString::number(currentSeconds) + ";";
+
+        else
+            dataToSend += "s " + QString::number(currentMinutes) + ":0" +
+                          QString::number(currentSeconds) + ";";
 
         qDebug() << dataToSend;
         out << quint16(0) << dataToSend;
