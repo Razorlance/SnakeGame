@@ -767,7 +767,7 @@ void SnakeBot::_wrongServer()
     QMessageBox endOfGame;
     endOfGame.setText("You have chosen the wrong server");
     endOfGame.exec();
-    this->close();
+    QApplication::exit(1234);
 }
 
 void SnakeBot::paintEvent(QPaintEvent *event)

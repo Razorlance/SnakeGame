@@ -732,8 +732,7 @@ void SnakeClient::_wrongServer()
     QMessageBox wrongServer;
     wrongServer.setText("Choose another server or game type");
     wrongServer.exec();
-    this->hide();
-    _startClient();
+    QApplication::exit(1234);
 }
 
 void SnakeClient::paintEvent(QPaintEvent* event)

@@ -4,14 +4,22 @@
 
 int main(int argc, char* argv[])
 {
-    QApplication a(argc, argv);
-    SnakeClient client;
+    int result = 0;
 
-    if (!client.stop)
+    do
     {
-        client.show();
-        return a.exec();
-    }
+        QApplication a(argc, argv);
+        SnakeClient client;
+
+        if (!client.stop)
+        {
+            client.show();
+            result = a.exec();
+        }
+
+        else
+            break;
+    } while (result == 1234);
 
     return 0;
 }

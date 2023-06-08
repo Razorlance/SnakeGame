@@ -2,30 +2,30 @@
 #define SNAKEBOT_H
 
 #include <QApplication>
-#include <QCloseEvent>
-#include <QColor>
-#include <QComboBox>
-#include <QDebug>
-#include <QDir>
-#include <QFont>
-#include <QFormLayout>
 #include <QInputDialog>
-#include <QKeyEvent>
-#include <QLineEdit>
+#include <QCloseEvent>
 #include <QListWidget>
 #include <QMainWindow>
 #include <QMessageBox>
-#include <QPainter>
-#include <QPoint>
+#include <QFormLayout>
 #include <QPushButton>
-#include <QScreen>
-#include <QSize>
-#include <QSpinBox>
-#include <QTcpSocket>
-#include <QTime>
 #include <QVBoxLayout>
+#include <QTcpSocket>
+#include <QComboBox>
+#include <QKeyEvent>
+#include <QLineEdit>
+#include <QPainter>
+#include <QSpinBox>
+#include <QScreen>
 #include <QVector>
 #include <QWidget>
+#include <QColor>
+#include <QDebug>
+#include <QPoint>
+#include <QFont>
+#include <QSize>
+#include <QTime>
+#include <QDir>
 
 #include "ui_snakebot.h"
 
