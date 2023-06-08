@@ -18,9 +18,9 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         main.cpp
-        snakeclient.cpp
-        snakeclient.h
-        snakeclient.ui
+        snakebot.cpp
+        snakebot.h
+        snakebot.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

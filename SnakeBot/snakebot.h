@@ -1,5 +1,5 @@
-#ifndef SNAKECLIENT_H
-#define SNAKECLIENT_H
+#ifndef SNAKEBOT_H
+#define SNAKEBOT_H
 
 #include <QApplication>
 #include <QInputDialog>
@@ -27,17 +27,17 @@
 #include <QTime>
 #include <QDir>
 
-#include "ui_snakeclient.h"
+#include "ui_snakebot.h"
 
 using namespace std;
 
-class SnakeClient : public QMainWindow
+class SnakeBot : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    SnakeClient(QWidget* parent = nullptr);
-    ~SnakeClient();
+    SnakeBot(QWidget* parent = nullptr);
+    ~SnakeBot();
 
     bool stop = false;
 
@@ -48,7 +48,7 @@ protected:
     void paintEvent(QPaintEvent* event) override;
 
 private:
-    Ui::SnakeClient* _ui;
+    Ui::SnakeBot* _ui;
     QTcpSocket* _socket;
     QByteArray _data;
     quint16 _nextBlockSize;
@@ -121,4 +121,4 @@ private:
 
     Colours _colour;
 };
-#endif  // SNAKECLIENT_H
+#endif  // SNAKEBOT_H

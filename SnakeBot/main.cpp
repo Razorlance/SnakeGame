@@ -1,11 +1,11 @@
 #include <QApplication>
 
-#include "snakeclient.h"
+#include "snakebot.h"
 
 int main(int argc, char* argv[])
 {
     QApplication a(argc, argv);
-    SnakeClient client;
+    SnakeBot client;
 
     if (!client.stop)
     {
