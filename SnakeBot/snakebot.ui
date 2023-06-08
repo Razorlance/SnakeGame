@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SnakeClient</class>
- <widget class="QMainWindow" name="SnakeClient">
+ <class>SnakeBot</class>
+ <widget class="QMainWindow" name="SnakeBot">
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>625</width>
-    <height>625</height>
+    <width>630</width>
+    <height>630</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,7 +20,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>SnakeClient</string>
+   <string>SnakeBot</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -129,7 +129,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>625</width>
+     <width>630</width>
      <height>24</height>
     </rect>
    </property>

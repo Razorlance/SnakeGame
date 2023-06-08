@@ -1,55 +1,61 @@
-#ifndef SNAKECLIENT_H
-#define SNAKECLIENT_H
-
-#include "ui_snakeclient.h"
+#ifndef SNAKEBOT_H
+#define SNAKEBOT_H
 
 #include <QApplication>
-#include <QInputDialog>
 #include <QCloseEvent>
+#include <QColor>
+#include <QComboBox>
+#include <QDebug>
+#include <QDir>
+#include <QFont>
 #include <QFormLayout>
+#include <QInputDialog>
+#include <QKeyEvent>
+#include <QLineEdit>
 #include <QListWidget>
 #include <QMainWindow>
 #include <QMessageBox>
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QTcpSocket>
-#include <QComboBox>
-#include <QKeyEvent>
-#include <QLineEdit>
 #include <QPainter>
-#include <QSpinBox>
+#include <QPoint>
+#include <QPushButton>
 #include <QScreen>
+#include <QSize>
+#include <QSpinBox>
+#include <QTcpSocket>
+#include <QTime>
+#include <QVBoxLayout>
 #include <QVector>
 #include <QWidget>
-#include <QColor>
-#include <QDebug>
-#include <QPoint>
-#include <QFont>
-#include <QSize>
-#include <QTime>
-#include <QDir>
+
+#include "ui_snakebot.h"
 
 using namespace std;
 
-class SnakeClient : public QMainWindow
+class SnakeBot : public QMainWindow
 {
     Q_OBJECT
+    enum Directions
+    {
+        left = 0,
+        right = 1,
+        up = 2,
+        down = 3
+    };
 
-public:
-    SnakeClient(QWidget* parent = nullptr);
-    ~SnakeClient();
+   public:
+    SnakeBot(QWidget* parent = nullptr);
+    ~SnakeBot();
 
     bool stop = false;
 
-public slots:
+   public slots:
     void slotReadyRead();
 
-protected:
-    void keyPressEvent(QKeyEvent* event) override;
+   protected:
     void paintEvent(QPaintEvent* event) override;
 
-private:
-    Ui::SnakeClient* _ui;
+   private:
+    Ui::SnakeBot* _ui;
     QTcpSocket* _socket;
     QByteArray _data;
     quint16 _nextBlockSize;
@@ -69,8 +75,7 @@ private:
     bool _stillGame = false;
     bool _await = false;
     int _crashed = 0;
-    int _viewer = 0;
-    int _id = 0;
+    int _id;
 
     QVector<QPoint> _fruits;
     QString _input;
@@ -94,18 +99,13 @@ private:
     void _validName(QLineEdit*, QPushButton*);
     void _validIP(QLineEdit*, QPushButton*);
     void _validPort(QLineEdit*, QPushButton*);
+    void _countDownDialog();
+    bool _bot();
+    bool _checkMove(Directions tmp);
 
     bool _validIP(const QString&);
     bool _validPort(const QString&);
     bool _isNumber(const QString&);
-
-    enum Directions
-    {
-        left = 0,
-        right = 1,
-        up = 2,
-        down = 3
-    };
 
     Directions _direction;
 
@@ -119,4 +119,4 @@ private:
 
     Colours _colour;
 };
-#endif  // SNAKECLIENT_H
+#endif  // SNAKEBOT_H
