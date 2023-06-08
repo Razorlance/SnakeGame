@@ -34,6 +34,7 @@ SnakeClient::~SnakeClient() { delete _ui; }
 
 void SnakeClient::_startClient()
 {
+    _ui->timerLabel->setFixedWidth(100);
     _ui->player1Label->setFixedWidth(100);
     _ui->player2Label->setFixedWidth(100);
     _ui->player3Label->setFixedWidth(100);
@@ -368,6 +369,11 @@ void SnakeClient::slotReadyRead()
                     break;
                 }
 
+                if (l[0] == 's')
+                {
+                    _ui->timerLabel->setText(l[1]);
+                }
+
                 if (l[0] == 'f')
                 {
                     _fruits = _convertFruits(l);
@@ -387,7 +393,42 @@ void SnakeClient::slotReadyRead()
                             _enemiesCrashed[l[1].toInt()] = 1;
 
                         if (!_enemiesCrashed[l[1].toInt()])
-                            _enemiesDots[l[1].toInt()] = _convertEnemyDots(l);
+                        {
+                            QVector<QPoint> newDots = _convertEnemyDots(l);
+
+                            if (newDots.size() > _enemiesDots[l[1].toInt()].size())
+                            {
+                                if (l[1].toInt() == 1)
+                                {
+                                    QString text = _ui->player1Label->text();
+                                    QStringList parts = text.split(":");
+                                    _ui->player1Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                }
+
+                                if (l[1].toInt() == 2)
+                                {
+                                    QString text = _ui->player2Label->text();
+                                    QStringList parts = text.split(":");
+                                    _ui->player2Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                }
+
+                                if (l[1].toInt() == 3)
+                                {
+                                    QString text = _ui->player3Label->text();
+                                    QStringList parts = text.split(":");
+                                    _ui->player3Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                }
+
+                                if (l[1].toInt() == 4)
+                                {
+                                    QString text = _ui->player4Label->text();
+                                    QStringList parts = text.split(":");
+                                    _ui->player4Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                }
+                            }
+
+                            _enemiesDots[l[1].toInt()] = newDots;
+                        }
                     }
 
                     if (l[0] == 'h')
@@ -396,44 +437,76 @@ void SnakeClient::slotReadyRead()
                             _crashed = 1;
 
                         if (!_crashed)
-                            _homeDots = _convertHomeDots(l);
+                        {
+                            QVector<QPoint> newDots = _convertHomeDots(l);
+
+                            if (newDots.size() > _homeDots.size())
+                            {
+                                if (_id == 1)
+                                {
+                                    QString text = _ui->player1Label->text();
+                                    QStringList parts = text.split(":");
+                                    _ui->player1Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                }
+
+                                if (_id == 2)
+                                {
+                                    QString text = _ui->player2Label->text();
+                                    QStringList parts = text.split(":");
+                                    _ui->player2Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                }
+
+                                if (_id == 3)
+                                {
+                                    QString text = _ui->player3Label->text();
+                                    QStringList parts = text.split(":");
+                                    _ui->player3Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                }
+
+                                if (_id == 4)
+                                {
+                                    QString text = _ui->player4Label->text();
+                                    QStringList parts = text.split(":");
+                                    _ui->player4Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                }
+                            }
+
+                            _homeDots = newDots;
+                        }
                     }
 
                     if (l[0] == 'r')
                     {
                         if (l[1].toInt() == 1)
                         {
+                            _id = 1;
                             _direction = right;
                             _colour = blue;
-                            _ui->player1Label->setText(_snakeName + ": 0");
+                            _ui->player1Label->setText(_snakeName + ":0");
                         }
 
                         else if (l[1].toInt() == 2)
                         {
+                            _id = 2;
                             _direction = left;
                             _colour = red;
-                            _ui->player2Label->setText(_snakeName + ": 0");
+                            _ui->player2Label->setText(_snakeName + ":0");
                         }
 
                         else if (l[1].toInt() == 3)
                         {
+                            _id = 3;
                             _direction = up;
                             _colour = green;
-                            _ui->player3Label->setText(_snakeName + ": 0");
+                            _ui->player3Label->setText(_snakeName + ":0");
                         }
 
                         else if (l[1].toInt() == 4)
                         {
+                            _id = 4;
                             _direction = down;
                             _colour = magenta;
-                            _ui->player4Label->setText(_snakeName + ": 0");
-                        }
-
-                        if (l[1].toInt() == 1)
-                        {
-                            _direction = right;
-                            _colour = blue;
-                            _ui->player1Label->setText(_snakeName);
+                            _ui->player4Label->setText(_snakeName + ":0");
                         }
 
                         _stillGame = l[1].toInt();
@@ -444,16 +517,16 @@ void SnakeClient::slotReadyRead()
                         _enemiesCrashed[l[1].toInt()] = 0;
 
                         if (l[1].toInt() == 1)
-                            _ui->player1Label->setText(l[2]);
+                            _ui->player1Label->setText(l[2] + ":0");
 
                         else if (l[1].toInt() == 2)
-                            _ui->player2Label->setText(l[2]);
+                            _ui->player2Label->setText(l[2] + ":0");
 
                         else if (l[1].toInt() == 3)
-                            _ui->player3Label->setText(l[2]);
+                            _ui->player3Label->setText(l[2] + ":0");
 
                         else if (l[1].toInt() == 4)
-                            _ui->player4Label->setText(l[2]);
+                            _ui->player4Label->setText(l[2] + ":0");
                     }
                 }
 
@@ -482,7 +555,42 @@ void SnakeClient::slotReadyRead()
                             _enemiesCrashed[l[1].toInt()] = 1;
 
                         if (!_enemiesCrashed[l[1].toInt()])
-                            _enemiesDots[l[1].toInt()] = _convertEnemyDots(l);
+                        {
+                            QVector<QPoint> newDots = _convertEnemyDots(l);
+
+                            if (newDots.size() > _enemiesDots[l[1].toInt()].size())
+                            {
+                                if (l[1].toInt() == 1)
+                                {
+                                    QString text = _ui->player1Label->text();
+                                    QStringList parts = text.split(":");
+                                    _ui->player1Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                }
+
+                                if (l[1].toInt() == 2)
+                                {
+                                    QString text = _ui->player2Label->text();
+                                    QStringList parts = text.split(":");
+                                    _ui->player2Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                }
+
+                                if (l[1].toInt() == 3)
+                                {
+                                    QString text = _ui->player3Label->text();
+                                    QStringList parts = text.split(":");
+                                    _ui->player3Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                }
+
+                                if (l[1].toInt() == 4)
+                                {
+                                    QString text = _ui->player4Label->text();
+                                    QStringList parts = text.split(":");
+                                    _ui->player4Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                }
+                            }
+
+                            _enemiesDots[l[1].toInt()] = newDots;
+                        }
                     }
 
                     _stillGame = true;

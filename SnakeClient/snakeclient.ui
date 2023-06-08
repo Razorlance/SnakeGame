@@ -56,6 +56,19 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
+       <widget class="QLabel" name="timerLabel">
+        <property name="font">
+         <font>
+          <family>Copperplate</family>
+          <pointsize>15</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="player1Label">
         <property name="font">
          <font>
@@ -117,7 +130,7 @@
      <x>0</x>
      <y>0</y>
      <width>625</width>
-     <height>25</height>
+     <height>24</height>
     </rect>
    </property>
   </widget>

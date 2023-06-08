@@ -50,7 +50,7 @@ class Server : public QTcpServer
     int _playerCount = 0;
     int _botCount = 0;
     int _totalCount;
-    int _seconds = 60;
+    int _seconds;
     bool _started = false;
     static const int _delay = 500;
     static const int _width = 25;  // The size of points
@@ -76,13 +76,13 @@ class Server : public QTcpServer
     void _locateFruit(int);
     void _initiateGame();
     void _eatFruit();
+    void _timesUp();
     void _endGame();
     void _move();
 
    public slots:
     void incomingConnection(qintptr SocketDescriptor) override;
     void slotReadyRead();
-    //   private slots:
     void timer_function();
 };
 

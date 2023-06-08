@@ -71,6 +71,7 @@ private:
     bool _await = false;
     int _crashed = 0;
     int _viewer = 0;
+    int _id = 0;
 
     QVector<QPoint> _fruits;
     QString _input;

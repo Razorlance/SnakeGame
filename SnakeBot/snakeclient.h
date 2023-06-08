@@ -69,7 +69,7 @@ private:
     bool _stillGame;
     bool _await = false;
     int _crashed = 0;
-    int _numberOfPlayers = 0;
+    int _id;
 
     QVector<QPoint> _fruits;
     QString _input;
