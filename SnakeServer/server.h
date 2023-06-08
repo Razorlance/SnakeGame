@@ -17,6 +17,7 @@
 #include <QTimer>
 #include <QVector>
 #include <QWidget>
+#include <QLabel>
 
 #include "snake.h"
 

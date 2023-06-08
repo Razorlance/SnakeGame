@@ -29,6 +29,8 @@ Server::Server()
     QComboBox *type = new QComboBox(startWindow);
     QComboBox *gameTime = new QComboBox(startWindow);
     QLineEdit *port = new QLineEdit(startWindow);
+    QVector<QString> vec = {"Specify game type:", "Specify game time (in minutes):", "Port:"};
+    QVector<QWidget*> widgetList = {type, gameTime, port};
 
     port->setText("33221");
 
@@ -43,9 +45,16 @@ Server::Server()
     gameTime->addItem("2");
     gameTime->addItem("5");
 
-    form->addRow("Specify game type:", type);
-    form->addRow("Specify game time (in minutes):", gameTime);
-    form->addRow("Port:", port);
+    for (int i = 0; i < vec.length(); i++)
+    {
+        QLabel *label = new QLabel(vec[i]);
+        QFont font = label->font();
+        font.setPointSize(15);
+        font.setBold(true);
+        font.setFamily("Copperplate");
+        label->setFont(font);
+        form->addRow(label, widgetList[i]);
+    }
 
     QPushButton *button = new QPushButton("OK", startWindow);
     QObject::connect(button, &QPushButton::clicked, startWindow,
