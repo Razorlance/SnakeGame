@@ -66,6 +66,7 @@ private:
     static const int _FIELD_WIDTH = 25;  // The number of points
     static const int _FIELD_HEIGHT = 25;
 
+    bool _moveBlocked = false;
     bool _stillGame = false;
     bool _await = false;
     int _crashed = 0;

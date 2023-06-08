@@ -577,12 +577,16 @@ bool SnakeBot::_checkMove(Directions tmp)
 {
     if (tmp == up && _homeDots[0].y() == 0)
         return false;
+
     if (tmp == down && _homeDots[0].y() == _FIELD_HEIGHT - 1)
         return false;
+
     if (tmp == left && _homeDots[0].x() == 0)
         return false;
+
     if (tmp == right && _homeDots[0].x() == _FIELD_WIDTH - 1)
         return false;
+
     if (tmp == right)
     {
         QPoint p(_homeDots[0].x() + 1, _homeDots[0].y());
@@ -594,6 +598,7 @@ bool SnakeBot::_checkMove(Directions tmp)
                 if (p == snake[i])
                     return false;
     }
+
     if (tmp == left)
     {
         QPoint p(_homeDots[0].x() - 1, _homeDots[0].y());
@@ -605,6 +610,7 @@ bool SnakeBot::_checkMove(Directions tmp)
                 if (p == snake[i])
                     return false;
     }
+
     if (tmp == up)
     {
         QPoint p(_homeDots[0].x(), _homeDots[0].y() - 1);
@@ -616,6 +622,7 @@ bool SnakeBot::_checkMove(Directions tmp)
                 if (p == snake[i])
                     return false;
     }
+
     if (tmp == down)
     {
         QPoint p(_homeDots[0].x(), _homeDots[0].y() + 1);
@@ -627,6 +634,7 @@ bool SnakeBot::_checkMove(Directions tmp)
                 if (p == snake[i])
                     return false;
     }
+
     return true;
 }
 
@@ -636,6 +644,7 @@ bool SnakeBot::_bot()
     size_t length = abs(_homeDots[0].x() - _fruits[0].x()) +
                     abs(_homeDots[0].y() - _fruits[0].y());
     QPoint goal = _fruits[0];
+
     for (size_t i = 1; i < _fruits.size(); i++)
     {
         if (length > abs(_homeDots[0].x() - _fruits[i].x()) +
@@ -646,6 +655,7 @@ bool SnakeBot::_bot()
                      abs(_homeDots[0].y() - _fruits[i].y());
         }
     }
+
     if (_homeDots[0].x() == goal.x())
     {
         dir = (_homeDots[0].y() > goal.y() ? up : down);
@@ -659,6 +669,7 @@ bool SnakeBot::_bot()
                 dir = right;
         }
     }
+
     else if (_homeDots[0].y() == goal.y())
     {
         dir = (_homeDots[0].x() > goal.x() ? left : right);
@@ -672,6 +683,7 @@ bool SnakeBot::_bot()
                 dir = down;
         }
     }
+
     else
     {
         dir = (_homeDots[0].x() > goal.x() ? left : right);
@@ -686,13 +698,16 @@ bool SnakeBot::_bot()
                 dir = (dir == left ? right : left);
         }
     }
+
     if (!_checkMove(dir))
         return false;
+
     else if (dir != _direction)
     {
         _direction = dir;
         return true;
     }
+
     else
         return false;
 }

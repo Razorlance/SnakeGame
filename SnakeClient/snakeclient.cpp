@@ -588,7 +588,7 @@ void SnakeClient::slotReadyRead()
 
 void SnakeClient::keyPressEvent(QKeyEvent* event)
 {
-    if (!_viewer && !_crashed)
+    if (!_viewer && !_crashed && !_moveBlocked)
     {
         int key = event->key();
 
@@ -604,6 +604,7 @@ void SnakeClient::keyPressEvent(QKeyEvent* event)
         if ((key == Qt::Key_Down || key == Qt::Key_S) && _direction != up)
             _direction = down;
 
+        _moveBlocked = true;
         _sendToServer();
     }
 }
@@ -693,6 +694,7 @@ void SnakeClient::_step()
 {
     if (_stillGame & _await)
     {
+        _moveBlocked = false;
         _await = false;
         this->repaint();
     }
