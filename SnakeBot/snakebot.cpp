@@ -125,41 +125,41 @@ void SnakeBot::_startClient()
 
 void SnakeBot::_validName(QLineEdit *name, QPushButton *button)
 {
-    connect(name, &QLineEdit::textChanged, this, [this, name, button](const QString &text)
-    {
-        if (text.length() > 7 || text.count(" ") >= 1)
-        {
-            // If the length of the text exceeds 7, set the text color
-            // to red
-            name->setStyleSheet("QLineEdit { color: red; }");
-            button->setEnabled(false);
-        }
+    connect(name, &QLineEdit::textChanged, this,
+            [this, name, button](const QString &text) {
+                if (text.length() > 7 || text.count(" ") >= 1)
+                {
+                    // If the length of the text exceeds 7, set the text color
+                    // to red
+                    name->setStyleSheet("QLineEdit { color: red; }");
+                    button->setEnabled(false);
+                }
 
-        else
-        {
-            // If the length of the text is 7 or less, set the text
-            // color back to white
-            name->setStyleSheet("QLineEdit { color: black; }");
-            button->setEnabled(true);
-        }
-    });
+                else
+                {
+                    // If the length of the text is 7 or less, set the text
+                    // color back to white
+                    name->setStyleSheet("QLineEdit { color: black; }");
+                    button->setEnabled(true);
+                }
+            });
 }
 
 void SnakeBot::_validIP(QLineEdit *ip, QPushButton *button)
 {
-    connect(ip, &QLineEdit::textChanged, this, [this, ip, button](const QString &text)
-    {
-        if (!_validIP(text))
-        {
-            ip->setStyleSheet("QLineEdit { color: red; }");
-            button->setEnabled(false);
-        }
-        else
-        {
-            ip->setStyleSheet("QLineEdit { color: black; }");
-            button->setEnabled(true);
-        }
-    });
+    connect(ip, &QLineEdit::textChanged, this,
+            [this, ip, button](const QString &text) {
+                if (!_validIP(text))
+                {
+                    ip->setStyleSheet("QLineEdit { color: red; }");
+                    button->setEnabled(false);
+                }
+                else
+                {
+                    ip->setStyleSheet("QLineEdit { color: black; }");
+                    button->setEnabled(true);
+                }
+            });
 }
 
 void SnakeBot::_validPort(QLineEdit *port, QPushButton *button)
@@ -573,12 +573,139 @@ void SnakeBot::_drawSnake()
     }
 }
 
+bool SnakeBot::_checkMove(Directions tmp)
+{
+    if (tmp == up && _homeDots[0].y() == 0)
+        return false;
+    if (tmp == down && _homeDots[0].y() == _FIELD_HEIGHT - 1)
+        return false;
+    if (tmp == left && _homeDots[0].x() == 0)
+        return false;
+    if (tmp == right && _homeDots[0].x() == _FIELD_WIDTH - 1)
+        return false;
+    if (tmp == right)
+    {
+        QPoint p(_homeDots[0].x() + 1, _homeDots[0].y());
+        for (size_t i = 1; i < _homeDots.size(); i++)
+            if (p == _homeDots[i])
+                return false;
+        for (auto snake : _enemiesDots)
+            for (size_t i = 0; i < snake.size(); i++)
+                if (p == snake[i])
+                    return false;
+    }
+    if (tmp == left)
+    {
+        QPoint p(_homeDots[0].x() - 1, _homeDots[0].y());
+        for (size_t i = 1; i < _homeDots.size(); i++)
+            if (p == _homeDots[i])
+                return false;
+        for (auto snake : _enemiesDots)
+            for (size_t i = 0; i < snake.size(); i++)
+                if (p == snake[i])
+                    return false;
+    }
+    if (tmp == up)
+    {
+        QPoint p(_homeDots[0].x(), _homeDots[0].y() - 1);
+        for (size_t i = 1; i < _homeDots.size(); i++)
+            if (p == _homeDots[i])
+                return false;
+        for (auto snake : _enemiesDots)
+            for (size_t i = 0; i < snake.size(); i++)
+                if (p == snake[i])
+                    return false;
+    }
+    if (tmp == down)
+    {
+        QPoint p(_homeDots[0].x(), _homeDots[0].y() + 1);
+        for (size_t i = 1; i < _homeDots.size(); i++)
+            if (p == _homeDots[i])
+                return false;
+        for (auto snake : _enemiesDots)
+            for (size_t i = 0; i < snake.size(); i++)
+                if (p == snake[i])
+                    return false;
+    }
+    return true;
+}
+
+bool SnakeBot::_bot()
+{
+    Directions dir;
+    size_t length = abs(_homeDots[0].x() - _fruits[0].x()) +
+                    abs(_homeDots[0].y() - _fruits[0].y());
+    QPoint goal = _fruits[0];
+    for (size_t i = 1; i < _fruits.size(); i++)
+    {
+        if (length > abs(_homeDots[0].x() - _fruits[i].x()) +
+                         abs(_homeDots[0].y() - _fruits[i].y()))
+        {
+            goal = _fruits[i];
+            length = abs(_homeDots[0].x() - _fruits[i].x()) +
+                     abs(_homeDots[0].y() - _fruits[i].y());
+        }
+    }
+    if (_homeDots[0].x() == goal.x())
+    {
+        dir = (_homeDots[0].y() > goal.y() ? up : down);
+        if (!_checkMove(dir))
+        {
+            if (_checkMove(left))
+                dir = left;
+            else if (_checkMove(dir == down ? up : down))
+                dir = (dir == down ? up : down);
+            else if (_checkMove(right))
+                dir = right;
+        }
+    }
+    else if (_homeDots[0].y() == goal.y())
+    {
+        dir = (_homeDots[0].x() > goal.x() ? left : right);
+        if (!_checkMove(dir))
+        {
+            if (_checkMove(up))
+                dir = up;
+            else if (_checkMove(dir == left ? right : left))
+                dir = (dir == left ? right : left);
+            else if (_checkMove(down))
+                dir = down;
+        }
+    }
+    else
+    {
+        dir = (_homeDots[0].x() > goal.x() ? left : right);
+        if (!_checkMove(dir))
+        {
+            Directions tmp = _homeDots[0].y() > goal.y() ? up : down;
+            if (_checkMove(tmp))
+                dir = tmp;
+            else if (_checkMove(tmp == up ? down : up))
+                dir = (tmp == up ? down : up);
+            else if (_checkMove(dir == left ? right : left))
+                dir = (dir == left ? right : left);
+        }
+    }
+    if (!_checkMove(dir))
+        return false;
+    else if (dir != _direction)
+    {
+        _direction = dir;
+        return true;
+    }
+    else
+        return false;
+}
+
 void SnakeBot::_step()
 {
-    if (_stillGame && _await)
+    if (_stillGame & _await)
     {
         _await = false;
         this->repaint();
+
+        if (_bot())
+            _sendToServer();
     }
 }
 

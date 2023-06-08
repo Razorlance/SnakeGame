@@ -2,30 +2,30 @@
 #define SNAKEBOT_H
 
 #include <QApplication>
-#include <QInputDialog>
 #include <QCloseEvent>
+#include <QColor>
+#include <QComboBox>
+#include <QDebug>
+#include <QDir>
+#include <QFont>
 #include <QFormLayout>
+#include <QInputDialog>
+#include <QKeyEvent>
+#include <QLineEdit>
 #include <QListWidget>
 #include <QMainWindow>
 #include <QMessageBox>
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QTcpSocket>
-#include <QComboBox>
-#include <QKeyEvent>
-#include <QLineEdit>
 #include <QPainter>
-#include <QSpinBox>
+#include <QPoint>
+#include <QPushButton>
 #include <QScreen>
+#include <QSize>
+#include <QSpinBox>
+#include <QTcpSocket>
+#include <QTime>
+#include <QVBoxLayout>
 #include <QVector>
 #include <QWidget>
-#include <QColor>
-#include <QDebug>
-#include <QPoint>
-#include <QFont>
-#include <QSize>
-#include <QTime>
-#include <QDir>
 
 #include "ui_snakebot.h"
 
@@ -34,20 +34,27 @@ using namespace std;
 class SnakeBot : public QMainWindow
 {
     Q_OBJECT
+    enum Directions
+    {
+        left = 0,
+        right = 1,
+        up = 2,
+        down = 3
+    };
 
-public:
+   public:
     SnakeBot(QWidget* parent = nullptr);
     ~SnakeBot();
 
     bool stop = false;
 
-public slots:
+   public slots:
     void slotReadyRead();
 
-protected:
+   protected:
     void paintEvent(QPaintEvent* event) override;
 
-private:
+   private:
     Ui::SnakeBot* _ui;
     QTcpSocket* _socket;
     QByteArray _data;
@@ -93,18 +100,12 @@ private:
     void _validIP(QLineEdit*, QPushButton*);
     void _validPort(QLineEdit*, QPushButton*);
     void _countDownDialog();
+    bool _bot();
+    bool _checkMove(Directions tmp);
 
     bool _validIP(const QString&);
     bool _validPort(const QString&);
     bool _isNumber(const QString&);
-
-    enum Directions
-    {
-        left = 0,
-        right = 1,
-        up = 2,
-        down = 3
-    };
 
     Directions _direction;
 
