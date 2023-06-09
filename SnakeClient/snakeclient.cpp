@@ -287,7 +287,6 @@ void SnakeClient::_connectToServer()
     out << quint16(0) << dataToSend;
     out.device()->seek(0);
     out << quint16(_data.size() - sizeof(quint16));
-    //    _socket->waitForBytesWritten();
     _socket->write(_data);
 }
 
@@ -301,7 +300,6 @@ void SnakeClient::_sendToServer()
     out << quint16(0) << dataToSend;
     out.device()->seek(0);
     out << quint16(_data.size() - sizeof(quint16));
-    //    _socket->waitForBytesWritten();
     _socket->write(_data);
 }
 
@@ -326,7 +324,6 @@ void SnakeClient::slotReadyRead()
                 break;
 
             in >> _input;
-            //            _socket->waitForBytesWritten();
 
             if (_input == "wrong")
                 _wrongServer();
@@ -606,9 +603,11 @@ void SnakeClient::slotReadyRead()
                             _enemiesDots[l[1].toInt()] = newDots;
                         }
                     }
+
                     _stillGame = true;
                 }
             }
+
             _step();
             break;
         }

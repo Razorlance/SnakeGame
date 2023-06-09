@@ -242,7 +242,6 @@ void SnakeBot::_connectToServer()
     out << quint16(0) << dataToSend;
     out.device()->seek(0);
     out << quint16(_data.size() - sizeof(quint16));
-    //    _socket->waitForBytesWritten();
     _socket->write(_data);
 }
 
@@ -256,7 +255,6 @@ void SnakeBot::_sendToServer()
     out << quint16(0) << dataToSend;
     out.device()->seek(0);
     out << quint16(_data.size() - sizeof(quint16));
-    //    _socket->waitForBytesWritten();
     _socket->write(_data);
 }
 
@@ -281,7 +279,6 @@ void SnakeBot::slotReadyRead()
                 break;
 
             in >> _input;
-            //            _socket->waitForBytesWritten();
 
             if (_input == "wrong")
                 _wrongServer();
@@ -471,8 +468,6 @@ void SnakeBot::slotReadyRead()
 
                 if (l[0] == 'n')
                 {
-                    // Fix enemy name splitted into spaces
-
                     if (l[1].toInt() == 1)
                         _ui->player1Label->setText(l[2] + ":0");
 
@@ -486,10 +481,12 @@ void SnakeBot::slotReadyRead()
                         _ui->player4Label->setText(l[2] + ":0");
                 }
             }
+
             _step();
             break;
         }
     }
+
     else
         qDebug() << "Error";
 }

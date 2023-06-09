@@ -187,7 +187,6 @@ Server::Server()
     else
         qDebug() << "Error";
 
-    // Review code
     _nextBlockSize = 0;
     _totalCount = _playerCount + _botCount;
 }
@@ -497,6 +496,7 @@ void Server::_locateFruit(int n)
             fruit.ry() = gen.bounded(_field_height);
 
             bool conflict = false;
+
             for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
                  it != _PlayerList.end(); it++)
             {
@@ -533,11 +533,13 @@ void Server::_eatFruit()
                 _fruits.erase(it);
                 _locateFruit(1);
                 QString fruitPosition = "f";
+
                 for (QPoint p : _fruits)
                 {
                     fruitPosition += " " + QString::number(p.rx()) + " " +
                                      QString::number(p.ry());
                 }
+
                 _SendData(fruitPosition);
             }
         }
@@ -620,7 +622,6 @@ void Server::_timesUp()
         out.device()->seek(0);
         out << quint16(_Data.size() - sizeof(quint16));
         it.value()->write(_Data);
-        //        it.value()->waitForBytesWritten();
     }
 
     for (QMap<qintptr, QTcpSocket *>::Iterator it = _ViewerList.begin();
@@ -666,7 +667,6 @@ void Server::_timesUp()
         out.device()->seek(0);
         out << quint16(_Data.size() - sizeof(quint16));
         it.value()->write(_Data);
-        //        it.value()->waitForBytesWritten();
     }
 }
 
@@ -715,7 +715,6 @@ void Server::_endGame()
         out.device()->seek(0);
         out << quint16(_Data.size() - sizeof(quint16));
         it.value()->write(_Data);
-        //        it.value()->waitForBytesWritten();
     }
 
     for (QMap<qintptr, QTcpSocket *>::Iterator it = _ViewerList.begin();
@@ -752,7 +751,6 @@ void Server::_endGame()
         out.device()->seek(0);
         out << quint16(_Data.size() - sizeof(quint16));
         it.value()->write(_Data);
-        //        it.value()->waitForBytesWritten();
     }
 }
 
@@ -795,19 +793,15 @@ void Server::_move()
             }
         }
     }
-
-    for (QMap<qintptr, Snake *>::Iterator it = _PlayerList.begin();
-         it != _PlayerList.end(); it++)
-    {
-        qDebug() << it.value()->_enemiesDots;
-    }
 }
 
 QString Server::_convertToString(QVector<QPoint> &dots)
 {
     QString str("");
+
     for (const QPoint &dot : dots)
         str += QString::number(dot.x()) + " " + QString::number(dot.y()) + " ";
+
     return str.trimmed();
 }
 
@@ -828,6 +822,7 @@ void Server::slotReadyRead()
     this->nextPendingConnection();
     QDataStream in(socket);
     in.setVersion(QDataStream::Qt_6_3);
+
     if (in.status() == QDataStream::Ok)
     {
         qDebug() << "Reading from " << socket->socketDescriptor() << "...";
@@ -898,6 +893,7 @@ void Server::slotReadyRead()
                         if (_started)
                         {
                             QString dataToSend = "";
+
                             for (QMap<qintptr, Snake *>::Iterator it1 =
                                      _PlayerList.begin();
                                  it1 != _PlayerList.end(); it1++)
@@ -906,10 +902,13 @@ void Server::slotReadyRead()
                                     "n " + QString::number(it1.value()->_id) +
                                     " " + it1.value()->_snakeName + ";";
                             }
+
                             dataToSend += "f";
+
                             for (QPoint f : _fruits)
                                 dataToSend += " " + QString::number(f.rx()) +
                                               " " + QString::number(f.ry());
+
                             qDebug() << dataToSend;
                             _SendLateViewer(dataToSend, socket);
                         }
@@ -934,6 +933,7 @@ void Server::slotReadyRead()
             break;
         }
     }
+
     else
         qDebug() << "Error";
 }
