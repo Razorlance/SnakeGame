@@ -6,6 +6,7 @@
 #include <QDialog>
 #include <QFormLayout>
 #include <QGuiApplication>
+#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QQueue>
@@ -17,7 +18,6 @@
 #include <QTimer>
 #include <QVector>
 #include <QWidget>
-#include <QLabel>
 
 #include "snake.h"
 
@@ -68,6 +68,7 @@ class Server : public QTcpServer
 
     void _SendData();
     void _SendData(QString str);
+    void _SendLateViewer(QString dataToSend, QTcpSocket *socket);
     void _SendClientBack(QTcpSocket *clientSocket);
     void _checkBoundary();
     void _locateFruit(int);

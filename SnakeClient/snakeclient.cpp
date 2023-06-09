@@ -2,7 +2,7 @@
 
 #include "./ui_snakeclient.h"
 
-SnakeClient::SnakeClient(QWidget* parent)
+SnakeClient::SnakeClient(QWidget *parent)
     : QMainWindow(parent), _ui(new Ui::SnakeClient)
 {
     _ui->setupUi(this);
@@ -25,26 +25,28 @@ void SnakeClient::_startClient()
     _ui->player3Label->setFixedWidth(100);
     _ui->player4Label->setFixedWidth(100);
 
-    QDialog* startWindow = new QDialog();
+    QDialog *startWindow = new QDialog();
     startWindow->setFixedSize(330, 200);
     startWindow->setWindowTitle("Start Window");
     startWindow->adjustSize();
-    startWindow->move(QGuiApplication::primaryScreen()->geometry().center() - startWindow->rect().center());
+    startWindow->move(QGuiApplication::primaryScreen()->geometry().center() -
+                      startWindow->rect().center());
 
     QFormLayout *form = new QFormLayout(startWindow);
-    QComboBox* mode = new QComboBox(startWindow);
-    QLineEdit* ip = new QLineEdit(startWindow);
-    QLineEdit* port = new QLineEdit(startWindow);
-    QLineEdit* name = new QLineEdit(startWindow);
+    QComboBox *mode = new QComboBox(startWindow);
+    QLineEdit *ip = new QLineEdit(startWindow);
+    QLineEdit *port = new QLineEdit(startWindow);
+    QLineEdit *name = new QLineEdit(startWindow);
     QComboBox *type = new QComboBox;
     QVector<QString> vec = {"Game Mode:", "IP:", "Port:"};
-    QVector<QWidget*> widgetList = {mode, ip, port};
+    QVector<QWidget *> widgetList = {mode, ip, port};
 
     QPushButton *button = new QPushButton("Start", startWindow);
-    QObject::connect(button, &QPushButton::clicked, startWindow, &QDialog::accept);
+    QObject::connect(button, &QPushButton::clicked, startWindow,
+                     &QDialog::accept);
 
-    QLabel* typeLabel = new QLabel("Game Type:");
-    QLabel* nameLabel = new QLabel("Enter your name:");
+    QLabel *typeLabel = new QLabel("Game Type:");
+    QLabel *nameLabel = new QLabel("Enter your name:");
 
     mode->addItem("Viewer");
     mode->addItem("Player");
@@ -135,11 +137,12 @@ void SnakeClient::_startClient()
     _connectToServer();
 }
 
-void SnakeClient::_modeOption(QComboBox *mode, QLineEdit *name, QLabel *nameLabel, QComboBox *type, QLabel *typeLabel)
+void SnakeClient::_modeOption(QComboBox *mode, QLineEdit *name,
+                              QLabel *nameLabel, QComboBox *type,
+                              QLabel *typeLabel)
 {
-    connect(mode, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this, mode, name, nameLabel, type, typeLabel](int index)
-            {
+    connect(mode, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            [this, mode, name, nameLabel, type, typeLabel](int index) {
                 if (mode->currentText() == "Player")
                 {
                     name->show();
@@ -161,18 +164,20 @@ void SnakeClient::_modeOption(QComboBox *mode, QLineEdit *name, QLabel *nameLabe
 
 void SnakeClient::_validName(QLineEdit *name, QPushButton *button)
 {
-    connect(name, &QLineEdit::textChanged, this, [this, name, button](const QString &text)
-            {
+    connect(name, &QLineEdit::textChanged, this,
+            [this, name, button](const QString &text) {
                 if (text.length() > 7 || text.count(" ") >= 1)
                 {
-                    // If the length of the text exceeds 7, set the text color to red
+                    // If the length of the text exceeds 7, set the text color
+                    // to red
                     name->setStyleSheet("QLineEdit { color: red; }");
                     button->setEnabled(false);
                 }
 
                 else
                 {
-                    // If the length of the text is 7 or less, set the text color back to white
+                    // If the length of the text is 7 or less, set the text
+                    // color back to white
                     name->setStyleSheet("QLineEdit { color: black; }");
                     button->setEnabled(true);
                 }
@@ -181,8 +186,8 @@ void SnakeClient::_validName(QLineEdit *name, QPushButton *button)
 
 void SnakeClient::_validIP(QLineEdit *ip, QPushButton *button)
 {
-    connect(ip, &QLineEdit::textChanged, this, [this, ip, button](const QString &text)
-            {
+    connect(ip, &QLineEdit::textChanged, this,
+            [this, ip, button](const QString &text) {
                 if (!_validIP(text))
                 {
                     ip->setStyleSheet("QLineEdit { color: red; }");
@@ -198,8 +203,8 @@ void SnakeClient::_validIP(QLineEdit *ip, QPushButton *button)
 
 void SnakeClient::_validPort(QLineEdit *port, QPushButton *button)
 {
-    connect(port, &QLineEdit::textChanged, this, [this, port, button](const QString &text)
-            {
+    connect(port, &QLineEdit::textChanged, this,
+            [this, port, button](const QString &text) {
                 if (!_validPort(text))
                 {
                     port->setStyleSheet("QLineEdit { color: red; }");
@@ -220,7 +225,7 @@ bool SnakeClient::_validIP(const QString &ip)
     if ((v.size() != 4) || (v[3] == ""))
         return false;
 
-    for (QString& str : v)
+    for (QString &str : v)
         if (str.toInt() > 255 || str.toInt() < 0 || not(_isNumber(str)))
             return false;
 
@@ -229,7 +234,7 @@ bool SnakeClient::_validIP(const QString &ip)
 
 bool SnakeClient::_validPort(const QString &port)
 {
-    for (const QChar& i : port)
+    for (const QChar &i : port)
     {
         if (i.isLetter())
             return false;
@@ -246,7 +251,7 @@ bool SnakeClient::_isNumber(const QString &str)
     if (str == "0")
         return true;
 
-    for (const QChar& i : str)
+    for (const QChar &i : str)
     {
         if (!i.isDigit())
             return false;
@@ -274,14 +279,15 @@ void SnakeClient::_connectToServer()
         dataToSend = "p " + QString::number(_viewer);
 
     else
-        dataToSend = "t " + QString::number(_type) + ";p " + QString::number(_viewer) + " " + _snakeName;
+        dataToSend = "t " + QString::number(_type) + ";p " +
+                     QString::number(_viewer) + " " + _snakeName;
 
     qDebug() << dataToSend;
 
     out << quint16(0) << dataToSend;
     out.device()->seek(0);
     out << quint16(_data.size() - sizeof(quint16));
-    _socket->waitForBytesWritten();
+    //    _socket->waitForBytesWritten();
     _socket->write(_data);
 }
 
@@ -295,7 +301,7 @@ void SnakeClient::_sendToServer()
     out << quint16(0) << dataToSend;
     out.device()->seek(0);
     out << quint16(_data.size() - sizeof(quint16));
-    _socket->waitForBytesWritten();
+    //    _socket->waitForBytesWritten();
     _socket->write(_data);
 }
 
@@ -320,7 +326,7 @@ void SnakeClient::slotReadyRead()
                 break;
 
             in >> _input;
-            _socket->waitForBytesWritten();
+            //            _socket->waitForBytesWritten();
 
             if (_input == "wrong")
                 _wrongServer();
@@ -329,7 +335,7 @@ void SnakeClient::slotReadyRead()
             qDebug() << _input;
             QStringList commandList = _input.split(';');
 
-            for (QString& c : commandList)
+            for (QString &c : commandList)
             {
                 QStringList l = c.split(' ');
 
@@ -378,34 +384,43 @@ void SnakeClient::slotReadyRead()
                         {
                             QVector<QPoint> newDots = _convertEnemyDots(l);
 
-                            if (newDots.size() > _enemiesDots[l[1].toInt()].size())
+                            if (newDots.size() >
+                                _enemiesDots[l[1].toInt()].size())
                             {
                                 if (l[1].toInt() == 1)
                                 {
                                     QString text = _ui->player1Label->text();
                                     QStringList parts = text.split(":");
-                                    _ui->player1Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                    _ui->player1Label->setText(
+                                        parts[0] + ":" +
+                                        QString::number(newDots.size() - 2));
                                 }
 
                                 if (l[1].toInt() == 2)
                                 {
                                     QString text = _ui->player2Label->text();
                                     QStringList parts = text.split(":");
-                                    _ui->player2Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                    _ui->player2Label->setText(
+                                        parts[0] + ":" +
+                                        QString::number(newDots.size() - 2));
                                 }
 
                                 if (l[1].toInt() == 3)
                                 {
                                     QString text = _ui->player3Label->text();
                                     QStringList parts = text.split(":");
-                                    _ui->player3Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                    _ui->player3Label->setText(
+                                        parts[0] + ":" +
+                                        QString::number(newDots.size() - 2));
                                 }
 
                                 if (l[1].toInt() == 4)
                                 {
                                     QString text = _ui->player4Label->text();
                                     QStringList parts = text.split(":");
-                                    _ui->player4Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                    _ui->player4Label->setText(
+                                        parts[0] + ":" +
+                                        QString::number(newDots.size() - 2));
                                 }
                             }
 
@@ -428,28 +443,36 @@ void SnakeClient::slotReadyRead()
                                 {
                                     QString text = _ui->player1Label->text();
                                     QStringList parts = text.split(":");
-                                    _ui->player1Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                    _ui->player1Label->setText(
+                                        parts[0] + ":" +
+                                        QString::number(newDots.size() - 2));
                                 }
 
                                 if (_id == 2)
                                 {
                                     QString text = _ui->player2Label->text();
                                     QStringList parts = text.split(":");
-                                    _ui->player2Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                    _ui->player2Label->setText(
+                                        parts[0] + ":" +
+                                        QString::number(newDots.size() - 2));
                                 }
 
                                 if (_id == 3)
                                 {
                                     QString text = _ui->player3Label->text();
                                     QStringList parts = text.split(":");
-                                    _ui->player3Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                    _ui->player3Label->setText(
+                                        parts[0] + ":" +
+                                        QString::number(newDots.size() - 2));
                                 }
 
                                 if (_id == 4)
                                 {
                                     QString text = _ui->player4Label->text();
                                     QStringList parts = text.split(":");
-                                    _ui->player4Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                    _ui->player4Label->setText(
+                                        parts[0] + ":" +
+                                        QString::number(newDots.size() - 2));
                                 }
                             }
 
@@ -540,34 +563,43 @@ void SnakeClient::slotReadyRead()
                         {
                             QVector<QPoint> newDots = _convertEnemyDots(l);
 
-                            if (newDots.size() > _enemiesDots[l[1].toInt()].size())
+                            if (newDots.size() >
+                                _enemiesDots[l[1].toInt()].size())
                             {
                                 if (l[1].toInt() == 1)
                                 {
                                     QString text = _ui->player1Label->text();
                                     QStringList parts = text.split(":");
-                                    _ui->player1Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                    _ui->player1Label->setText(
+                                        parts[0] + ":" +
+                                        QString::number(newDots.size() - 2));
                                 }
 
                                 if (l[1].toInt() == 2)
                                 {
                                     QString text = _ui->player2Label->text();
                                     QStringList parts = text.split(":");
-                                    _ui->player2Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                    _ui->player2Label->setText(
+                                        parts[0] + ":" +
+                                        QString::number(newDots.size() - 2));
                                 }
 
                                 if (l[1].toInt() == 3)
                                 {
                                     QString text = _ui->player3Label->text();
                                     QStringList parts = text.split(":");
-                                    _ui->player3Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                    _ui->player3Label->setText(
+                                        parts[0] + ":" +
+                                        QString::number(newDots.size() - 2));
                                 }
 
                                 if (l[1].toInt() == 4)
                                 {
                                     QString text = _ui->player4Label->text();
                                     QStringList parts = text.split(":");
-                                    _ui->player4Label->setText(parts[0] + ":" + QString::number(newDots.size() - 2));
+                                    _ui->player4Label->setText(
+                                        parts[0] + ":" +
+                                        QString::number(newDots.size() - 2));
                                 }
                             }
 
@@ -586,7 +618,7 @@ void SnakeClient::slotReadyRead()
         qDebug() << "Error";
 }
 
-void SnakeClient::keyPressEvent(QKeyEvent* event)
+void SnakeClient::keyPressEvent(QKeyEvent *event)
 {
     if (!_viewer && !_crashed && !_moveBlocked)
     {
@@ -625,8 +657,7 @@ void SnakeClient::_drawSnake()
         {
             painter.setBrush(Qt::lightGray);
             painter.drawEllipse(_homeDots[i].x() * _WIDTH,
-                                _homeDots[i].y() * _HEIGHT,
-                                _WIDTH, _HEIGHT);
+                                _homeDots[i].y() * _HEIGHT, _WIDTH, _HEIGHT);
         }
 
         else
@@ -647,8 +678,7 @@ void SnakeClient::_drawSnake()
                 painter.setBrush(Qt::darkGray);
 
             painter.drawEllipse(_homeDots[i].x() * _WIDTH,
-                                _homeDots[i].y() * _HEIGHT,
-                                _WIDTH, _HEIGHT);
+                                _homeDots[i].y() * _HEIGHT, _WIDTH, _HEIGHT);
         }
     }
 
@@ -661,8 +691,8 @@ void SnakeClient::_drawSnake()
             {
                 painter.setBrush(Qt::white);
                 painter.drawEllipse(it.value()[i].x() * _WIDTH,
-                                    it.value()[i].y() * _HEIGHT,
-                                    _WIDTH, _HEIGHT);
+                                    it.value()[i].y() * _HEIGHT, _WIDTH,
+                                    _HEIGHT);
             }
 
             else
@@ -683,8 +713,8 @@ void SnakeClient::_drawSnake()
                     painter.setBrush(Qt::darkGray);
 
                 painter.drawEllipse(it.value()[i].x() * _WIDTH,
-                                    it.value()[i].y() * _HEIGHT,
-                                    _WIDTH, _HEIGHT);
+                                    it.value()[i].y() * _HEIGHT, _WIDTH,
+                                    _HEIGHT);
             }
         }
     }
@@ -718,7 +748,7 @@ void SnakeClient::_noWinner()
     this->close();
 }
 
-void SnakeClient::_oneWinner(const QString& winner)
+void SnakeClient::_oneWinner(const QString &winner)
 {
     this->repaint();
     QMessageBox endOfGame;
@@ -735,7 +765,7 @@ void SnakeClient::_wrongServer()
     QApplication::exit(1234);
 }
 
-void SnakeClient::paintEvent(QPaintEvent* event)
+void SnakeClient::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     _drawSnake();
@@ -749,7 +779,7 @@ QVector<QPoint> SnakeClient::_convertFruits(const QStringList &str)
     return dots;
 }
 
-QVector<QPoint> SnakeClient::_convertHomeDots(const QStringList& str)
+QVector<QPoint> SnakeClient::_convertHomeDots(const QStringList &str)
 {
     QVector<QPoint> dots;
     for (size_t i = 2; i < str.size(); i += 2)
@@ -757,7 +787,7 @@ QVector<QPoint> SnakeClient::_convertHomeDots(const QStringList& str)
     return dots;
 }
 
-QVector<QPoint> SnakeClient::_convertEnemyDots(const QStringList& str)
+QVector<QPoint> SnakeClient::_convertEnemyDots(const QStringList &str)
 {
     QVector<QPoint> dots;
     for (size_t i = 3; i < str.size(); i += 2)

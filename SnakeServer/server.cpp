@@ -29,8 +29,9 @@ Server::Server()
     QComboBox *type = new QComboBox(startWindow);
     QComboBox *gameTime = new QComboBox(startWindow);
     QLineEdit *port = new QLineEdit(startWindow);
-    QVector<QString> vec = {"Specify game type:", "Specify game time (in minutes):", "Port:"};
-    QVector<QWidget*> widgetList = {type, gameTime, port};
+    QVector<QString> vec = {
+        "Specify game type:", "Specify game time (in minutes):", "Port:"};
+    QVector<QWidget *> widgetList = {type, gameTime, port};
 
     port->setText("33221");
 
@@ -390,6 +391,18 @@ void Server::_SendData(QString str)
     }
 }
 
+void Server::_SendLateViewer(QString dataToSend, QTcpSocket *socket)
+{
+    _Data.clear();
+    QDataStream out(&_Data, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_6_3);
+    out << quint16(0) << dataToSend;
+    out.device()->seek(0);
+    out << quint16(_Data.size() - sizeof(quint16));
+    socket->write(_Data);
+    socket->waitForBytesWritten();
+}
+
 void Server::_SendClientBack(QTcpSocket *clientSocket)
 {
     qDebug() << "Sending client back...";
@@ -566,7 +579,11 @@ void Server::_timesUp()
             _convertToString(_PlayerList[it.key()]->_homeDots) + ";";
 
         if (!_PlayerList[it.key()]->_crashed)
+        {
             winner = _PlayerList[it.key()]->_snakeName;
+            minScore = _PlayerList[it.key()]->_homeDots.size() - 2;
+            countWinners = 1;
+        }
 
         for (QMap<qintptr, Snake *>::Iterator it1 = _PlayerList.begin();
              it1 != _PlayerList.end(); it1++)
@@ -578,10 +595,13 @@ void Server::_timesUp()
                           QString::number(it1.value()->_crashed) + " " +
                           _convertToString(it1.value()->_homeDots) + ";";
 
-            if (it1.value()->_homeDots.size() - 2 >= minScore)
+            if (it1.value()->_homeDots.size() - 2 == minScore)
+                countWinners++;
+
+            else if (it1.value()->_homeDots.size() - 2 > minScore)
             {
                 winner = it1.value()->_snakeName;
-                countWinners++;
+                countWinners = 1;
                 minScore = it1.value()->_homeDots.size() - 2;
             }
         }
@@ -621,10 +641,13 @@ void Server::_timesUp()
                           QString::number(it1.value()->_crashed) + " " +
                           _convertToString(it1.value()->_homeDots) + ";";
 
-            if (it1.value()->_homeDots.size() - 2 >= minScore)
-            {
+            if (it1.value()->_homeDots.size() - 2 == minScore)
                 countWinners++;
+
+            if (it1.value()->_homeDots.size() - 2 > minScore)
+            {
                 winner = it1.value()->_snakeName;
+                countWinners = 1;
                 minScore = it1.value()->_homeDots.size() - 2;
             }
         }
@@ -872,6 +895,24 @@ void Server::slotReadyRead()
 
                     else
                     {
+                        if (_started)
+                        {
+                            QString dataToSend = "";
+                            for (QMap<qintptr, Snake *>::Iterator it1 =
+                                     _PlayerList.begin();
+                                 it1 != _PlayerList.end(); it1++)
+                            {
+                                dataToSend +=
+                                    "n " + QString::number(it1.value()->_id) +
+                                    " " + it1.value()->_snakeName + ";";
+                            }
+                            dataToSend += "f";
+                            for (QPoint f : _fruits)
+                                dataToSend += " " + QString::number(f.rx()) +
+                                              " " + QString::number(f.ry());
+                            qDebug() << dataToSend;
+                            _SendLateViewer(dataToSend, socket);
+                        }
                         _ViewerList[socket->socketDescriptor()] = socket;
                         this->nextPendingConnection();
                     }
